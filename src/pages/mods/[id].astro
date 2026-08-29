@@ -1,0 +1,61 @@
+---
+import { marked } from 'marked';
+import Base from '../../layouts/Base.astro';
+import { getModBySlug } from '../../lib/mods.ts';
+
+const { id } = Astro.params;
+const mod = id ? await getModBySlug(id) : null;
+if (!mod) return Astro.redirect('/');
+
+const rendered = await marked.parse(mod.body || '_No notes yet._');
+const session = Astro.locals.session;
+---
+
+<Base title={`${mod.title} — Harness Mods`} session={session}>
+  <p><a href="/">← back to catalog</a></p>
+  <h1>
+    {mod.title}
+    {mod.wanted && <span class="badge want" style="margin-left: 0.5rem">★ wanted</span>}
+  </h1>
+
+  <div class="meta-line">
+    <span class="badge">{mod.category}</span>
+    <span class={mod.considered ? 'badge yes' : 'badge no'}>
+      {mod.considered ? '✓ considered' : 'not considered'}
+    </span>
+    <span class={mod.implemented ? 'badge yes' : 'badge no'}>
+      {mod.implemented ? '✓ implemented' : 'not implemented'}
+    </span>
+  </div>
+
+  {mod.tags.length > 0 && (
+    <div class="meta-line">
+      {mod.tags.map((t) => (
+        <span class="muted small">#{t}</span>
+      ))}
+    </div>
+  )}
+
+  <div class="card prose" set:html={rendered}></div>
+
+  {mod.links.length > 0 && (
+    <div class="card">
+      <h2 style="margin-top: 0">Links</h2>
+      <ul>
+        {mod.links.map((l) => (
+          <li>
+            <a href={l.url} target="_blank" rel="noopener noreferrer">
+              {l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {session && (
+    <p class="muted small" style="margin-top: 1.5rem">
+      <a href={`/admin?edit=${mod.id}`}>Edit this mod →</a>
+    </p>
+  )}
+</Base>

@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+const session = Astro.locals.session;
+---
+
+<Base title="Sign in" session={session}>
+  <div class="card login-card">
+    <h1 style="margin-top: 0">Sign in</h1>
+    <p class="muted small">Manage the mod catalog and its statuses.</p>
+    <form id="loginForm" style="display: flex; flex-direction: column; gap: 0.85rem">
+      <label>
+        Email
+        <input type="email" name="email" required autocomplete="email" />
+      </label>
+      <label>
+        Password
+        <input type="password" name="password" required autocomplete="current-password" />
+      </label>
+      <button class="btn" type="submit">Sign in</button>
+      <div id="err" class="error" hidden></div>
+    </form>
+  </div>
+</Base>
+
+<script>
+  import { authClient } from '../lib/auth-client.ts';
+
+  const form = document.getElementById('loginForm') as HTMLFormElement;
+  const err = document.getElementById('err')!;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    err.hidden = true;
+    const data = new FormData(form);
+    const res = await authClient.signIn.email({
+      email: String(data.get('email')),
+      password: String(data.get('password')),
+    });
+    if (res.error) {
+      err.textContent = res.error.message ?? 'Sign-in failed';
+      err.hidden = false;
+    } else {
+      window.location.href = '/admin';
+    }
+  });
+</script>

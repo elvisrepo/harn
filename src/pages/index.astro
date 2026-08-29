@@ -1,0 +1,141 @@
+---
+import Base from '../layouts/Base.astro';
+import { listMods } from '../lib/mods.ts';
+
+const mods = await listMods();
+const categories = [...new Set(mods.map((m) => m.category))].sort();
+const stats = {
+  total: mods.length,
+  considered: mods.filter((m) => m.considered).length,
+  implemented: mods.filter((m) => m.implemented).length,
+  wanted: mods.filter((m) => m.wanted).length,
+};
+const session = Astro.locals.session;
+---
+
+<Base title={`Harness Mods — catalog (${stats.total})`} session={session}>
+  <h1>Ways to modify an AI agent harness</h1>
+  <p class="muted">
+    A living catalog of mods for the pi coding-agent harness: what we've considered,
+    what's actually implemented, and what we want next.
+  </p>
+
+  <div class="legend">
+    <span><span class="dot" style="background: var(--green)"></span>{stats.implemented} implemented</span>
+    <span><span class="dot" style="background: var(--accent)"></span>{stats.considered} considered</span>
+    <span><span class="dot" style="background: var(--amber)"></span>{stats.wanted} wanted</span>
+    <span>{stats.total} total</span>
+  </div>
+
+  <div class="toolbar" id="toolbar">
+    <input
+      type="search"
+      id="q"
+      class="search"
+      placeholder="Search by name, summary, tags, category…"
+      autocomplete="off"
+    />
+    <div class="seg" id="statusSeg" role="group" aria-label="Filter by status">
+      <button data-filter="all" class="active">All</button>
+      <button data-filter="considered">Considered</button>
+      <button data-filter="implemented">Implemented</button>
+      <button data-filter="wanted">Wanted</button>
+    </div>
+    <select id="catFilter" aria-label="Filter by category">
+      <option value="">All categories</option>
+      {categories.map((c) => (
+        <option value={c}>{c}</option>
+      ))}
+    </select>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Mod</th>
+        <th>Category</th>
+        <th>Considered</th>
+        <th>Implemented</th>
+        <th>Wanted</th>
+      </tr>
+    </thead>
+    <tbody id="rows">
+      {mods.map((m) => (
+        <tr
+          data-title={m.title.toLowerCase()}
+          data-cat={m.category}
+          data-q={(m.title + ' ' + m.summary + ' ' + m.tags.join(' ')).toLowerCase()}
+          data-considered={m.considered ? '1' : '0'}
+          data-implemented={m.implemented ? '1' : '0'}
+          data-wanted={m.wanted ? '1' : '0'}
+        >
+          <td class="name">
+            <a href={`/mods/${m.slug}`}>{m.title}</a>
+            <div class="muted small summary">{m.summary}</div>
+          </td>
+          <td class="muted small">{m.category}</td>
+          <td>
+            {m.considered ? (
+              <span class="badge yes">✓ yes</span>
+            ) : (
+              <span class="badge no">— no</span>
+            )}
+          </td>
+          <td>
+            {m.implemented ? (
+              <span class="badge yes">✓ yes</span>
+            ) : (
+              <span class="badge no">— no</span>
+            )}
+          </td>
+          <td>
+            {m.wanted ? (
+              <span class="badge want">★ yes</span>
+            ) : (
+              <span class="badge no">— no</span>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <p id="empty" class="muted small" hidden>No mods match the current filters.</p>
+</Base>
+
+<script>
+  const q = document.getElementById('q') as HTMLInputElement;
+  const cat = document.getElementById('catFilter') as HTMLSelectElement;
+  const seg = document.getElementById('statusSeg')!;
+  const rows = document.getElementById('rows')!;
+  const empty = document.getElementById('empty')!;
+  let status = 'all';
+
+  seg.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('button') as HTMLButtonElement | null;
+    if (!btn) return;
+    seg.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    status = btn.dataset.filter!;
+    apply();
+  });
+
+  q.addEventListener('input', apply);
+  cat.addEventListener('change', apply);
+
+  function apply() {
+    const query = q.value.trim().toLowerCase();
+    let visible = 0;
+    rows.querySelectorAll<HTMLTableRowElement>('tr').forEach((tr) => {
+      const matchQ = !query || tr.dataset.q!.includes(query);
+      const matchCat = !cat.value || tr.dataset.cat === cat.value;
+      const matchSt =
+        status === 'all' ||
+        (status === 'considered' && tr.dataset.considered === '1') ||
+        (status === 'implemented' && tr.dataset.implemented === '1') ||
+        (status === 'wanted' && tr.dataset.wanted === '1');
+      tr.hidden = !(matchQ && matchCat && matchSt);
+      if (!tr.hidden) visible++;
+    });
+    empty.hidden = visible !== 0;
+  }
+</script>

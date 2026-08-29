@@ -1,0 +1,24 @@
+---
+import Header from '../components/Header.astro';
+interface Props {
+  title?: string;
+  session?: { user: { name?: string; email?: string } } | null;
+}
+const { title = 'Harness Mods', session = null } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style is:global src="../styles/global.css"></style>
+  </head>
+  <body>
+    <Header session={session} />
+    <main class="wrap">
+      <slot />
+    </main>
+  </body>
+</html>

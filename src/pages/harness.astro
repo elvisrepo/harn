@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+const session = Astro.locals.session;
+---
+
+<Base title="Harness map" session={session}>
+  <h1>Current harness map</h1>
+  <p class="muted">
+    How the pi coding-agent harness is wired up right now. Dashed edges are
+    modifiable surfaces — each corresponds to an entry in the
+    <a href="/">catalog</a>.
+  </p>
+  <div class="card" id="map"></div>
+  <p class="muted small" style="margin-top: 0.75rem">
+    Generated with Mermaid. Reflects the harness as observed
+    <span id="date">today</span>.
+  </p>
+</Base>
+
+<script>
+  import mermaid from 'mermaid';
+
+  const diagram = `
+flowchart TB
+  subgraph RT["Runtime · pi CLI v0.84"]
+    TUI["TUI terminal"]
+    LOOP["Agent loop<br/>model → tools → context"]
+    TOOLS["Tools<br/>read · bash · edit · write"]
+  end
+
+  subgraph MD["Model layer"]
+    PROV["Provider · opencode-go"]
+    MODEL["deepseek-v4-flash"]
+    MREG["models-store.json · provider registry"]
+  end
+
+  subgraph CF["Configuration · ~/.pi/agent"]
+    SET["settings.json<br/>default provider + model"]
+    AUT["auth.json · provider credentials"]
+    TRU["trust.json · trusted projects"]
+    SES["sessions/ · conversation history"]
+    ENV["PI_* environment variables"]
+  end
+
+  subgraph CX["Context"]
+    AG["AGENTS.md / CONTEXT.md"]
+    DOC["docs/ · README.md"]
+    SK["skills/ · none installed"]
+  end
+
+  subgraph EX["Extensible surface (see /mods)"]
+    E1["extensions"]
+    E2["themes"]
+    E3["keybindings"]
+    E4["TUI components"]
+    E5["packages"]
+    E6["SDK integrations"]
+    E7["custom providers"]
+  end
+
+  LOOP --> PROV --> MODEL
+  PROV --> MREG
+  SET --> LOOP
+  AUT --> PROV
+  TRU --> LOOP
+  SES --> TUI
+  TOOLS --> LOOP
+  TUI --> LOOP
+  AG --> LOOP
+  DOC --> LOOP
+  SK --> LOOP
+  E1 -.-> LOOP
+  E2 -.-> TUI
+  E3 -.-> TUI
+  E4 -.-> TUI
+  E5 -.-> LOOP
+  E6 -.-> LOOP
+  E7 -.-> PROV
+`.trim();
+
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    themeVariables: {
+      darkMode: true,
+      background: '#161920',
+      primaryColor: '#1b1f28',
+      primaryTextColor: '#d7dae0',
+      primaryBorderColor: '#333a47',
+      lineColor: '#5c6474',
+      secondaryColor: '#101318',
+      fontSize: '13px',
+    },
+    flowchart: { curve: 'basis' },
+  });
+
+  const map = document.getElementById('map')!;
+  const { svg } = await mermaid.render('harnessDiagram', diagram);
+  map.innerHTML = svg;
+  document.getElementById('date')!.textContent = new Date().toLocaleDateString();
+</script>
