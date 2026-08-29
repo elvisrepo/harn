@@ -1,5 +1,6 @@
 ---
 import Header from '../components/Header.astro';
+import '../styles/global.css';
 interface Props {
   title?: string;
   session?: { user: { name?: string; email?: string } } | null;
@@ -11,9 +12,10 @@ const { title = 'Harness Mods', session = null } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0b0d10" />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <style is:global src="../styles/global.css"></style>
   </head>
   <body>
     <Header session={session} />

@@ -12,7 +12,7 @@ const session = Astro.locals.session;
 ---
 
 <Base title={`${mod.title} — Harness Mods`} session={session}>
-  <p><a href="/">← back to catalog</a></p>
+  <p class="small" style="margin: 0 0 0.4rem"><a href="/">← back to catalog</a></p>
   <h1>
     {mod.title}
     {mod.wanted && <span class="badge want" style="margin-left: 0.5rem">★ wanted</span>}

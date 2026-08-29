@@ -2,25 +2,14 @@
 > harness-mods@0.0.1 dev
 > astro dev
 
-[2m19:13:02[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
-[2m19:13:03[22m [34m[vite][39m connected.
-[2m19:13:04[22m [34m[types][39m Generated [2m1ms[22m
-[2m19:13:04[22m [34m[vite][39m connected.
-[2m19:13:04[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
-[42m[1m astro [22m[49m [32mv7.2.9[39m [2mready in[22m 1835 [2mms[22m
+[2m19:23:42[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
+[2m19:23:42[22m [34m[vite][39m connected.
+[2m19:23:44[22m [34m[types][39m Generated [2m2ms[22m
+[2m19:23:44[22m [34m[vite][39m connected.
+[2m19:23:44[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
+[42m[1m astro [22m[49m [32mv7.2.9[39m [2mready in[22m 2357 [2mms[22m
 [2m┃[22m Local    [36mhttp://127.0.0.1:4321/[39m
-[2m19:13:04[22m [32mwatching for file changes...[39m
-[2m19:13:10[22m [34m[200][39m / [2m476ms[22m
-[2m19:13:10[22m [34m[200][39m /harness [2m9ms[22m
-[2m19:14:53[22m [34m[200][39m /harness [2m20ms[22m
-[2m19:14:54[22m [34m[vite][39m [32mdependencies optimized: [33mbetter-auth/client, mermaid[32m[39m
-[2m19:14:54[22m [34m[vite][39m [32moptimized dependencies changed. reloading[39m
-[2m19:14:54[22m [34m[200][39m /harness [2m6ms[22m
-[2m19:15:09[22m [34m[200][39m / [2m15ms[22m
-[2m19:15:26[22m [34m[200][39m /login [2m12ms[22m
-[2m19:15:45[22m [34m[200][39m [34mPOST[39m /api/auth/sign-in/email [2m139ms[22m
-[2m19:15:45[22m [34m[200][39m /admin [2m21ms[22m
-[2m19:17:00[22m [34m[200][39m / [2m21ms[22m
-[2m19:17:04[22m [34m[200][39m /harness [2m14ms[22m
-[2m19:17:05[22m [34m[200][39m /admin [2m11ms[22m
-[2m19:17:07[22m [34m[200][39m /harness [2m15ms[22m
+[2m19:23:44[22m [32mwatching for file changes...[39m
+[2m19:23:48[22m [34m[200][39m / [2m841ms[22m
+[2m19:23:48[22m [34m[200][39m / [2m8ms[22m
+[2m19:23:49[22m [34m[vite][39m [32mdependency optimized: [33mbetter-auth/client[32m[39m

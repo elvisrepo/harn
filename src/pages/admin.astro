@@ -10,6 +10,7 @@ const editingId = Astro.url.searchParams.get('edit');
 ---
 
 <Base title="Manage mods" session={session}>
+  <p class="kicker">Harness — manage</p>
   <h1>Manage mods</h1>
   <p class="muted small">
     Signed in as <strong>{userEmail}</strong>. Changes go straight to the local
@@ -94,7 +95,7 @@ const editingId = Astro.url.searchParams.get('edit');
             </span>
             {m.wanted && <span class="badge want">★ wanted</span>}
           </td>
-          <td style="text-align: right; white-space: nowrap">
+          <td style="text-align: right; white-space: nowrap" data-label="Actions">
             <button class="btn ghost" data-edit={m.id}>Edit</button>{' '}
             <button class="btn danger" data-del={m.id}>Delete</button>
           </td>

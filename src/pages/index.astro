@@ -14,6 +14,7 @@ const session = Astro.locals.session;
 ---
 
 <Base title={`Harness Mods — catalog (${stats.total})`} session={session}>
+  <p class="kicker">Harness — catalog</p>
   <h1>Ways to modify an AI agent harness</h1>
   <p class="muted">
     A living catalog of mods for the pi coding-agent harness: what we've considered,
@@ -49,6 +50,7 @@ const session = Astro.locals.session;
     </select>
   </div>
 
+  <div class="table-wrap">
   <table>
     <thead>
       <tr>
@@ -73,22 +75,22 @@ const session = Astro.locals.session;
             <a href={`/mods/${m.slug}`}>{m.title}</a>
             <div class="muted small summary">{m.summary}</div>
           </td>
-          <td class="muted small">{m.category}</td>
-          <td>
+          <td class="muted small" data-label="Category">{m.category}</td>
+          <td data-label="Considered">
             {m.considered ? (
               <span class="badge yes">✓ yes</span>
             ) : (
               <span class="badge no">— no</span>
             )}
           </td>
-          <td>
+          <td data-label="Implemented">
             {m.implemented ? (
               <span class="badge yes">✓ yes</span>
             ) : (
               <span class="badge no">— no</span>
             )}
           </td>
-          <td>
+          <td data-label="Wanted">
             {m.wanted ? (
               <span class="badge want">★ yes</span>
             ) : (
@@ -99,6 +101,7 @@ const session = Astro.locals.session;
       ))}
     </tbody>
   </table>
+  </div>
   <p id="empty" class="muted small" hidden>No mods match the current filters.</p>
 </Base>
 
