@@ -89,6 +89,31 @@ const otherTokens = tokenEntries.filter(([k]) => !colorKeys.includes(k));
                 : `${selected.snapshot.skillsInstalled} installed`}
             </td>
           </tr>
+          <tr>
+            <td data-label="Context / turn">Context / turn</td>
+            <td class="small">
+              {selected.snapshot.contextTokens ? (
+                <>
+                  <b class="mono">≈ {selected.snapshot.contextTokens.totalTokens.toLocaleString()} tokens</b>
+                  <span class="muted small" style="margin-left:.5rem">
+                    ({selected.snapshot.contextTokens.estimator} estimate)
+                  </span>
+                  <details style="margin-top:.35rem">
+                    <summary class="mono" style="cursor:pointer;color:var(--dim)">breakdown</summary>
+                    <div class="prose mono small" style="margin-top:.4rem;line-height:1.7">
+                      <div>base prompt + tool schemas + skills — {selected.snapshot.contextTokens.baseTokens.toLocaleString()}</div>
+                      <div>AGENTS.md in &lt;project_context&gt; envelope — {selected.snapshot.contextTokens.instructionsTokens.toLocaleString()}</div>
+                      <div>active session branch — {selected.snapshot.contextTokens.branchTokens.toLocaleString()} ({selected.snapshot.contextTokens.branchChars.toLocaleString()} chars)</div>
+                      <div class="muted">full durable log (reference, not the context) — {selected.snapshot.contextTokens.durableTokens.toLocaleString()}</div>
+                      <div class="muted">current user message + attachments add per turn — varies.</div>
+                    </div>
+                  </details>
+                </>
+              ) : (
+                '— (captured before context measurement)'
+              )}
+            </td>
+          </tr>
         </tbody>
       </table>
 

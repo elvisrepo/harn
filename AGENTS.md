@@ -50,6 +50,8 @@ src/lib/auth.ts         better-auth instance (drizzle adapter, secret from AUTH_
 src/lib/auth-client.ts  browser auth client (sign-in / sign-out)
 src/lib/mods.ts         catalog queries + ModView mapping + slugify
 src/lib/harness.ts      harness snapshot builder + version queries
+src/lib/context.ts      per-turn context token measurement (chars÷4 estimate)
+data/context-static.txt verbatim static-context sample (base prompt + tool schemas)
 src/middleware.ts       session via auth.api.getSession; protects /admin
 src/pages/
   index.astro                    searchable catalog (client-side filter)
@@ -75,9 +77,10 @@ src/styles/global.css            design tokens + app styles
   `tags` (JSON array), `links` (JSON array of `{label,url}`).
 - **harness versions** — snapshots capturing provider/model (from
   `~/.pi/agent/settings.json`), credential token *status only* (masked — never
-  store secrets), tool list, installed skills count, and the design tokens from
-  `src/styles/global.css`. `v1` = initial capture at setup; new snapshots bump
-  the version.
+  store secrets), tool list, installed skills count, the design tokens from
+  `src/styles/global.css`, and a per-turn context token estimate (base prompt +
+  project instructions + active session branch). `v1` = initial capture at
+  setup; new snapshots bump the version.
 
 ## Conventions
 
@@ -91,6 +94,11 @@ src/styles/global.css            design tokens + app styles
 - Design tokens live only in `src/styles/global.css` (dark block + light
   override) — the harness snapshot parses them, so update the CSS, then
   re-snapshot.
+- Context measurement: tokens are an estimate (`chars ÷ 4` — the
+  deepseek-v4-flash tokenizer isn't available); the static sample lives in
+  `data/context-static.txt` (captured verbatim from a live session) and the
+  session branch is parsed from the `~/.pi/agent/sessions/<project>/*.jsonl`
+  parent chain at snapshot time. Both are read-only runtime facts.
 - The `db/` and `.pi` paths are runtime concerns: `db/client.ts` honors
   `DATABASE_PATH`; harness facts are read from `~/.pi/agent/` at snapshot time.
 

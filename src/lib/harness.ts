@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { desc } from 'drizzle-orm';
 import { db, schema } from '../../db/client.ts';
+import { measureContext, type ContextMeasurement } from './context.ts';
 
 export interface HarnessSnapshot {
   provider: string;
@@ -15,6 +16,8 @@ export interface HarnessSnapshot {
   /** design tokens from src/styles/global.css (dark theme block) */
   designTokens: Record<string, string>;
   lightOverrides: boolean;
+  /** per-turn context token estimate (base + instructions + session branch) */
+  contextTokens: ContextMeasurement;
   capturedAt: string;
 }
 
@@ -88,6 +91,7 @@ export function buildSnapshot(): HarnessSnapshot {
     skillsInstalled,
     designTokens: tokens,
     lightOverrides,
+    contextTokens: measureContext(),
     capturedAt: new Date().toISOString(),
   };
 }
