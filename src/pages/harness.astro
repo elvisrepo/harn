@@ -17,12 +17,6 @@ function fmtDate(ms: number | Date) {
     minute: '2-digit',
   });
 }
-
-const tokens = selected?.snapshot.designTokens ?? {};
-const tokenEntries = Object.entries(tokens);
-const colorKeys = ['bg', 'surface', 'surface2', 'surface3', 'border', 'border-strong', 'text', 'dim', 'faint', 'accent', 'green', 'sky', 'red', 'link'];
-const colorTokens = tokenEntries.filter(([k]) => colorKeys.includes(k));
-const otherTokens = tokenEntries.filter(([k]) => !colorKeys.includes(k));
 ---
 
 <Base title={`Harness map — v${selected?.version ?? '—'}`} session={session}>
@@ -119,33 +113,6 @@ const otherTokens = tokenEntries.filter(([k]) => !colorKeys.includes(k));
           </tr>
         </tbody>
       </table>
-
-      <h2 style="margin-top:1.4rem">Design tokens</h2>
-      <p class="muted small" style="margin:.2rem 0 .8rem">
-        Loaded on every page of this app, dark theme
-        {selected.snapshot.lightOverrides ? ' (+ light override)' : ''}.
-      </p>
-      <div class="token-grid">
-        {colorTokens.map(([k, v]) => (
-          <div class="token-chip">
-            <span class="token-swatch" style={`background:${v}`}></span>
-            <span class="mono token-name">{k}</span>
-            <span class="mono token-val">{v}</span>
-          </div>
-        ))}
-      </div>
-      {otherTokens.length > 0 && (
-        <details class="small" style="margin-top:.5rem">
-          <summary class="mono" style="cursor:pointer;color:var(--dim)">
-            {otherTokens.length} more tokens ({otherTokens.map(([k]) => k).join(', ')})
-          </summary>
-          <div class="prose mono small" style="margin-top:.5rem">
-            {otherTokens.map(([k, v]) => (
-              <div>{k}: {v}</div>
-            ))}
-          </div>
-        </details>
-      )}
     </div>
   )}
 
@@ -183,39 +150,6 @@ const otherTokens = tokenEntries.filter(([k]) => !colorKeys.includes(k));
     letter-spacing: 0.08em;
     color: var(--dim);
     background: transparent;
-  }
-  .token-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 0.5rem;
-  }
-  .token-chip {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 0.4rem 0.6rem;
-    background: var(--surface2);
-    min-width: 0;
-  }
-  .token-swatch {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 1px solid var(--border-strong);
-    flex: none;
-  }
-  .token-name {
-    color: var(--text);
-    font-size: 11px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .token-val {
-    margin-left: auto;
-    color: var(--faint);
-    font-size: 10px;
   }
   .timeline {
     display: flex;

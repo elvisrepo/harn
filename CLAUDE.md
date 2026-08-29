@@ -77,10 +77,9 @@ src/styles/global.css            design tokens + app styles
   `tags` (JSON array), `links` (JSON array of `{label,url}`).
 - **harness versions** — snapshots capturing provider/model (from
   `~/.pi/agent/settings.json`), credential token *status only* (masked — never
-  store secrets), tool list, installed skills count, the design tokens from
-  `src/styles/global.css`, and a per-turn context token estimate (base prompt +
-  project instructions + active session branch). `v1` = initial capture at
-  setup; new snapshots bump the version.
+  store secrets), tool list, installed skills count, and a per-turn context
+  token estimate (base prompt + project instructions + active session branch).
+  `v1` = initial capture at setup; new snapshots bump the version.
 
 ## Conventions
 
@@ -92,8 +91,8 @@ src/styles/global.css            design tokens + app styles
   tokens), take a snapshot from `/admin` → the harness map shows the current
   version and the timeline of all versions.
 - Design tokens live only in `src/styles/global.css` (dark block + light
-  override) — the harness snapshot parses them, so update the CSS, then
-  re-snapshot.
+  override) — the harness map's C4 diagram reads them at runtime for its
+  palette; they are not part of the snapshot record.
 - Context measurement: tokens are an estimate (`chars ÷ 4` — the
   deepseek-v4-flash tokenizer isn't available); the static sample lives in
   `data/context-static.txt` (captured verbatim from a live session) and the

@@ -13,9 +13,6 @@ export interface HarnessSnapshot {
   authToken: { status: 'present' | 'missing'; source: string; masked: string };
   tools: string[];
   skillsInstalled: number;
-  /** design tokens from src/styles/global.css (dark theme block) */
-  designTokens: Record<string, string>;
-  lightOverrides: boolean;
   /** per-turn context token estimate (base + instructions + session branch) */
   contextTokens: ContextMeasurement;
   capturedAt: string;
@@ -42,25 +39,6 @@ function readJsonSafe(file: string): Record<string, unknown> | null {
   }
 }
 
-/** Pull the design tokens out of the dark `:root {}` block of global.css */
-function readDesignTokens(): { tokens: Record<string, string>; lightOverrides: boolean } {
-  const cssPath = path.join(process.cwd(), 'src', 'styles', 'global.css');
-  try {
-    const css = fs.readFileSync(cssPath, 'utf8');
-    const rootMatch = css.match(/:root\s*{([^}]*)}/);
-    const tokens: Record<string, string> = {};
-    if (rootMatch) {
-      for (const m of rootMatch[1].matchAll(/--([a-zA-Z0-9-]+)\s*:\s*([^;]+);/g)) {
-        tokens[m[1]] = m[2].trim();
-      }
-    }
-    const lightOverrides = /prefers-color-scheme:\s*light/.test(css);
-    return { tokens, lightOverrides };
-  } catch {
-    return { tokens: {}, lightOverrides: false };
-  }
-}
-
 /** Capture the harness state at this moment. Token content is never read — only existence. */
 export function buildSnapshot(): HarnessSnapshot {
   const settings = readJsonSafe(path.join(agentDir(), 'settings.json')) ?? {};
@@ -76,8 +54,6 @@ export function buildSnapshot(): HarnessSnapshot {
 
   const authExists = fs.existsSync(path.join(agentDir(), 'auth.json'));
 
-  const { tokens, lightOverrides } = readDesignTokens();
-
   return {
     provider: String(settings.defaultProvider ?? 'unknown'),
     model: String(settings.defaultModel ?? 'unknown'),
@@ -89,8 +65,6 @@ export function buildSnapshot(): HarnessSnapshot {
     },
     tools: TOOLS,
     skillsInstalled,
-    designTokens: tokens,
-    lightOverrides,
     contextTokens: measureContext(),
     capturedAt: new Date().toISOString(),
   };
