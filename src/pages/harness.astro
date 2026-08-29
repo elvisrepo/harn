@@ -106,6 +106,9 @@ const otherTokens = tokenEntries.filter(([k]) => !colorKeys.includes(k));
                       <div>active session branch — {selected.snapshot.contextTokens.branchTokens.toLocaleString()} ({selected.snapshot.contextTokens.branchChars.toLocaleString()} chars)</div>
                       <div class="muted">full durable log (reference, not the context) — {selected.snapshot.contextTokens.durableTokens.toLocaleString()}</div>
                       <div class="muted">current user message + attachments add per turn — varies.</div>
+                      <div class="muted" style="margin-top:.3rem;border-top:1px dashed var(--border);padding-top:.3rem">
+                        ≈{selected.snapshot.contextTokens.totalTokens.toLocaleString()} is context <i>size</i> — billed input per turn is lower: the repeated prefix (system prompt + earlier turns) hits provider-side prompt caching at the cache-read rate (DeepSeek ≈ 10% of input price; cache breaks after ~5 min idle), and pi auto-compaction keeps old spans as summaries as the session grows.
+                      </div>
                     </div>
                   </details>
                 </>
