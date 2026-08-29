@@ -32,7 +32,7 @@
   <!-- Level 2 · Containers -->
   <h3 class="c4-level">Containers <span class="c4-l2">· system boundary</span></h3>
   <div class="c4-boundary">
-    <div class="c4-bound-label" data-owner="pi coding agent">pi coding agent · v0.84</div>
+    <div class="c4-bound-label" data-owner="pi coding agent">pi coding agent · v0.84.4</div>
 
     <div class="c4-grid">
       <div class="c4-entity container">
@@ -78,13 +78,17 @@
 
       <div class="c4-entity container">
         <div class="c4-ic">⎘</div>
-        <div class="c4-t">Context loader</div>
-        <div class="c4-d">Assembles instructions the agent reads each session</div>
+        <div class="c4-t">Context assembler</div>
+        <div class="c4-d">Composes what the model sees each turn — layered instructions, tool schemas, skills catalog, session context</div>
         <div class="c4-comps">
-          <span class="c4-key component">AGENTS.md</span>
-          <span class="c4-key component">CONTEXT.md</span>
-          <span class="c4-key component">docs/</span>
-          <span class="c4-key component">skills/ · 0</span>
+          <span class="c4-key component">base system prompt</span>
+          <span class="c4-key component">global + project instructions · AGENTS.md</span>
+          <span class="c4-key component">tool schemas · read bash edit write</span>
+          <span class="c4-key component">skills catalog · names/desc/paths</span>
+          <span class="c4-key component">session branch · active leaf</span>
+          <span class="c4-key component">compacted summaries</span>
+          <span class="c4-key component">user message · attachments</span>
+          <span class="c4-key component">extension hooks · before_agent_start</span>
         </div>
       </div>
 
@@ -95,7 +99,7 @@
         <div class="c4-comps">
           <span class="c4-key component">settings.json</span>
           <span class="c4-key component">trust.json</span>
-          <span class="c4-key component">sessions/</span>
+          <span class="c4-key component">sessions/ · JSONL tree</span>
         </div>
       </div>
     </div>
@@ -104,9 +108,11 @@
     <div class="c4-rels">
       <div class="c4-rel"><b>TUI</b> ──▶ <b>Agent orchestration</b> <span>· prompt · streamed reply</span></div>
       <div class="c4-rel"><b>Agent orchestration</b> ──▶ <b>Model provider</b> <span>· LLM request</span></div>
+      <div class="c4-rel"><b>Agent orchestration</b> ──▶ <b>Context assembler</b> <span>· composes context per turn</span></div>
+      <div class="c4-rel"><b>Config &amp; state</b> ──▶ <b>Context assembler</b> <span>· active branch · compacted spans</span></div>
+      <div class="c4-rel"><b>TUI</b> ──▶ <b>Config &amp; state</b> <span>· appends JSONL · parent pointers</span></div>
       <div class="c4-rel"><b>Auth / credentials</b> ──▶ <b>Model provider</b> <span>· token on every prompt</span></div>
       <div class="c4-rel"><b>Agent orchestration</b> ──▶ <b>Tools</b> <span>· invokes / reads results</span></div>
-      <div class="c4-rel"><b>Agent orchestration</b> ──▶ <b>Context loader</b> <span>· fetches instructions</span></div>
       <div class="c4-rel"><b>Model provider</b> ──▶ <b>models-store.json</b> <span>· resolves provider/model</span></div>
     </div>
   </div>
