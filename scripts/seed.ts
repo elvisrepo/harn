@@ -7,6 +7,7 @@ import { eq } from 'drizzle-orm';
 import { auth } from '../src/lib/auth.ts';
 import { db, schema } from '../db/client.ts';
 import { slugify } from '../src/lib/mods.ts';
+import { createHarnessVersion } from '../src/lib/harness.ts';
 
 const NPM = 'https://www.npmjs.com/package/@earendil-works/pi-coding-agent';
 const AGS = 'https://agents.md/';
@@ -270,10 +271,21 @@ async function ensureAdmin() {
   }
 }
 
+async function ensureVersion1() {
+  const rows = await db.select().from(schema.harnessVersions);
+  if (rows.length > 0) {
+    console.log(`harness versions exist (${rows.length}) — v1 already seeded`);
+    return;
+  }
+  const { version } = await createHarnessVersion('current', 'Initial snapshot of the harness at setup');
+  console.log(`harness v${version} created`);
+}
+
 async function main() {
   console.log('Seeding database…');
   await upsertMods();
   await ensureAdmin();
+  await ensureVersion1();
   console.log('Done.');
 }
 

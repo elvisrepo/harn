@@ -1,8 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
-import { listMods } from '../lib/mods.ts';
+import {
+  listMods,
+} from '../lib/mods.ts';
+import { listHarnessVersions } from '../lib/harness.ts';
 
 const mods = await listMods();
+const versions = await listHarnessVersions();
 const categories = [...new Set(mods.map((m) => m.category))].sort();
 const session = Astro.locals.session;
 const userEmail = session?.user?.email ?? 'unknown';
@@ -69,6 +73,61 @@ const editingId = Astro.url.searchParams.get('edit');
       </div>
     </form>
   </div>
+
+  <h2>Harness snapshots</h2>
+  <div class="card">
+    <p class="muted small">
+      Capture a versioned snapshot of the harness: provider/model, token status
+      (masked), tools, skills, and the current design tokens. v1 was created at
+      setup — snapshot again whenever the harness changes.
+    </p>
+    <form id="snapForm" class="form-grid" style="margin-top:.6rem">
+      <label>
+        Label
+        <input type="text" name="label" placeholder="e.g. switched provider" autocomplete="off" />
+      </label>
+      <label>
+        Summary
+        <input type="text" name="summary" placeholder="what changed?" autocomplete="off" />
+      </label>
+      <div class="full" style="display:flex;gap:.6rem;align-items:center">
+        <button class="btn" type="submit" id="snapBtn">Take snapshot</button>
+        <span id="snapStatus" class="small muted"></span>
+      </div>
+    </form>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Label</th>
+        <th>Captured</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {versions.map((v) => (
+        <tr>
+          <td class="mono" data-label="Version">
+            v{v.version}
+            {v.isCurrent && <span class="badge yes" style="margin-left:.4rem">● current</span>}
+          </td>
+          <td data-label="Label">
+            <a href={`/harness?v=${v.version}`}>{v.label}</a>
+            {v.summary && <div class="muted small">{v.summary}</div>}
+          </td>
+          <td class="muted small" data-label="Captured">
+            {new Date(v.createdAt).toLocaleString()}
+          </td>
+          <td style="text-align:right;white-space:nowrap" data-label="Actions">
+            <a class="btn ghost small" href={`/harness?v=${v.version}`}>View</a>{' '}
+            <button class="btn danger" data-delvs={v.id}>Delete</button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
 
   <h2>All mods ({mods.length})</h2>
   <table>
@@ -233,4 +292,37 @@ const editingId = Astro.url.searchParams.get('edit');
     const m = mods.find((x) => x.id === editParam);
     if (m) fillForm(m);
   }
+
+  // --- harness snapshots ---
+  const snapForm = document.getElementById('snapForm') as HTMLFormElement;
+  const snapStatus = document.getElementById('snapStatus')!;
+  snapForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(snapForm);
+    snapStatus.textContent = 'snapshotting…';
+    const res = await fetch('/api/harness-versions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ label: data.get('label'), summary: data.get('summary') }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (res.ok) {
+      snapStatus.textContent = `v${(body as { version: number }).version} created ✓`;
+      setTimeout(() => window.location.reload(), 400);
+    } else {
+      snapStatus.textContent = `Error: ${(body as { error?: string }).error ?? res.status}`;
+    }
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-delvs]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this harness snapshot?')) return;
+      const res = await fetch(`/api/harness-versions?id=${btn.dataset.delvs}`, {
+        method: 'DELETE',
+        headers: { 'content-type': 'application/json' },
+      });
+      if (res.ok) window.location.reload();
+      else alert('Delete failed');
+    });
+  });
 </script>

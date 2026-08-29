@@ -13,3 +13,129 @@
 [2m19:23:48[22m [34m[200][39m / [2m841ms[22m
 [2m19:23:48[22m [34m[200][39m / [2m8ms[22m
 [2m19:23:49[22m [34m[vite][39m [32mdependency optimized: [33mbetter-auth/client[32m[39m
+[2m19:24:10[22m [34m[200][39m / [2m24ms[22m
+[2m19:24:12[22m [34m[200][39m / [2m11ms[22m
+[2m19:24:14[22m [34m[200][39m /harness [2m29ms[22m
+[2m19:24:14[22m [34m[vite][39m [32mdependency optimized: [33mmermaid[32m[39m
+[2m19:24:14[22m [34m[vite][39m [32moptimized dependencies changed. reloading[39m
+[2m19:24:15[22m [34m[200][39m /harness [2m9ms[22m
+[2m19:24:19[22m [34m[200][39m /harness [2m24ms[22m
+[2m19:24:19[22m [34m[200][39m /admin [2m14ms[22m
+[2m19:24:33[22m [34m[200][39m / [2m33ms[22m
+[2m19:24:35[22m [34m[200][39m /harness [2m14ms[22m
+[2m19:24:35[22m [34m[200][39m /admin [2m11ms[22m
+[2m19:24:37[22m [34m[200][39m /harness [2m10ms[22m
+[2m19:24:37[22m [34m[200][39m / [2m17ms[22m
+[2m19:25:04[22m [34m[200][39m / [2m7ms[22m
+[2m19:25:04[22m [34m[200][39m / [2m3ms[22m
+[2m19:25:19[22m [34m[200][39m / [2m28ms[22m
+[2m19:25:23[22m [34m[200][39m / [2m4ms[22m
+[2m19:25:24[22m [34m[200][39m / [2m3ms[22m
+[2m19:25:34[22m [34m[200][39m / [2m13ms[22m
+[2m19:25:35[22m [34m[200][39m /harness [2m38ms[22m
+[2m19:25:37[22m [34m[200][39m /admin [2m21ms[22m
+[2m19:25:47[22m [34m[200][39m /mods/agents-md [2m59ms[22m
+[2m19:25:49[22m [34m[200][39m / [2m22ms[22m
+[2m19:26:12[22m [34m[200][39m /harness [2m18ms[22m
+[2m19:27:18[22m [34m[200][39m / [2m19ms[22m
+[2m19:27:32[22m [34m[200][39m /admin [2m15ms[22m
+[2m19:27:40[22m [34m[200][39m /mods/custom-provider [2m34ms[22m
+[2m19:27:48[22m [34m[200][39m / [2m11ms[22m
+[2m19:27:52[22m [34m[200][39m /harness [2m14ms[22m
+[2m19:27:53[22m [34m[200][39m /harness [2m13ms[22m
+[2m19:28:09[22m [34m[200][39m /harness [2m92ms[22m
+[2m19:28:30[22m [34m[200][39m /harness [2m13ms[22m
+[2m19:29:16[22m [34m[200][39m /harness [2m36ms[22m
+[2m19:29:21[22m [34m[200][39m /admin [2m33ms[22m
+[2m19:29:55[22m [34m[200][39m /admin [2m9ms[22m
+[2m19:29:56[22m [34m[200][39m /harness [2m11ms[22m
+[2m19:29:59[22m [34m[200][39m / [2m22ms[22m
+[2m19:30:08[22m [34m[watch][39m src/pages/harness.astro
+[2m19:30:08[22m [34m[200][39m / [2m27ms[22m
+[2m19:30:09[22m [34m[200][39m /mods/settings-json [2m27ms[22m
+[2m19:30:17[22m [34m[200][39m / [2m12ms[22m
+[2m19:30:21[22m [34m[watch][39m src/pages/admin.astro
+[2m19:30:21[22m [34m[watch][39m src/pages/admin.astro
+[2m19:30:21[22m [34m[200][39m / [2m17ms[22m
+[31m[1m19:30:26[22m [ERROR][39m SqliteError: no such table: harness_versions
+    at Database.prepare (C:\Users\elvis\Desktop\harness\node_modules\better-sqlite3\lib\methods\wrappers.js:5:21)
+    at BetterSQLiteSession.prepareQuery (C:\Users\elvis\Desktop\harness\node_modules\src\better-sqlite3\session.ts:60:28)
+    at BetterSQLiteSession.prepareOneTimeQuery (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\session.ts:250:15)
+    at SQLiteSelectBase._prepare (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\query-builders\select.ts:916:85)
+    at SQLiteSelectBase.all (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\query-builders\select.ts:950:15)
+    at SQLiteSelectBase.execute (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\query-builders\select.ts:962:15)
+    at SQLiteSelectBase.then (C:\Users\elvis\Desktop\harness\node_modules\src\query-promise.ts:31:15)
+[31m[1m19:30:26[22m [ERROR][39m no such table: harness_versions
+  [1mStack trace:[22m
+[2m    at C:\Users\elvis\Desktop\harness\node_modules\better-sqlite3\lib\methods\wrappers.js:5:21
+    [...] See full stack trace in the browser, or rerun with --verbose.[22m
+[31m[1m19:30:32[22m [ERROR][39m SqliteError: no such table: harness_versions
+    at Database.prepare (C:\Users\elvis\Desktop\harness\node_modules\better-sqlite3\lib\methods\wrappers.js:5:21)
+    at BetterSQLiteSession.prepareQuery (C:\Users\elvis\Desktop\harness\node_modules\src\better-sqlite3\session.ts:60:28)
+    at BetterSQLiteSession.prepareOneTimeQuery (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\session.ts:250:15)
+    at SQLiteSelectBase._prepare (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\query-builders\select.ts:916:85)
+    at SQLiteSelectBase.all (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\query-builders\select.ts:950:15)
+    at SQLiteSelectBase.execute (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\query-builders\select.ts:962:15)
+    at SQLiteSelectBase.then (C:\Users\elvis\Desktop\harness\node_modules\src\query-promise.ts:31:15)
+[31m[1m19:30:32[22m [ERROR][39m no such table: harness_versions
+  [1mStack trace:[22m
+[2m    at Database.prepare (C:\Users\elvis\Desktop\harness\node_modules\better-sqlite3\lib\methods\wrappers.js:5:21)
+    [...] See full stack trace in the browser, or rerun with --verbose.[22m
+[2m19:30:32[22m [34m[watch][39m src/pages/admin.astro
+[2m19:30:34[22m [34m[200][39m / [2m21ms[22m
+[2m19:30:36[22m [34m[200][39m / [2m10ms[22m
+[31m[1m19:30:37[22m [ERROR][39m SqliteError: no such table: harness_versions
+    at Database.prepare (C:\Users\elvis\Desktop\harness\node_modules\better-sqlite3\lib\methods\wrappers.js:5:21)
+    at BetterSQLiteSession.prepareQuery (C:\Users\elvis\Desktop\harness\node_modules\src\better-sqlite3\session.ts:60:28)
+    at BetterSQLiteSession.prepareOneTimeQuery (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\session.ts:250:15)
+    at SQLiteSelectBase._prepare (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\query-builders\select.ts:916:85)
+    at SQLiteSelectBase.all (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\query-builders\select.ts:950:15)
+    at SQLiteSelectBase.execute (C:\Users\elvis\Desktop\harness\node_modules\src\sqlite-core\query-builders\select.ts:962:15)
+    at SQLiteSelectBase.then (C:\Users\elvis\Desktop\harness\node_modules\src\query-promise.ts:31:15)
+[31m[1m19:30:37[22m [ERROR][39m no such table: harness_versions
+  [1mStack trace:[22m
+[2m    at Database.prepare (C:\Users\elvis\Desktop\harness\node_modules\better-sqlite3\lib\methods\wrappers.js:5:21)
+    [...] See full stack trace in the browser, or rerun with --verbose.[22m
+[2m19:30:48[22m [34m[watch][39m src/pages/admin.astro
+[2m19:31:28[22m [34m[watch][39m src/pages/harness.astro
+[2m19:31:37[22m [34m[200][39m / [2m27ms[22m
+[2m19:31:37[22m [34m[200][39m /harness [2m20ms[22m
+[2m19:31:53[22m [34m[200][39m [34mPOST[39m /api/auth/sign-in/email [2m189ms[22m
+[2m19:31:53[22m [34m[201][39m [34mPOST[39m /api/harness-versions [2m11ms[22m
+[2m19:31:54[22m [34m[200][39m /api/harness-versions [2m3ms[22m
+[2m19:31:58[22m [34m[200][39m [34mDELETE[39m /api/harness-versions [2m11ms[22m
+[2m19:31:58[22m [34m[200][39m /api/harness-versions [2m3ms[22m
+[2m19:31:59[22m [33m[401][39m [33mPOST[39m /api/harness-versions [2m2ms[22m
+[2m19:31:59[22m [34m[200][39m /admin [2m36ms[22m
+[2m19:32:10[22m [34m[200][39m /harness [2m17ms[22m
+[2m19:32:54[22m [34m[200][39m /harness [2m12ms[22m
+[2m19:34:31[22m Configuration file updated. Restarting...
+[2m19:34:31[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
+[2m19:34:31[22m [34m[vite][39m connected.
+[2m19:34:33[22m [34m[vite][39m connected.
+[2m19:34:33[22m [34m[vite][39m Re-optimizing dependencies because lockfile has changed
+[2m19:34:33[22m [34m[vite][39m server restarted.
+[2m19:34:34[22m [34m[200][39m /harness [2m99ms[22m
+[2m19:34:35[22m [34m[vite][39m [32mdependencies optimized: [33mbetter-auth/client, mermaid[32m[39m
+[2m19:34:35[22m [34m[vite][39m [32moptimized dependencies changed. reloading[39m
+[2m19:34:35[22m [34m[200][39m /harness [2m32ms[22m
+[2m19:34:48[22m [34m[200][39m /harness [2m29ms[22m
+[2m19:34:54[22m [34m[200][39m /harness [2m16ms[22m
+[2m19:35:02[22m [34m[200][39m /admin [2m30ms[22m
+[2m19:35:05[22m [34m[watch][39m src/pages/harness.astro
+[2m19:35:05[22m [34m[watch][39m src/pages/harness.astro
+[2m19:35:05[22m [34m[200][39m /admin [2m30ms[22m
+[2m19:35:15[22m [34m[watch][39m src/pages/harness.astro
+[2m19:35:15[22m [34m[200][39m /admin [2m33ms[22m
+[2m19:35:19[22m [34m[200][39m /harness [2m20ms[22m
+[2m19:35:19[22m [34m[200][39m /harness [2m8ms[22m
+[2m19:35:28[22m [34m[200][39m /harness [2m12ms[22m
+[2m19:35:29[22m [34m[vite][39m [32mdependency optimized: [33msvg-pan-zoom[32m[39m
+[2m19:35:57[22m [34m[200][39m /harness [2m18ms[22m
+[2m19:37:26[22m [34m[watch][39m src/pages/harness.astro
+[2m19:37:26[22m [34m[watch][39m src/pages/harness.astro
+[2m19:37:26[22m [34m[200][39m /harness [2m33ms[22m
+[2m19:37:29[22m [34m[watch][39m src/pages/harness.astro
+[2m19:37:29[22m [34m[200][39m /harness [2m32ms[22m
+[2m19:37:31[22m [34m[200][39m /harness [2m7ms[22m
+[2m19:37:31[22m [34m[200][39m /harness [2m5ms[22m

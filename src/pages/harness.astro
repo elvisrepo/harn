@@ -1,22 +1,334 @@
 ---
 import Base from '../layouts/Base.astro';
+import { listHarnessVersions } from '../lib/harness.ts';
+
+const versions = await listHarnessVersions();
+const wanted = Number(Astro.url.searchParams.get('v'));
+const selected = versions.find((v) => v.version === wanted) ?? versions[0];
 const session = Astro.locals.session;
+
+function fmtDate(ms: number | Date) {
+  return new Date(ms).toLocaleDateString('en-CA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+const tokens = selected?.snapshot.designTokens ?? {};
+const tokenEntries = Object.entries(tokens);
+const colorKeys = ['bg', 'surface', 'surface2', 'surface3', 'border', 'border-strong', 'text', 'dim', 'faint', 'accent', 'green', 'sky', 'red', 'link'];
+const colorTokens = tokenEntries.filter(([k]) => colorKeys.includes(k));
+const otherTokens = tokenEntries.filter(([k]) => !colorKeys.includes(k));
 ---
 
-<Base title="Harness map" session={session}>
+<Base title={`Harness map — v${selected?.version ?? '—'}`} session={session}>
   <p class="kicker">Harness — map</p>
   <h1>Current harness map</h1>
   <p class="muted">
-    How the pi coding-agent harness is wired up right now. Dashed edges are
-    modifiable surfaces — each corresponds to an entry in the
-    <a href="/">catalog</a>.
+    How the pi coding-agent harness is wired up right now, and the versioned snapshot
+    of its config + tokens. Dashed edges are modifiable surfaces — each corresponds to
+    an entry in the <a href="/">catalog</a>.
   </p>
+
   <div class="card" id="map"></div>
-  <p class="muted small" style="margin-top: 0.75rem">
-    Generated with Mermaid. Reflects the harness as observed
-    <span id="date">today</span>.
-  </p>
+  <div class="map-controls">
+    <div class="seg" role="group" aria-label="Zoom controls">
+      <button type="button" id="zoomOut" title="Zoom out">−</button>
+      <button type="button" id="zoomIn" title="Zoom in">+</button>
+      <button type="button" id="zoomFit" title="Fit to screen">⤢ fit</button>
+    </div>
+    <span class="hint">wheel / pinch to zoom · drag to pan</span>
+    <button class="btn ghost" type="button" id="fsOpen">⛶ fullscreen</button>
+  </div>
+
+  {selected && (
+    <div class="card">
+      <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between">
+        <h2 style="margin:0">
+          Snapshot <span class="mono">v{selected.version}</span> · {selected.label}
+        </h2>
+        {selected.isCurrent && <span class="badge yes">● current</span>}
+        {!selected.isCurrent && (
+          <a class="small" href="/harness?v=1">
+            view current →
+          </a>
+        )}
+      </div>
+      <p class="muted small" style="margin:.4rem 0 .9rem">
+        Captured {fmtDate(selected.createdAt)}
+        {selected.summary && <> — {selected.summary}</>}
+      </p>
+
+      <table class="kv">
+        <tbody>
+          <tr>
+            <td data-label="Provider">Provider</td>
+            <td class="mono">{selected.snapshot.provider}</td>
+          </tr>
+          <tr>
+            <td data-label="Model">Model</td>
+            <td class="mono">{selected.snapshot.model}</td>
+          </tr>
+          <tr>
+            <td data-label="Token on each prompt">Token on each prompt</td>
+            <td>
+              <span class={selected.snapshot.authToken.status === 'present' ? 'badge yes' : 'badge no'}>
+                {selected.snapshot.authToken.status === 'present' ? '● present' : '● missing'}
+              </span>
+              <span class="muted small" style="margin-left:.5rem">
+                {selected.snapshot.authToken.source} — {selected.snapshot.authToken.masked}
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td data-label="Tools">Tools</td>
+            <td class="mono small">{selected.snapshot.tools.join(' · ')}</td>
+          </tr>
+          <tr>
+            <td data-label="Skills">Skills</td>
+            <td class="small">
+              {selected.snapshot.skillsInstalled === 0
+                ? 'none installed'
+                : `${selected.snapshot.skillsInstalled} installed`}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 style="margin-top:1.4rem">Design tokens</h2>
+      <p class="muted small" style="margin:.2rem 0 .8rem">
+        Loaded on every page of this app, dark theme
+        {selected.snapshot.lightOverrides ? ' (+ light override)' : ''}.
+      </p>
+      <div class="token-grid">
+        {colorTokens.map(([k, v]) => (
+          <div class="token-chip">
+            <span class="token-swatch" style={`background:${v}`}></span>
+            <span class="mono token-name">{k}</span>
+            <span class="mono token-val">{v}</span>
+          </div>
+        ))}
+      </div>
+      {otherTokens.length > 0 && (
+        <details class="small" style="margin-top:.5rem">
+          <summary class="mono" style="cursor:pointer;color:var(--dim)">
+            {otherTokens.length} more tokens ({otherTokens.map(([k]) => k).join(', ')})
+          </summary>
+          <div class="prose mono small" style="margin-top:.5rem">
+            {otherTokens.map(([k, v]) => (
+              <div>{k}: {v}</div>
+            ))}
+          </div>
+        </details>
+      )}
+    </div>
+  )}
+
+  <div class="card">
+    <h2 style="margin-top:0">Versions</h2>
+    <p class="muted small">
+      Every snapshot records the harness config + tokens at that moment. Take a new
+      snapshot from the <a href="/admin">Manage</a> page whenever the harness changes.
+    </p>
+    <div class="timeline">
+      {versions.map((v) => (
+        <a
+          href={`/harness?v=${v.version}`}
+          class={v.version === selected?.version ? 'tl-item active' : 'tl-item'}
+        >
+          <span class="tl-ver mono">
+            v{v.version}{v.isCurrent && <span class="tl-cur">· current</span>}
+          </span>
+          <span class="tl-meta">
+            <span class="tl-label">{v.label}</span>
+            <span class="muted small">{fmtDate(v.createdAt)}</span>
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <!-- fullscreen diagram overlay -->
+  <div class="fs" id="fs" hidden>
+    <div class="fs-bar">
+      <span class="mono fs-title">Harness map</span>
+      <div class="seg" role="group" aria-label="Zoom controls">
+        <button type="button" id="fsOut" title="Zoom out">−</button>
+        <button type="button" id="fsIn" title="Zoom in">+</button>
+        <button type="button" id="fsFit" title="Fit to screen">⤢ fit</button>
+      </div>
+      <span class="hint">wheel / pinch to zoom · drag to pan · esc to close</span>
+      <span style="flex:1"></span>
+      <button class="btn ghost" type="button" id="fsClose">✕ close</button>
+    </div>
+    <div class="fs-canvas" id="fsCanvas"></div>
+  </div>
 </Base>
+
+<style>
+  .map-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.65rem;
+  }
+  .map-controls .seg button {
+    min-width: 34px;
+  }
+  .map-controls .hint {
+    color: var(--faint);
+    font-size: 0.78rem;
+  }
+  #map {
+    overflow: hidden;
+    padding: 0.5rem;
+    min-height: 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--bg) 40%, var(--surface));
+  }
+  #map svg {
+    width: 100%;
+    height: auto;
+    max-height: 72vh;
+    cursor: grab;
+    touch-action: none;
+  }
+  #map svg:active {
+    cursor: grabbing;
+  }
+
+  /* fullscreen overlay */
+  .fs {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: #04060a;
+    display: flex;
+    flex-direction: column;
+  }
+  .fs[hidden] {
+    display: none;
+  }
+  .fs-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-wrap: wrap;
+  }
+  .fs-title {
+    color: var(--dim);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .fs-canvas {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+    background: #04060a;
+  }
+  .fs-canvas svg {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: none;
+  }
+  .kv td:first-child {
+    width: 200px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--dim);
+    background: transparent;
+  }
+  .token-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.5rem;
+  }
+  .token-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.6rem;
+    background: var(--surface2);
+    min-width: 0;
+  }
+  .token-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid var(--border-strong);
+    flex: none;
+  }
+  .token-name {
+    color: var(--text);
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .token-val {
+    margin-left: auto;
+    color: var(--faint);
+    font-size: 10px;
+  }
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.4rem;
+  }
+  .tl-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    padding: 0.5rem 0.6rem;
+    border-left: 2px solid var(--border);
+    margin-left: 0.3rem;
+    border-radius: 0;
+  }
+  .tl-item:hover {
+    background: var(--surface2);
+    text-decoration: none;
+  }
+  .tl-item.active {
+    border-left-color: var(--accent);
+    background: var(--surface2);
+  }
+  .tl-ver {
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+    width: 90px;
+  }
+  .tl-cur {
+    color: var(--green);
+    font-size: 10px;
+    margin-left: 4px;
+  }
+  .tl-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .tl-label {
+    color: var(--dim);
+    font-size: 0.88rem;
+  }
+</style>
 
 <script>
   import mermaid from 'mermaid';
@@ -30,6 +342,7 @@ flowchart TB
   end
 
   subgraph MD["Model layer"]
+    REQ["Prompt / LLM request"]
     PROV["Provider · opencode-go"]
     MODEL["deepseek-v4-flash"]
     MREG["models-store.json · provider registry"]
@@ -37,7 +350,7 @@ flowchart TB
 
   subgraph CF["Configuration · ~/.pi/agent"]
     SET["settings.json<br/>default provider + model"]
-    AUT["auth.json · provider credentials"]
+    AUT["auth.json · credential token"]
     TRU["trust.json · trusted projects"]
     SES["sessions/ · conversation history"]
     ENV["PI_* environment variables"]
@@ -59,10 +372,10 @@ flowchart TB
     E7["custom providers"]
   end
 
-  LOOP --> PROV --> MODEL
+  LOOP --> REQ --> PROV --> MODEL
   PROV --> MREG
+  AUT -->|"token attached<br/>to every prompt"| REQ
   SET --> LOOP
-  AUT --> PROV
   TRU --> LOOP
   SES --> TUI
   TOOLS --> LOOP
@@ -98,5 +411,58 @@ flowchart TB
   const map = document.getElementById('map')!;
   const { svg } = await mermaid.render('harnessDiagram', diagram);
   map.innerHTML = svg;
-  document.getElementById('date')!.textContent = new Date().toLocaleDateString();
+
+  const { default: svgPanZoom } = await import('svg-pan-zoom');
+  const svgEl = map.querySelector('svg')!;
+  const zoom = svgPanZoom(svgEl, {
+    fit: true,
+    center: true,
+    controlIconsEnabled: false,
+    zoomScaleSensitivity: 0.35,
+    minZoom: 0.6,
+    maxZoom: 25,
+    dblClickZoomEnabled: true,
+  });
+
+  document.getElementById('zoomIn')!.addEventListener('click', () => zoom.zoomIn(1.25));
+  document.getElementById('zoomOut')!.addEventListener('click', () => zoom.zoomOut(1.25));
+  document.getElementById('zoomFit')!.addEventListener('click', () => zoom.fit());
+  window.addEventListener('resize', () => zoom.resize());
+
+  // --- fullscreen view ---
+  const fs = document.getElementById('fs')!;
+  const fsCanvas = document.getElementById('fsCanvas')!;
+  let fsOpen = false;
+
+  function fitView() {
+    requestAnimationFrame(() => {
+      zoom.resize();
+      zoom.fit();
+    });
+  }
+  function closeFs() {
+    if (!fsOpen) return;
+    fsOpen = false;
+    map.appendChild(svgEl);
+    fs.hidden = true;
+    document.body.style.overflow = '';
+    fitView();
+  }
+
+  document.getElementById('fsOpen')!.addEventListener('click', () => {
+    if (fsOpen) return;
+    fsOpen = true;
+    fsCanvas.appendChild(svgEl);
+    fs.hidden = false;
+    document.body.style.overflow = 'hidden';
+    fitView();
+  });
+  document.getElementById('fsClose')!.addEventListener('click', closeFs);
+  document.getElementById('fsIn')!.addEventListener('click', () => zoom.zoomIn(1.25));
+  document.getElementById('fsOut')!.addEventListener('click', () => zoom.zoomOut(1.25));
+  document.getElementById('fsFit')!.addEventListener('click', () => zoom.fit());
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && fsOpen) closeFs();
+  });
+  window.addEventListener('resize', () => fsOpen && zoom.resize());
 </script>

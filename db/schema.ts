@@ -76,3 +76,17 @@ export const mods = sqliteTable('mods', {
 
 export type Mod = typeof mods.$inferSelect;
 export type NewMod = typeof mods.$inferInsert;
+
+// Versioned snapshot of the harness (provider/model, token status, design tokens,
+// tools, skills) taken at a point in time. v1 = initial capture.
+// snapshot is JSON text.
+export const harnessVersions = sqliteTable('harness_versions', {
+  id: text('id').primaryKey(),
+  version: integer('version').notNull().unique(),
+  label: text('label').notNull(),
+  summary: text('summary').notNull().default(''),
+  snapshot: text('snapshot').notNull().default('{}'),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+});
+
+export type HarnessVersion = typeof harnessVersions.$inferSelect;
