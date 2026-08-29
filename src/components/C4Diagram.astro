@@ -1,313 +1,148 @@
 ---
 // C4 architecture model of the current harness (pi coding-agent).
-// Hand-built HTML/CSS: deterministic, responsive, no diagram-lib quirks.
+// Rendered client-side with Mermaid — theme pulled from the app's design
+// tokens at runtime (single source: src/styles/global.css).
+// Structure: ordered pipeline — 1 LOAD → 2 COMPOSE → 3 AGENT LOOP →
+// reply/persist; numbered edges trace the full cycle.
 ---
-<div class="c4">
-  <!-- legend -->
-  <div class="c4-legend">
-    <span class="c4-key" data-type="person">Person</span>
-    <span class="c4-key" data-type="system">System</span>
-    <span class="c4-key" data-type="container">Container</span>
-    <span class="c4-key" data-type="component">Component</span>
-  </div>
+<div class="mmd" id="harness-mermaid" aria-label="C4 architecture of the pi coding-agent harness"></div>
 
-  <!-- Level 1 · Context -->
-  <h3 class="c4-level">Context</h3>
-  <div class="c4-context">
-    <div class="c4-entity person">
-      <div class="c4-ic">👤</div>
-      <div class="c4-t">Developer (you)</div>
-      <div class="c4-d">Writes code, reviews, drives the harness from the terminal</div>
-    </div>
-    <div class="c4-edge">
-      <span class="c4-arrow">──▶</span><span class="c4-el">uses</span>
-    </div>
-    <div class="c4-entity system">
-      <div class="c4-ic">▦</div>
-      <div class="c4-t">pi Coding Agent</div>
-      <div class="c4-d">An AI coding-agent harness that reads context, calls tools, and talks to LLMs</div>
-    </div>
-  </div>
+<script>
+  import mermaid from 'mermaid';
 
-  <!-- Level 2 · Containers -->
-  <h3 class="c4-level">Containers <span class="c4-l2">· system boundary</span></h3>
-  <div class="c4-boundary">
-    <div class="c4-bound-label" data-owner="pi coding agent">pi coding agent · v0.84.4</div>
+  const root = document.getElementById('harness-mermaid');
+  if (!root) throw new Error('harness-mermaid container missing');
 
-    <div class="c4-grid">
-      <div class="c4-entity container">
-        <div class="c4-ic">▣</div>
-        <div class="c4-t">pi CLI · TUI</div>
-        <div class="c4-d">Terminal UI; opens/manages conversations and session history (sessions/)</div>
-      </div>
+  const cs = getComputedStyle(document.documentElement);
+  const token = (name, fallback) => cs.getPropertyValue(name).trim() || fallback;
+  const bg = token('--bg', '#0b0d10');
+  const surface = token('--surface', '#12151a');
+  const border = token('--border-strong', '#2d3542');
+  const dim = token('--dim', '#98a1ad');
+  const text = token('--text', '#e5e8ed');
+  const sky = token('--sky', '#79b6e8');
+  const accent = token('--accent', '#e3b35c');
+  const green = token('--green', '#7cc47f');
+  const red = token('--red', '#e0736b');
+  const sans = token('--sans', 'system-ui, sans-serif');
+  // mermaid classDef/style grammar rejects CSS functions like color-mix() —
+  // precompute flat hex tints from the live tokens instead.
+  const parseHex = (h) => {
+    h = h.replace('#', '');
+    if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+    return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  };
+  const tint = (hex, p) => {
+    const fg = parseHex(hex);
+    const bgc = parseHex(bg);
+    const m = fg.map((v, i) => {
+      const c = Math.round(bgc[i] + (v - bgc[i]) * p);
+      return Math.min(255, Math.max(0, c));
+    });
+    return '#' + m.map((v) => v.toString(16).padStart(2, '0')).join('');
+  };
 
-      <div class="c4-entity container">
-        <div class="c4-ic">◎</div>
-        <div class="c4-t">Agent orchestration</div>
-        <div class="c4-d">Core loop: gather context, invoke tools, drive the model, apply results</div>
-      </div>
+  const graph = `flowchart TB
+  Dev["👤 Developer (you)<br/>leads the session"]:::person
+  Dev -->|uses| PI
+  subgraph PI["pi coding agent · v0.84.4"]
+    direction TB
+    subgraph LOAD["1 · LOAD — session + config"]
+      direction LR
+      TUI["▣ pi CLI · TUI<br/>terminal · manages sessions"]:::container
+      SESS["⎙ Session history<br/>append-only JSONL · parent pointers"]:::container
+      CFG["▤ Config & state<br/>settings.json · trust.json"]:::container
+    end
+    subgraph COMPOSE["2 · COMPOSE — per-turn context"]
+      direction LR
+      ASM["⎘ Context assembler<br/>base prompt · project instructions<br/>skills catalog · extension hooks"]:::container
+    end
+    subgraph LOOP["3 · AGENT LOOP — tools · model"]
+      direction LR
+      ORCH["◎ Agent orchestration<br/>the core loop"]:::container
+      TOOLS["⚙ Tools<br/>read · bash · edit · write"]:::container
+      MODEL["◈ Model provider<br/>routes prompts to an LLM"]:::container
+      AUTH["🔑 Auth / credentials<br/>token on every prompt"]:::container
+      MS["🗎 models-store.json<br/>provider/model catalog"]:::file
+    end
+    TUI -->|1 · open session| SESS
+    SESS -->|2 · branch + compaction| ASM
+    CFG -->|3 · config| ASM
+    ASM -->|4 · per-turn context| ORCH
+    ORCH -->|5 · invoke| TOOLS
+    TOOLS -->|6 · results| ORCH
+    ORCH -->|7 · LLM request| MODEL
+    AUTH -->|8 · token| MODEL
+    MODEL -.->|9 · resolve provider/model| MS
+    MODEL -->|10 · reply| ORCH
+    ORCH -->|11 · streamed reply| TUI
+    TUI -.->|12 · appends JSONL| SESS
+  end
+  MODS["▦ Harness Mods (web app)<br/>catalog + admin · snapshots · map"]:::system
+  FILES["▤ Harness files<br/>settings · auth (presence) · tokens"]:::system
+  MODS -.->|reads · snapshots| FILES
+  MODS -.->|tracks config + token status| PI
+  classDef person fill:${tint(sky, 0.16)},stroke:${sky},stroke-width:2
+  classDef system fill:${tint(accent, 0.15)},stroke:${accent},stroke-width:2
+  classDef container fill:${tint(green, 0.12)},stroke:${green},stroke-width:2
+  classDef file fill:${surface},stroke:${border},stroke-width:1.5
+  style LOAD fill:${tint(sky, 0.05)},stroke:${sky},stroke-width:2
+  style COMPOSE fill:${tint(accent, 0.05)},stroke:${accent},stroke-width:2
+  style LOOP fill:${tint(green, 0.05)},stroke:${green},stroke-width:2
+  style PI fill:${tint(border, 0.1)},stroke:${border},stroke-width:2
+  linkStyle 5,6 stroke:${green},color:${green}
+  linkStyle 8 stroke:${red},color:${red}
+  linkStyle 7,10 stroke:${sky},color:${sky}
+  linkStyle 9,13,14 stroke:${dim},color:${dim}
+`;
 
-      <div class="c4-entity container">
-        <div class="c4-ic">⚙</div>
-        <div class="c4-t">Tools</div>
-        <div class="c4-d">Mutations/reads the agent can call</div>
-        <div class="c4-comps">
-          <span class="c4-key component">read</span>
-          <span class="c4-key component">bash</span>
-          <span class="c4-key component">edit</span>
-          <span class="c4-key component">write</span>
-        </div>
-      </div>
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: {
+      background: bg,
+      mainBkg: surface,
+      nodeBorder: border,
+      clusterBkg: bg,
+      clusterBorder: border,
+      lineColor: accent,
+      edgeLabelBackground: bg,
+      textColor: text,
+      titleColor: text,
+      fontFamily: sans,
+      fontSize: '14px',
+    },
+    flowchart: {
+      htmlLabels: true,
+      curve: 'basis',
+      padding: 16,
+      nodeSpacing: 50,
+      rankSpacing: 60,
+    },
+  });
 
-      <div class="c4-entity container">
-        <div class="c4-ic">◈</div>
-        <div class="c4-t">Model provider</div>
-        <div class="c4-d">Routes prompts to an LLM via a provider</div>
-        <div class="c4-comps">
-          <span class="c4-key component">opencode-go</span>
-          <span class="c4-key component">deepseek-v4-flash</span>
-          <span class="c4-key component">models-store.json</span>
-        </div>
-      </div>
-
-      <div class="c4-entity container">
-        <div class="c4-ic">🔑</div>
-        <div class="c4-t">Auth / credentials</div>
-        <div class="c4-d">auth.json — provider credential attached to every prompt request</div>
-      </div>
-
-      <div class="c4-entity container">
-        <div class="c4-ic">⎘</div>
-        <div class="c4-t">Context assembler</div>
-        <div class="c4-d">Composes what the model sees each turn — layered instructions, tool schemas, skills catalog, session context</div>
-        <div class="c4-comps">
-          <span class="c4-key component">base system prompt</span>
-          <span class="c4-key component">global + project instructions · AGENTS.md</span>
-          <span class="c4-key component">tool schemas · read bash edit write</span>
-          <span class="c4-key component">skills catalog · names/desc/paths</span>
-          <span class="c4-key component">session branch · active leaf</span>
-          <span class="c4-key component">compacted summaries</span>
-          <span class="c4-key component">user message · attachments</span>
-          <span class="c4-key component">extension hooks · before_agent_start</span>
-        </div>
-      </div>
-
-      <div class="c4-entity container">
-        <div class="c4-ic">▤</div>
-        <div class="c4-t">Config &amp; state</div>
-        <div class="c4-d">Persistent harness configuration and runtime data</div>
-        <div class="c4-comps">
-          <span class="c4-key component">settings.json</span>
-          <span class="c4-key component">trust.json</span>
-          <span class="c4-key component">sessions/ · JSONL tree</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- relationships -->
-    <div class="c4-rels">
-      <div class="c4-rel"><b>TUI</b> ──▶ <b>Agent orchestration</b> <span>· prompt · streamed reply</span></div>
-      <div class="c4-rel"><b>Agent orchestration</b> ──▶ <b>Model provider</b> <span>· LLM request</span></div>
-      <div class="c4-rel"><b>Agent orchestration</b> ──▶ <b>Context assembler</b> <span>· composes context per turn</span></div>
-      <div class="c4-rel"><b>Config &amp; state</b> ──▶ <b>Context assembler</b> <span>· active branch · compacted spans</span></div>
-      <div class="c4-rel"><b>TUI</b> ──▶ <b>Config &amp; state</b> <span>· appends JSONL · parent pointers</span></div>
-      <div class="c4-rel"><b>Auth / credentials</b> ──▶ <b>Model provider</b> <span>· token on every prompt</span></div>
-      <div class="c4-rel"><b>Agent orchestration</b> ──▶ <b>Tools</b> <span>· invokes / reads results</span></div>
-      <div class="c4-rel"><b>Model provider</b> ──▶ <b>models-store.json</b> <span>· resolves provider/model</span></div>
-    </div>
-  </div>
-
-  <!-- adjacent system: this web app -->
-  <h3 class="c4-level">Adjacent system <span class="c4-l2">· Harness Mods (this app)</span></h3>
-  <div class="c4-adj">
-    <div class="c4-entity system">
-      <div class="c4-ic">▦</div>
-      <div class="c4-t">Harness Mods (web app)</div>
-      <div class="c4-d">Tracks mods and versioned snapshots of the harness config + tokens</div>
-      <div class="c4-comps">
-        <span class="c4-key component">catalog + admin</span>
-        <span class="c4-key component">snapshot service</span>
-        <span class="c4-key component">harness map</span>
-      </div>
-    </div>
-    <div class="c4-edge">
-      <span class="c4-arrow">──▶</span><span class="c4-el">reads · snapshots</span>
-    </div>
-    <div class="c4-entity system">
-      <div class="c4-ic">▤</div>
-      <div class="c4-t">Harness files</div>
-      <div class="c4-d">settings.json · auth.json (presence) · design tokens in global.css</div>
-    </div>
-  </div>
-</div>
+  try {
+    const res = await mermaid.render('harnessMmd', graph);
+    root.innerHTML = res.svg;
+    // file node renders dashed to read as a config note
+    root.querySelectorAll('.file rect').forEach((r) => r.setAttribute('stroke-dasharray', '5 5'));
+  } catch (err) {
+    root.innerHTML =
+      `<p class="muted small" style="padding:1rem">Diagram failed to render (${err.message})</p>`;
+  }
+</script>
 
 <style>
-  .c4 {
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
+  .mmd {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.4rem 0;
   }
-  .c4-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    align-items: center;
-  }
-  .c4-key {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    color: var(--dim);
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .c4-key[data-type='person'] { border-color: color-mix(in srgb, var(--sky) 45%, transparent); color: var(--sky); }
-  .c4-key[data-type='system'] { border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent); }
-  .c4-key[data-type='container'] { border-color: color-mix(in srgb, var(--green) 45%, transparent); color: var(--green); }
-  .c4-key[data-type='component'] { border-color: var(--border-strong); color: var(--faint); }
-
-  .c4-entity {
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius);
-    background: var(--surface);
-    padding: 0.7rem 0.85rem;
-    min-width: 0;
-  }
-  .c4-entity .c4-ic {
-    font-size: 15px;
-    line-height: 1;
-    margin-bottom: 0.35rem;
-  }
-  .c4-entity .c4-t {
-    font-weight: 650;
-    font-size: 0.95rem;
-    letter-spacing: -0.01em;
-    margin-bottom: 0.15rem;
-  }
-  .c4-entity .c4-d {
-    color: var(--dim);
-    font-size: 0.82rem;
-    line-height: 1.45;
-  }
-  .c4-comps {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-top: 0.55rem;
-  }
-
-  .c4-ic {
-    opacity: 0.85;
-  }
-
-  .c4-context,
-  .c4-adj {
-    display: flex;
-    align-items: stretch;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-  .c4-edge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.2rem;
-    font-family: var(--mono);
-    color: var(--dim);
-    font-size: 0.72rem;
-    padding: 0 0.2rem;
-  }
-  .c4-arrow {
-    color: var(--accent);
-    white-space: nowrap;
-  }
-  .c4-el {
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-    writing-mode: vertical-rl;
-  }
-
-  .c4-level {
-    font-family: var(--mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--dim);
-    margin: 0.4rem 0 0;
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-  .c4-l2 {
-    color: var(--faint);
-    font-size: 10px;
-    text-transform: none;
-    letter-spacing: 0.02em;
-  }
-
-  /* system boundary */
-  .c4-boundary {
-    border: 2px solid var(--border-strong);
-    border-radius: var(--radius);
-    background: color-mix(in srgb, var(--surface) 55%, transparent);
-    padding: 2.1rem 0.9rem 0.9rem;
-    position: relative;
-  }
-  .c4-bound-label {
-    position: absolute;
-    top: -11px;
-    left: 14px;
-    background: var(--bg);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    padding: 2px 9px;
-    font-family: var(--mono);
-    font-size: 10.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-  }
-  .c4-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 0.6rem;
-  }
-  /* shade container vs component by border color */
-  .c4-boundary .c4-entity.container {
-    border-color: color-mix(in srgb, var(--green) 45%, var(--border-strong));
-  }
-  .c4-rels {
-    margin-top: 0.9rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.28rem;
-    border-top: 1px dashed var(--border);
-    padding-top: 0.7rem;
-  }
-  .c4-rel {
-    font-size: 0.82rem;
-    color: var(--text);
-    font-family: var(--mono);
-    line-height: 1.5;
-  }
-  .c4-rel b {
-    color: var(--text);
-    font-weight: 600;
-  }
-  .c4-rel span {
-    color: var(--dim);
-    font-family: var(--sans);
-  }
-
-  @media (max-width: 640px) {
-    .c4-edge .c4-el { writing-mode: horizontal-tb; }
-    .c4-adj { flex-direction: column; }
+  .mmd svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
   }
 </style>
