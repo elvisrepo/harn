@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import C4Diagram from '../components/C4Diagram.astro';
 import { listHarnessVersions } from '../lib/harness.ts';
 
 const versions = await listHarnessVersions();
@@ -28,20 +29,13 @@ const otherTokens = tokenEntries.filter(([k]) => !colorKeys.includes(k));
   <p class="kicker">Harness — map</p>
   <h1>Current harness map</h1>
   <p class="muted">
-    How the pi coding-agent harness is wired up right now, and the versioned snapshot
-    of its config + tokens. Dashed edges are modifiable surfaces — each corresponds to
-    an entry in the <a href="/">catalog</a>.
+    A C4 model of the pi coding-agent harness: how it's wired right now, and the
+    versioned snapshot of its config + tokens. Modifiable surfaces map to entries
+    in the <a href="/">catalog</a>.
   </p>
 
-  <div class="card" id="map"></div>
-  <div class="map-controls">
-    <div class="seg" role="group" aria-label="Zoom controls">
-      <button type="button" id="zoomOut" title="Zoom out">−</button>
-      <button type="button" id="zoomIn" title="Zoom in">+</button>
-      <button type="button" id="zoomFit" title="Fit to screen">⤢ fit</button>
-    </div>
-    <span class="hint">wheel / pinch to zoom · drag to pan</span>
-    <button class="btn ghost" type="button" id="fsOpen">⛶ fullscreen</button>
+  <div class="card">
+    <C4Diagram />
   </div>
 
   {selected && (
@@ -150,100 +144,9 @@ const otherTokens = tokenEntries.filter(([k]) => !colorKeys.includes(k));
       ))}
     </div>
   </div>
-
-  <!-- fullscreen diagram overlay -->
-  <div class="fs" id="fs" hidden>
-    <div class="fs-bar">
-      <span class="mono fs-title">Harness map</span>
-      <div class="seg" role="group" aria-label="Zoom controls">
-        <button type="button" id="fsOut" title="Zoom out">−</button>
-        <button type="button" id="fsIn" title="Zoom in">+</button>
-        <button type="button" id="fsFit" title="Fit to screen">⤢ fit</button>
-      </div>
-      <span class="hint">wheel / pinch to zoom · drag to pan · esc to close</span>
-      <span style="flex:1"></span>
-      <button class="btn ghost" type="button" id="fsClose">✕ close</button>
-    </div>
-    <div class="fs-canvas" id="fsCanvas"></div>
-  </div>
 </Base>
 
 <style>
-  .map-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    margin-top: 0.65rem;
-  }
-  .map-controls .seg button {
-    min-width: 34px;
-  }
-  .map-controls .hint {
-    color: var(--faint);
-    font-size: 0.78rem;
-  }
-  #map {
-    overflow: hidden;
-    padding: 0.5rem;
-    min-height: 380px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: color-mix(in srgb, var(--bg) 40%, var(--surface));
-  }
-  #map svg {
-    width: 100%;
-    height: auto;
-    max-height: 72vh;
-    cursor: grab;
-    touch-action: none;
-  }
-  #map svg:active {
-    cursor: grabbing;
-  }
-
-  /* fullscreen overlay */
-  .fs {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-    background: #04060a;
-    display: flex;
-    flex-direction: column;
-  }
-  .fs[hidden] {
-    display: none;
-  }
-  .fs-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.6rem 1rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-    flex-wrap: wrap;
-  }
-  .fs-title {
-    color: var(--dim);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-  }
-  .fs-canvas {
-    flex: 1;
-    min-height: 0;
-    position: relative;
-    overflow: hidden;
-    background: #04060a;
-  }
-  .fs-canvas svg {
-    width: 100%;
-    height: 100%;
-    cursor: grab;
-    touch-action: none;
-  }
   .kv td:first-child {
     width: 200px;
     font-family: var(--mono);
@@ -329,140 +232,3 @@ const otherTokens = tokenEntries.filter(([k]) => !colorKeys.includes(k));
     font-size: 0.88rem;
   }
 </style>
-
-<script>
-  import mermaid from 'mermaid';
-
-  const diagram = `
-flowchart TB
-  subgraph RT["Runtime · pi CLI v0.84"]
-    TUI["TUI terminal"]
-    LOOP["Agent loop<br/>model → tools → context"]
-    TOOLS["Tools<br/>read · bash · edit · write"]
-  end
-
-  subgraph MD["Model layer"]
-    REQ["Prompt / LLM request"]
-    PROV["Provider · opencode-go"]
-    MODEL["deepseek-v4-flash"]
-    MREG["models-store.json · provider registry"]
-  end
-
-  subgraph CF["Configuration · ~/.pi/agent"]
-    SET["settings.json<br/>default provider + model"]
-    AUT["auth.json · credential token"]
-    TRU["trust.json · trusted projects"]
-    SES["sessions/ · conversation history"]
-    ENV["PI_* environment variables"]
-  end
-
-  subgraph CX["Context"]
-    AG["AGENTS.md / CONTEXT.md"]
-    DOC["docs/ · README.md"]
-    SK["skills/ · none installed"]
-  end
-
-  subgraph EX["Extensible surface (see /mods)"]
-    E1["extensions"]
-    E2["themes"]
-    E3["keybindings"]
-    E4["TUI components"]
-    E5["packages"]
-    E6["SDK integrations"]
-    E7["custom providers"]
-  end
-
-  LOOP --> REQ --> PROV --> MODEL
-  PROV --> MREG
-  AUT -->|"token attached<br/>to every prompt"| REQ
-  SET --> LOOP
-  TRU --> LOOP
-  SES --> TUI
-  TOOLS --> LOOP
-  TUI --> LOOP
-  AG --> LOOP
-  DOC --> LOOP
-  SK --> LOOP
-  E1 -.-> LOOP
-  E2 -.-> TUI
-  E3 -.-> TUI
-  E4 -.-> TUI
-  E5 -.-> LOOP
-  E6 -.-> LOOP
-  E7 -.-> PROV
-`.trim();
-
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: 'dark',
-    themeVariables: {
-      darkMode: true,
-      background: '#161920',
-      primaryColor: '#1b1f28',
-      primaryTextColor: '#d7dae0',
-      primaryBorderColor: '#333a47',
-      lineColor: '#5c6474',
-      secondaryColor: '#101318',
-      fontSize: '13px',
-    },
-    flowchart: { curve: 'basis' },
-  });
-
-  const map = document.getElementById('map')!;
-  const { svg } = await mermaid.render('harnessDiagram', diagram);
-  map.innerHTML = svg;
-
-  const { default: svgPanZoom } = await import('svg-pan-zoom');
-  const svgEl = map.querySelector('svg')!;
-  const zoom = svgPanZoom(svgEl, {
-    fit: true,
-    center: true,
-    controlIconsEnabled: false,
-    zoomScaleSensitivity: 0.35,
-    minZoom: 0.6,
-    maxZoom: 25,
-    dblClickZoomEnabled: true,
-  });
-
-  document.getElementById('zoomIn')!.addEventListener('click', () => zoom.zoomIn(1.25));
-  document.getElementById('zoomOut')!.addEventListener('click', () => zoom.zoomOut(1.25));
-  document.getElementById('zoomFit')!.addEventListener('click', () => zoom.fit());
-  window.addEventListener('resize', () => zoom.resize());
-
-  // --- fullscreen view ---
-  const fs = document.getElementById('fs')!;
-  const fsCanvas = document.getElementById('fsCanvas')!;
-  let fsOpen = false;
-
-  function fitView() {
-    requestAnimationFrame(() => {
-      zoom.resize();
-      zoom.fit();
-    });
-  }
-  function closeFs() {
-    if (!fsOpen) return;
-    fsOpen = false;
-    map.appendChild(svgEl);
-    fs.hidden = true;
-    document.body.style.overflow = '';
-    fitView();
-  }
-
-  document.getElementById('fsOpen')!.addEventListener('click', () => {
-    if (fsOpen) return;
-    fsOpen = true;
-    fsCanvas.appendChild(svgEl);
-    fs.hidden = false;
-    document.body.style.overflow = 'hidden';
-    fitView();
-  });
-  document.getElementById('fsClose')!.addEventListener('click', closeFs);
-  document.getElementById('fsIn')!.addEventListener('click', () => zoom.zoomIn(1.25));
-  document.getElementById('fsOut')!.addEventListener('click', () => zoom.zoomOut(1.25));
-  document.getElementById('fsFit')!.addEventListener('click', () => zoom.fit());
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && fsOpen) closeFs();
-  });
-  window.addEventListener('resize', () => fsOpen && zoom.resize());
-</script>
