@@ -8,6 +8,78 @@ const wanted = Number(Astro.url.searchParams.get('v'));
 const selected = versions.find((v) => v.version === wanted) ?? versions[0];
 const session = Astro.locals.session;
 
+// — per-version diff vs its predecessor, so harness changes stand out —
+type DiffRow = { label: string; from: string; to: string };
+const prevOf = (v: number) => versions.find((x) => x.version === v - 1);
+function diffSnapshot(cur: (typeof versions)[number]): DiffRow[] {
+  const prev = prevOf(cur.version);
+  if (!prev) return [];
+  const out: DiffRow[] = [];
+  const s = cur.snapshot;
+  const p = prev.snapshot;
+  if (s.provider !== p.provider) out.push({ label: 'provider', from: p.provider, to: s.provider });
+  if (s.model !== p.model) out.push({ label: 'model', from: p.model, to: s.model });
+  const tAdd = s.tools.filter((t) => !p.tools.includes(t));
+  const tRem = p.tools.filter((t) => !s.tools.includes(t));
+  if (tAdd.length || tRem.length)
+    out.push({
+      label: 'tools',
+      from: `${p.tools.join(' · ')}${tRem.length ? ` <span class=rm>−${tRem.join(',')}</span>` : ''}`,
+      to: `${s.tools.join(' · ')}${tAdd.length ? ` <span class=add>+${tAdd.join(',')}</span>` : ''}`,
+    });
+  if (s.skillsInstalled !== p.skillsInstalled || JSON.stringify(s.skills ?? []) !== JSON.stringify(p.skills ?? [])) {
+    const sSkills = s.skills ?? [];
+    const pSkills = p.skills ?? [];
+    const added = sSkills.filter((x) => !pSkills.includes(x));
+    const removed = pSkills.filter((x) => !sSkills.includes(x));
+    const span = (list: string[], cls: string) =>
+      list.length ? ` <span class=${cls}>${cls === 'add' ? '+' : '−'}${list.join(', ')}</span>` : '';
+    out.push({
+      label: 'skills',
+      from: `${pSkills.length ? pSkills.join(' · ') : p.skillsInstalled}${span(removed, 'rm')}`,
+      to: `${sSkills.length ? sSkills.join(' · ') : s.skillsInstalled}${span(added, 'add')}`,
+    });
+  }
+  if (s.authToken.status !== p.authToken.status)
+    out.push({ label: 'credential', from: p.authToken.status, to: s.authToken.status });
+  const ct = s.contextTokens?.totalTokens;
+  const pt = p.contextTokens?.totalTokens;
+  if (ct && !pt) out.push({ label: 'context / turn', from: '—', to: `≈${ct.toLocaleString()}` });
+  else if (ct && pt && ct !== pt)
+    out.push({
+      label: 'context / turn',
+      from: `≈${pt.toLocaleString()}`,
+      to: `≈${ct.toLocaleString()}`,
+    });
+  else if (!ct && pt) out.push({ label: 'context / turn', from: `≈${pt.toLocaleString()}`, to: '—' });
+  return out;
+}
+const changes = selected ? diffSnapshot(selected) : [];
+const prevVer = selected ? prevOf(selected.version) : undefined;
+const changedSet = new Set(versions.filter((v) => diffSnapshot(v).length > 0).map((v) => v.version));
+
+// — which diagram elements the latest change added/touched (highlighted in the map) —
+const latest = versions[0];
+const latestChanges = latest ? diffSnapshot(latest) : [];
+const HL_NODES: Record<string, string[]> = {
+  skills: ['WS'],
+  tools: ['TOOLS'],
+  model: ['MODEL'],
+  provider: ['MODEL'],
+  credential: ['AUTH'],
+  'context / turn': ['ASM'],
+};
+const hlNodes = new Set<string>();
+const hlEdges = new Set<number>();
+for (const c of latestChanges) {
+  for (const n of HL_NODES[c.label] ?? []) hlNodes.add(n);
+  if (c.label === 'skills' || c.label === 'tools') hlEdges.add(7);
+}
+const diagramHighlights =
+  selected?.isCurrent
+    ? { nodes: [...hlNodes], edges: [...hlEdges] }
+    : { nodes: [] as string[], edges: [] as number[] };
+
 function fmtDate(ms: number | Date) {
   return new Date(ms).toLocaleDateString('en-CA', {
     year: 'numeric',
@@ -29,8 +101,14 @@ function fmtDate(ms: number | Date) {
   </p>
 
   <div class="card">
-    <C4Diagram />
+    <C4Diagram highlights={diagramHighlights} />
   </div>
+  {diagramHighlights.nodes.length + diagramHighlights.edges.length > 0 && (
+    <p class="muted small" style="margin:.2rem 0 .6rem">
+      <span style="color:var(--accent);font-weight:700">◆ amber + thick</span> = added/changed in
+      the latest version (v{latest.version})
+    </p>
+  )}
 
   {selected && (
     <div class="card">
@@ -49,6 +127,17 @@ function fmtDate(ms: number | Date) {
         Captured {fmtDate(selected.createdAt)}
         {selected.summary && <> — {selected.summary}</>}
       </p>
+
+      {changes.length > 0 && prevVer && (
+        <div class="changes">
+          <span class="changes-title">Changed since v{prevVer.version}</span>
+          {changes.map((c) => (
+            <span class="changes-item">
+              <b>{c.label}</b>&nbsp;<span set:html={c.from} /> <span class="arr">→</span> <span set:html={c.to} />
+            </span>
+          ))}
+        </div>
+      )}
 
       <table class="kv">
         <tbody>
@@ -81,6 +170,11 @@ function fmtDate(ms: number | Date) {
               {selected.snapshot.skillsInstalled === 0
                 ? 'none installed'
                 : `${selected.snapshot.skillsInstalled} installed`}
+              {selected.snapshot.skills?.length > 0 && (
+                <span class="muted" style="margin-left:.4rem">
+                  — {selected.snapshot.skills.join(' · ')}
+                </span>
+              )}
             </td>
           </tr>
           <tr>
@@ -129,7 +223,9 @@ function fmtDate(ms: number | Date) {
           class={v.version === selected?.version ? 'tl-item active' : 'tl-item'}
         >
           <span class="tl-ver mono">
-            v{v.version}{v.isCurrent && <span class="tl-cur">· current</span>}
+            v{v.version}
+            {v.isCurrent && <span class="tl-cur">· current</span>}
+            {changedSet.has(v.version) && <span class="tl-changed">⚡ changed</span>}
           </span>
           <span class="tl-meta">
             <span class="tl-label">{v.label}</span>
@@ -183,6 +279,54 @@ function fmtDate(ms: number | Date) {
     color: var(--green);
     font-size: 10px;
     margin-left: 4px;
+  }
+  .tl-changed {
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 650;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+  .changes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.1rem 0 1rem;
+  }
+  .changes-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+  .changes-item {
+    font-size: 0.82rem;
+    color: var(--text);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    background: color-mix(in srgb, var(--accent) 9%, var(--bg));
+    border-radius: 999px;
+    padding: 3px 11px;
+    line-height: 1.35;
+  }
+  .changes-item b {
+    color: var(--accent);
+    font-weight: 700;
+    text-transform: none;
+  }
+  .changes-item .arr {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .changes-item .add {
+    color: var(--green);
+    font-weight: 650;
+  }
+  .changes-item .rm {
+    color: var(--red);
+    font-weight: 650;
   }
   .tl-meta {
     display: flex;

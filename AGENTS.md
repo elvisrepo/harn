@@ -12,6 +12,8 @@ Finally, approach every task through goal-driven execution by breaking it down i
 step-by-step plan with strong success criteria, such as writing a reproducing or failing test
 first and independently looping through verification until that specific goal is strictly met.
 
+Suggest what to add to the harness, if you see any repeatable workflows e.g.
+
 
 # Harness Mods
 
@@ -93,6 +95,11 @@ src/styles/global.css            design tokens + app styles
 - Design tokens live only in `src/styles/global.css` (dark block + light
   override) — the harness map's C4 diagram reads them at runtime for its
   palette; they are not part of the snapshot record.
+- Web search (ketch): the `web-search` + `code-search` skills live in
+  `~/.pi/agent/skills/`; the ketch binary ships at `~/.pi/agent/bin/ketch.exe`
+  (vendor pattern like `fd.exe`/`rg.exe`). Search backend is Firecrawl — the
+  API key is configured in `%APPDATA%\ketch\config.json` and is never read by
+  this app; snapshots only record the installed-skills count.
 - Context measurement: tokens are an estimate (`chars ÷ 4` — the
   deepseek-v4-flash tokenizer isn't available); the static sample lives in
   `data/context-static.txt` (captured verbatim from a live session) and the

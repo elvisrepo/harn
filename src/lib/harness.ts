@@ -13,6 +13,8 @@ export interface HarnessSnapshot {
   authToken: { status: 'present' | 'missing'; source: string; masked: string };
   tools: string[];
   skillsInstalled: number;
+  /** installed skill names (web-search, code-search, …) */
+  skills: string[];
   /** per-turn context token estimate (base + instructions + session branch) */
   contextTokens: ContextMeasurement;
   capturedAt: string;
@@ -44,10 +46,13 @@ export function buildSnapshot(): HarnessSnapshot {
   const settings = readJsonSafe(path.join(agentDir(), 'settings.json')) ?? {};
 
   let skillsInstalled = 0;
+  let skills: string[] = [];
   try {
-    skillsInstalled = fs
+    skills = fs
       .readdirSync(path.join(agentDir(), 'skills'), { withFileTypes: true })
-      .filter((e) => e.isDirectory()).length;
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name);
+    skillsInstalled = skills.length;
   } catch {
     skillsInstalled = 0;
   }
@@ -65,6 +70,7 @@ export function buildSnapshot(): HarnessSnapshot {
     },
     tools: TOOLS,
     skillsInstalled,
+    skills,
     contextTokens: measureContext(),
     capturedAt: new Date().toISOString(),
   };

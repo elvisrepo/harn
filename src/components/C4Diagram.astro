@@ -4,8 +4,16 @@
 // tokens at runtime (single source: src/styles/global.css).
 // Structure: ordered pipeline — 1 LOAD → 2 COMPOSE → 3 AGENT LOOP →
 // reply/persist; numbered edges trace the full cycle.
+// Highlights (from the version diff) make newly added/changed elements pop.
+interface Highlights {
+  nodes: string[];
+  edges: number[];
+}
+const { highlights = { nodes: [] as string[], edges: [] as number[] } } = Astro.props as {
+  highlights?: Highlights;
+};
 ---
-<div class="mmd" id="harness-mermaid" aria-label="C4 architecture of the pi coding-agent harness"></div>
+<div class="mmd" id="harness-mermaid" aria-label="C4 architecture of the pi coding-agent harness" data-highlights={JSON.stringify(highlights)}></div>
 
 <script>
   import mermaid from 'mermaid';
@@ -42,6 +50,18 @@
     return '#' + m.map((v) => v.toString(16).padStart(2, '0')).join('');
   };
 
+  // nodes/edges changed in the latest version get amber + thick borders
+  let hl = { nodes: [], edges: [] };
+  try {
+    hl = JSON.parse(root.dataset.highlights || '{}');
+  } catch {
+    /* no highlights */
+  }
+  const hlLines = [
+    ...(hl.nodes ?? []).map((id) => `  style ${id} fill:${tint(accent, 0.18)},stroke:${accent},stroke-width:4`),
+    ...(hl.edges ?? []).map((i) => `  linkStyle ${i} stroke:${accent},color:${accent},stroke-width:3`),
+  ].join('\n');
+
   const graph = `flowchart TB
   Dev["👤 Developer (you)<br/>leads the session"]:::person
   Dev -->|uses| PI
@@ -57,10 +77,11 @@
       direction LR
       ASM["⎘ Context assembler<br/>base prompt · project instructions<br/>skills catalog · extension hooks"]:::container
     end
-    subgraph LOOP["3 · AGENT LOOP — tools · model"]
+    subgraph LOOP["3 · AGENT LOOP — tools · web · model"]
       direction LR
       ORCH["◎ Agent orchestration<br/>the core loop"]:::container
       TOOLS["⚙ Tools<br/>read · bash · edit · write"]:::container
+      WS["🔎 Web search · ketch<br/>firecrawl · keyless fallback"]:::container
       MODEL["◈ Model provider<br/>routes prompts to an LLM"]:::container
       AUTH["🔑 Auth / credentials<br/>token on every prompt"]:::container
       MS["🗎 models-store.json<br/>provider/model catalog"]:::file
@@ -69,14 +90,15 @@
     SESS -->|2 · branch + compaction| ASM
     CFG -->|3 · config| ASM
     ASM -->|4 · per-turn context| ORCH
-    ORCH -->|5 · invoke| TOOLS
+    ORCH -->|5 · invoke tools| TOOLS
     TOOLS -->|6 · results| ORCH
-    ORCH -->|7 · LLM request| MODEL
-    AUTH -->|8 · token| MODEL
-    MODEL -.->|9 · resolve provider/model| MS
-    MODEL -->|10 · reply| ORCH
-    ORCH -->|11 · streamed reply| TUI
-    TUI -.->|12 · appends JSONL| SESS
+    ORCH -->|7 · research: search/scrape| WS
+    ORCH -->|8 · LLM request| MODEL
+    AUTH -->|9 · token| MODEL
+    MODEL -.->|10 · resolve provider/model| MS
+    MODEL -->|11 · reply| ORCH
+    ORCH -->|12 · streamed reply| TUI
+    TUI -.->|13 · appends JSONL| SESS
   end
   MODS["▦ Harness Mods (web app)<br/>catalog + admin · snapshots · map"]:::system
   FILES["▤ Harness files<br/>settings · auth (presence) · tokens"]:::system
@@ -91,9 +113,11 @@
   style LOOP fill:${tint(green, 0.05)},stroke:${green},stroke-width:2
   style PI fill:${tint(border, 0.1)},stroke:${border},stroke-width:2
   linkStyle 5,6 stroke:${green},color:${green}
-  linkStyle 8 stroke:${red},color:${red}
-  linkStyle 7,10 stroke:${sky},color:${sky}
-  linkStyle 9,13,14 stroke:${dim},color:${dim}
+  linkStyle 7 stroke:${sky},color:${sky}
+  linkStyle 8,11 stroke:${sky},color:${sky}
+  linkStyle 9 stroke:${red},color:${red}
+  linkStyle 10,14,15 stroke:${dim},color:${dim}
+${hlLines}
 `;
 
   mermaid.initialize({
