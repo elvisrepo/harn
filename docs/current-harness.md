@@ -12,7 +12,7 @@ _As of snapshot v3 · "firecrawl key wired" (see `/harness` for live facts)._
 | Model | deepseek-v4-flash |
 | Credential | `~/.pi/agent/auth.json` (presence only — never stored by this app) |
 | Tools | `read` · `bash` · `edit` · `write` |
-| Skills installed | 7 — `web-search`, `code-search`, `grilling`, `to-spec`, `to-tickets`, `implement`, `grill-me` |
+| Skills installed | 7 — `web-search`, `code-search`, `grilling`, `to-spec`, `to-tickets`, `implement`, `grill-me` (canonical source: `.pi/skills/` in this repo, git-versioned; installed globally by `scripts/setup-harness.sh`) |
 | Per-turn context | ≈40k tokens (measured at snapshot time; chars÷4 estimate — the model tokenizer isn't available) |
 
 ## How a turn flows
@@ -87,7 +87,15 @@ ketch code "query" --backend sourcegraph        # fallback when grep.app is slow
 Real OSS source across public repositories — for API usage examples,
 signatures, and copyable implementations.
 
-### Workflow pipeline (plan → spec → tickets → slices)
+### Getting this on a new machine
+
+`scripts/setup-harness.sh` (bash, git-bash on Windows) does it from the repo
+alone: downloads the ketch binary to `~/.pi/agent/bin/`, configures backend
+`firecrawl` and prompts for the API key (never committed), copies `.pi/skills/*`
+to `~/.pi/agent/skills/` (global scope), and checks the app `.env`.
+Snapshots count skills from both locations (user-level + `.pi/skills/`).
+
+## The skills — details
 
 Matt Pocock–style engineering skills, adapted for pi and local tooling:
 

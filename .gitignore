@@ -24,5 +24,7 @@ pnpm-debug.log*
 .idea/
 
 # local sqlite database
-data/
 drizzle/
+# ignore the api keys / local db, but always ship the static context sample
+data/*
+!data/context-static.txt

@@ -47,15 +47,20 @@ export function buildSnapshot(): HarnessSnapshot {
 
   let skillsInstalled = 0;
   let skills: string[] = [];
-  try {
-    skills = fs
-      .readdirSync(path.join(agentDir(), 'skills'), { withFileTypes: true })
-      .filter((e) => e.isDirectory())
-      .map((e) => e.name);
-    skillsInstalled = skills.length;
-  } catch {
-    skillsInstalled = 0;
+  // user-level (~/.pi/agent/skills) + project-level (<repo>/.pi/skills)
+  const skillDirs = [path.join(agentDir(), 'skills'), path.join(process.cwd(), '.pi', 'skills')];
+  const skillNames = new Set<string>();
+  for (const dir of skillDirs) {
+    try {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (e.isDirectory()) skillNames.add(e.name);
+      }
+    } catch {
+      /* dir absent — fine */
+    }
   }
+  skills = [...skillNames].sort();
+  skillsInstalled = skills.length;
 
   const authExists = fs.existsSync(path.join(agentDir(), 'auth.json'));
 

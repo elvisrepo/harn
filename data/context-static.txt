@@ -1,0 +1,25 @@
+# Static system context — sampled verbatim from a live pi session,
+# 2026-08-29 (provider opencode-go · model deepseek-v4-flash).
+# This is the per-turn static portion the harness injects: the base system
+# prompt and the four base tool schemas. Session-dependent parts (project
+# instructions from AGENTS.md, active session branch) are measured live.
+
+Base system prompt — deliberately small; Pi doesn't try to bake in extensive behavioral rules.
+Global + project instructions — user-level config plus repo-level files like AGENTS.md, layered on top of the base prompt.
+Tool schemas — names, descriptions, and parameter schemas for whatever tools are registered (Pi's own base set is just read/write/edit/bash; everything else comes from extensions).
+Skill catalog, not skill bodies — Pi inserts only the name, description, and file location of skills that allow model invocation, not every SKILL.md body. The model reads the full file only when a task matches.
+Session history — the active branch of session history; sessions are stored as JSONL with parent-pointers forming a tree; the context includes only the path from root to the current leaf, not the whole tree (other branches, e.g. from /tree navigation, are excluded).
+Compacted summaries in place of older spans — the durable session is a complete, append-only history, but the model context is the active branch plus a compacted summary plus recent detail — compaction changes what the model sees, not what actually happened.
+The current user message and any attachments. Anything extensions inject — a before_agent_start hook can add or transform messages right before the loop runs.
+
+Tool schema — read:
+Read the contents of a file. Supports text files and images (jpg, png, gif, webp, bmp). Images are sent as attachments. For text files, output is truncated to 2000 lines or 50KB (whichever is hit first). Use offset/limit for large files. When you need the full file, continue with offset until complete.
+
+Tool schema — bash:
+Execute a bash command in the current working directory. Returns stdout and stderr. Output is truncated to last 2000 lines or 50KB (whichever is hit first). If truncated, full output is saved to a temp file. Optionally provide a timeout in seconds.
+
+Tool schema — edit:
+Edit a single file using exact text replacement. Every edits[].oldText must match a unique, non-overlapping region of the original file. If two changes affect the same block or nearby lines, merge them into one edit instead of emitting overlapping edits. Do not include large unchanged regions just to connect distant changes.
+
+Tool schema — write:
+Write content to a file. Creates the file if it doesn't exist, overwrites if it does. Automatically creates parent directories.
