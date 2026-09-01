@@ -100,6 +100,11 @@ src/styles/global.css            design tokens + app styles
   (vendor pattern like `fd.exe`/`rg.exe`). Search backend is Firecrawl — the
   API key is configured in `%APPDATA%\ketch\config.json` and is never read by
   this app; snapshots only record the installed-skills count.
+- Workflow skills (Matt Pocock–style, pi-adapted): `grilling`,
+  `to-spec`, `to-tickets`, `implement`, `grill-me` also live in
+  `~/.pi/agent/skills/` — grilling is trigger-invokable; the others are
+  `disable-model-invocation` and run via `/skill:`. Pipeline artifacts
+  (`docs/specs/`, `docs/tickets/`) are project files, not app data.
 - Context measurement: tokens are an estimate (`chars ÷ 4` — the
   deepseek-v4-flash tokenizer isn't available); the static sample lives in
   `data/context-static.txt` (captured verbatim from a live session) and the

@@ -12,7 +12,7 @@ _As of snapshot v3 · "firecrawl key wired" (see `/harness` for live facts)._
 | Model | deepseek-v4-flash |
 | Credential | `~/.pi/agent/auth.json` (presence only — never stored by this app) |
 | Tools | `read` · `bash` · `edit` · `write` |
-| Skills installed | 2 — `web-search`, `code-search` |
+| Skills installed | 7 — `web-search`, `code-search`, `grilling`, `to-spec`, `to-tickets`, `implement`, `grill-me` |
 | Per-turn context | ≈40k tokens (measured at snapshot time; chars÷4 estimate — the model tokenizer isn't available) |
 
 ## How a turn flows
@@ -87,11 +87,33 @@ ketch code "query" --backend sourcegraph        # fallback when grep.app is slow
 Real OSS source across public repositories — for API usage examples,
 signatures, and copyable implementations.
 
-### Where this shows up
+### Workflow pipeline (plan → spec → tickets → slices)
 
-- Skill catalog in the agent context: `web-search`, `code-search`.
-- Snapshots on `/harness` record `skills installed: 2` (tools remain
-  `read/bash/edit/write` — ketch is not a registered tool).
-- The C4 pipeline diagram shows the `🔎 Web search · ketch (firecrawl ·
-  keyless fallback)` node in the agent-loop stage with the `7 · research:
-  search/scrape` edge.
+Matt Pocock–style engineering skills, adapted for pi and local tooling:
+
+1. **`grilling`** (trigger-invokable) — the design interview. Builds a **design
+   tree** of every decision, asks it in **rounds** (whole frontier at once,
+   numbered questions with a recommended answer each), looks up all *facts*
+   itself via the search skills (never asks the user what it can look up), and
+   ends when the frontier is empty and the user confirms shared understanding.
+   For greenfield fullstack projects it seeds the tree from a **14-area
+   coverage list** (requirements → architecture → risks/compliance →
+   integrations → data lifecycle → dev env → backend → frontend → testing →
+   infra/DevOps → deployment → monitoring → release → post-launch); for new
+   features it uses only the applicable subset.
+2. **`to-spec`** (`/skill:to-spec`) — no-interview synthesis of the confirmed
+   tree into `docs/specs/<slug>.md` (Problem/Solution/User Stories/
+   Implementation Decisions/**Test Seam**/Open Questions).
+3. **`to-tickets`** (`/skill:to-tickets`) — breaks the spec into tracer-bullet
+   **vertical slice** tickets at `docs/tickets/NN-<slug>.md` (full path through
+   schema/API/UI/tests, demoable alone, one context window each, `blocks:`
+   edges; wide refactors handled as expand–contract). Quiz the user on the
+   breakdown before writing.
+4. **`implement`** (`/skill:implement`) — one unblocked ticket at a time, TDD
+   at the spec's seam, typecheck + targeted tests regularly, full suite at the
+   end, self-review, commit with the ticket id.
+5. **`grill-me`** (`/skill:grill-me`) — explicit entry point that runs the
+   grilling protocol.
+
+The pipeline artifacts (`docs/specs/`, `docs/tickets/`) live in the repo, not
+in the harness app.
