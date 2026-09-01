@@ -190,7 +190,7 @@ const seedMods: SeedMod[] = [
     summary: 'Core config file: default provider, model, and harness options.',
     body: `~/.pi/agent/settings.json currently sets defaultProvider: opencode-go and defaultModel: deepseek-v4-flash, plus lastChangelogVersion.
 
-**Thoughts:** the canonical place to manage defaults. Valuable.json = the single source of truth for which model the harness uses; keep it minimal and reviewed.`,
+**Thoughts:** the canonical place to manage defaults. settings.json = the single source of truth for which model the harness uses; keep it minimal and reviewed.`,
     considered: true,
     implemented: true,
     wanted: false,
