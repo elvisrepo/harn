@@ -210,6 +210,28 @@ const seedMods: SeedMod[] = [
     tags: ['context', 'docs'],
     links: [{ label: 'agents.md spec', url: AGS }],
   },
+  {
+    title: 'Workflow pipeline (grill → spec → tickets → slices)',
+    category: 'Workflow',
+    summary: 'Matt Pocock–style engineering skills, pi-adapted: grilling, to-spec, to-tickets, implement (+ grill-me wrapper).',
+    body: `Five skills in ~/.pi/agent/skills/ that give the harness a deliberate plan→build pipeline:
+
+1. **grilling** (trigger-invokable) — the design interview: maps the topic into a *design tree*, asks it in *rounds* (whole frontier at once, numbered questions each with a recommended answer), and finds all *facts* itself via the web-search/code-search ketch skills + read/bash. Ends when the frontier is empty and the user confirms shared understanding. Greenfield fullstack project: seeds from a 14-area coverage list (requirements → architecture → risks/compliance → integrations → data lifecycle → dev env → backend → frontend → testing → infra/DevOps → deployment → monitoring → release → post-launch). New features: only the applicable subset.
+2. **to-spec** (/skill:to-spec, deliberate) — no-interview synthesis of the settled tree → docs/specs/<slug>.md (Problem/Solution/User Stories/Implementation Decisions/single highest Test Seam/Open Questions).
+3. **to-tickets** (/skill:to-tickets) — tracer-bullet *vertical slice* tickets at docs/tickets/NN-<slug>.md with \`blocks:\` edges (full path schema→API→UI→tests, demoable alone, one fresh context window; wide refactors handled via expand–contract). Quizzes the user on the breakdown.
+4. **implement** (/skill:implement) — one unblocked ticket at a time, TDD at the spec's seam, typecheck + targeted tests regularly, full suite at the end, self-review, commit \`ticket N: …\`.
+5. **grill-me** (/skill:grill-me) — explicit entry point running the grilling protocol.
+
+**Thoughts:** adaptations vs. the upstream repo: facts go through our ketch skills instead of a sub-agent; the tracker is local markdown (docs/specs, docs/tickets) instead of an issue tracker; the deliberate steps are disable-model-invocation so the pipeline never runs accidentally. The correctness of each spec depends on grilling actually settling the tree — keep specs honest about Open Questions.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['workflow', 'planning', 'skills', 'pipeline'],
+    links: [
+      { label: 'mattpocock/skills', url: 'https://github.com/mattpocock/skills' },
+      { label: 'Agent Skills spec', url: AGS },
+    ],
+  },
 ];
 
 async function upsertMods() {
