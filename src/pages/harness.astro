@@ -92,6 +92,20 @@ function fmtDate(ms: number | Date) {
     in the <a href="/">catalog</a>.
   </p>
 
+  <div class="ver-switch">
+    <span class="vs-label">Snapshot</span>
+    {versions.map((v) => (
+      <a
+        href={`/harness?v=${v.version}`}
+        class={`vs-item${v.version === selected?.version ? ' active' : ''}`}
+        title={v.label}
+      >
+        v{v.version}
+        {v.isCurrent && <em> · cur</em>}
+      </a>
+    ))}
+  </div>
+
   <div class="card">
     <C4Diagram graph={c4Graph} />
   </div>
@@ -243,6 +257,48 @@ function fmtDate(ms: number | Date) {
     display: flex;
     flex-direction: column;
     margin-top: 0.4rem;
+  }
+  .ver-switch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0 0 0.6rem;
+  }
+  .vs-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--dim);
+    margin-right: 0.2rem;
+  }
+  .vs-item {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--dim);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .vs-item:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+  .vs-item.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+    font-weight: 650;
+  }
+  .vs-item em {
+    font-style: normal;
+    font-size: 9.5px;
+    color: var(--green);
+    margin-left: 2px;
   }
   .tl-item {
     display: flex;
