@@ -33,12 +33,19 @@ function diffSnapshot(cur: (typeof versions)[number]): DiffRow[] {
     const pSkills = p.skills ?? [];
     const added = sSkills.filter((x) => !pSkills.includes(x));
     const removed = pSkills.filter((x) => !sSkills.includes(x));
-    const span = (list: string[], cls: string) =>
-      list.length ? ` <span class=${cls}>${cls === 'add' ? '+' : '−'}${list.join(', ')}</span>` : '';
+    // mark changes INLINE (each skill shown once): removed = red strike (from),
+    // added = green (to) — no separate +/- suffix lists.
+    const mark = (list: string[], isNew: boolean) =>
+      list
+        .map((x) => {
+          const flag = isNew ? added.includes(x) : removed.includes(x);
+          return flag ? `<span class=${isNew ? 'add' : 'rm'}>${x}</span>` : x;
+        })
+        .join(' · ');
     out.push({
       label: 'skills',
-      from: `${pSkills.length ? pSkills.join(' · ') : p.skillsInstalled}${span(removed, 'rm')}`,
-      to: `${sSkills.length ? sSkills.join(' · ') : s.skillsInstalled}${span(added, 'add')}`,
+      from: `${pSkills.length ? mark(pSkills, false) : p.skillsInstalled}`,
+      to: `${sSkills.length ? mark(sSkills, true) : s.skillsInstalled}`,
     });
   }
   if (s.authToken.status !== p.authToken.status)
@@ -312,6 +319,7 @@ function fmtDate(ms: number | Date) {
   .changes-item .rm {
     color: var(--red);
     font-weight: 650;
+    text-decoration: line-through;
   }
   .tl-meta {
     display: flex;

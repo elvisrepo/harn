@@ -49,12 +49,22 @@ export function buildSnapshot(): HarnessSnapshot {
   let skillsInstalled = 0;
   let skills: string[] = [];
   // user-level (~/.pi/agent/skills) + project-level (<repo>/.pi/skills)
+  // NOTE: global skill dirs are often SYMLINKS into ~/.agents/skills — resolve
+  // them (isDirectory() is false for symlinks); skip skills disabled in
+  // settings.json (“-skills/<name>” entries are installed but not loaded).
+  const disabled = new Set(
+    ((settings['skills'] as string[] | undefined) ?? [])
+      .filter((s) => typeof s === 'string' && s.startsWith('-'))
+      .map((s) => (s as string).slice(1).replace(/^skills\//, ''))
+  );
   const skillDirs = [path.join(agentDir(), 'skills'), path.join(process.cwd(), '.pi', 'skills')];
   const skillNames = new Set<string>();
   for (const dir of skillDirs) {
     try {
       for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (disabled.has(e.name)) continue;
         if (e.isDirectory()) skillNames.add(e.name);
+        else if (e.isSymbolicLink() && fs.statSync(path.join(dir, e.name)).isDirectory()) skillNames.add(e.name);
       }
     } catch {
       /* dir absent — fine */
