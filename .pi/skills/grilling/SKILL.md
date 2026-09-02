@@ -31,7 +31,7 @@ Each round's answers reshape the tree: settled decisions push the frontier outwa
 
 When a frontier question needs a fact (filesystem, current repo state, library versions, services, pricing, precedents), find it yourself:
 - Use `read`/`bash` to inspect the repo.
-- Use the **`web-search`** and **`code-search`** skills (ketch) for web facts and real OSS precedents.
+- Use the **`firecrawl`** skill family (Firecrawl CLI: `search` / `scrape` / `crawl`) for web facts and OSS precedents.
 
 Never ask the user for anything you could look up. Don't block on research: an exploration in flight is an unsettled prerequisite, so only the questions downstream of it wait; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.
 

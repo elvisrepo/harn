@@ -1,140 +1,34 @@
 ---
-// C4 architecture model of the current harness (pi coding-agent).
-// Rendered client-side with Mermaid — theme pulled from the app's design
-// tokens at runtime (single source: src/styles/global.css).
-// Structure: ordered pipeline — 1 LOAD → 2 COMPOSE → 3 AGENT LOOP →
-// reply/persist; numbered edges trace the full cycle.
-// Highlights (from the version diff) make newly added/changed elements pop.
-interface Highlights {
-  nodes: string[];
-  edges: number[];
-}
-const { highlights = { nodes: [] as string[], edges: [] as number[] } } = Astro.props as {
-  highlights?: Highlights;
-};
+// Renders a versioned C4 mermaid source (built by lib/c4.ts and persisted as
+// data/c4/v<version>.mmd). The palette is baked into the artifact at
+// generation time, so this component only mounts the graph and renders it.
+interface Props { graph: string }
+const { graph = '' } = Astro.props as Props;
 ---
-<div class="mmd" id="harness-mermaid" aria-label="C4 architecture of the pi coding-agent harness" data-highlights={JSON.stringify(highlights)}></div>
+<div class="mmd" id="harness-mermaid" aria-label="C4 architecture of the pi coding-agent harness" data-graph={graph}></div>
 
 <script>
   import mermaid from 'mermaid';
 
   const root = document.getElementById('harness-mermaid');
   if (!root) throw new Error('harness-mermaid container missing');
-
-  const cs = getComputedStyle(document.documentElement);
-  const token = (name, fallback) => cs.getPropertyValue(name).trim() || fallback;
-  const bg = token('--bg', '#0b0d10');
-  const surface = token('--surface', '#12151a');
-  const border = token('--border-strong', '#2d3542');
-  const dim = token('--dim', '#98a1ad');
-  const text = token('--text', '#e5e8ed');
-  const sky = token('--sky', '#79b6e8');
-  const accent = token('--accent', '#e3b35c');
-  const green = token('--green', '#7cc47f');
-  const red = token('--red', '#e0736b');
-  const sans = token('--sans', 'system-ui, sans-serif');
-  // mermaid classDef/style grammar rejects CSS functions like color-mix() —
-  // precompute flat hex tints from the live tokens instead.
-  const parseHex = (h) => {
-    h = h.replace('#', '');
-    if (h.length === 3) h = h.split('').map((c) => c + c).join('');
-    return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
-  };
-  const tint = (hex, p) => {
-    const fg = parseHex(hex);
-    const bgc = parseHex(bg);
-    const m = fg.map((v, i) => {
-      const c = Math.round(bgc[i] + (v - bgc[i]) * p);
-      return Math.min(255, Math.max(0, c));
-    });
-    return '#' + m.map((v) => v.toString(16).padStart(2, '0')).join('');
-  };
-
-  // nodes/edges changed in the latest version get amber + thick borders
-  let hl = { nodes: [], edges: [] };
-  try {
-    hl = JSON.parse(root.dataset.highlights || '{}');
-  } catch {
-    /* no highlights */
-  }
-  const hlLines = [
-    ...(hl.nodes ?? []).map((id) => `  style ${id} fill:${tint(accent, 0.18)},stroke:${accent},stroke-width:4`),
-    ...(hl.edges ?? []).map((i) => `  linkStyle ${i} stroke:${accent},color:${accent},stroke-width:3`),
-  ].join('\n');
-
-  const graph = `flowchart TB
-  Dev["👤 Developer (you)<br/>leads the session"]:::person
-  Dev -->|uses| PI
-  subgraph PI["pi coding agent · v0.84.4"]
-    direction TB
-    subgraph LOAD["1 · LOAD — session + config"]
-      direction LR
-      TUI["▣ pi CLI · TUI<br/>terminal · manages sessions"]:::container
-      SESS["⎙ Session history<br/>append-only JSONL · parent pointers"]:::container
-      CFG["▤ Config & state<br/>settings.json · trust.json"]:::container
-    end
-    subgraph COMPOSE["2 · COMPOSE — per-turn context"]
-      direction LR
-      ASM["⎘ Context assembler<br/>base prompt · project instructions<br/>skills catalog · extension hooks"]:::container
-    end
-    subgraph LOOP["3 · AGENT LOOP — tools · web · model"]
-      direction LR
-      ORCH["◎ Agent orchestration<br/>the core loop"]:::container
-      TOOLS["⚙ Tools<br/>read · bash · edit · write"]:::container
-      WS["🔎 Web search · ketch<br/>firecrawl · keyless fallback"]:::container
-      MODEL["◈ Model provider<br/>routes prompts to an LLM"]:::container
-      AUTH["🔑 Auth / credentials<br/>token on every prompt"]:::container
-      MS["🗎 models-store.json<br/>provider/model catalog"]:::file
-    end
-    TUI -->|1 · open session| SESS
-    SESS -->|2 · branch + compaction| ASM
-    CFG -->|3 · config| ASM
-    ASM -->|4 · per-turn context| ORCH
-    ORCH -->|5 · invoke tools| TOOLS
-    TOOLS -->|6 · results| ORCH
-    ORCH -->|7 · research: search/scrape| WS
-    ORCH -->|8 · LLM request| MODEL
-    AUTH -->|9 · token| MODEL
-    MODEL -.->|10 · resolve provider/model| MS
-    MODEL -->|11 · reply| ORCH
-    ORCH -->|12 · streamed reply| TUI
-    TUI -.->|13 · appends JSONL| SESS
-  end
-  MODS["▦ Harness Mods (web app)<br/>catalog + admin · snapshots · map"]:::system
-  FILES["▤ Harness files<br/>settings · auth (presence) · tokens"]:::system
-  MODS -.->|reads · snapshots| FILES
-  MODS -.->|tracks config + token status| PI
-  classDef person fill:${tint(sky, 0.16)},stroke:${sky},stroke-width:2
-  classDef system fill:${tint(accent, 0.15)},stroke:${accent},stroke-width:2
-  classDef container fill:${tint(green, 0.12)},stroke:${green},stroke-width:2
-  classDef file fill:${surface},stroke:${border},stroke-width:1.5
-  style LOAD fill:${tint(sky, 0.05)},stroke:${sky},stroke-width:2
-  style COMPOSE fill:${tint(accent, 0.05)},stroke:${accent},stroke-width:2
-  style LOOP fill:${tint(green, 0.05)},stroke:${green},stroke-width:2
-  style PI fill:${tint(border, 0.1)},stroke:${border},stroke-width:2
-  linkStyle 5,6 stroke:${green},color:${green}
-  linkStyle 7 stroke:${sky},color:${sky}
-  linkStyle 8,11 stroke:${sky},color:${sky}
-  linkStyle 9 stroke:${red},color:${red}
-  linkStyle 10,14,15 stroke:${dim},color:${dim}
-${hlLines}
-`;
+  const graph = root.dataset.graph || '';
 
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'loose',
     theme: 'base',
     themeVariables: {
-      background: bg,
-      mainBkg: surface,
-      nodeBorder: border,
-      clusterBkg: bg,
-      clusterBorder: border,
-      lineColor: accent,
-      edgeLabelBackground: bg,
-      textColor: text,
-      titleColor: text,
-      fontFamily: sans,
+      background: '#f6f4f0',
+      mainBkg: '#ffffff',
+      nodeBorder: '#cfc8ba',
+      clusterBkg: '#f6f4f0',
+      clusterBorder: '#cfc8ba',
+      lineColor: '#a06a15',
+      edgeLabelBackground: '#f6f4f0',
+      textColor: '#1c1e23',
+      titleColor: '#1c1e23',
+      fontFamily: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       fontSize: '14px',
     },
     flowchart: {
@@ -146,15 +40,18 @@ ${hlLines}
     },
   });
 
-  try {
-    const res = await mermaid.render('harnessMmd', graph);
-    root.innerHTML = res.svg;
-    // file node renders dashed to read as a config note
-    root.querySelectorAll('.file rect').forEach((r) => r.setAttribute('stroke-dasharray', '5 5'));
-  } catch (err) {
-    root.innerHTML =
-      `<p class="muted small" style="padding:1rem">Diagram failed to render (${err.message})</p>`;
-  }
+  const render = async () => {
+    try {
+      const res = await mermaid.render('harnessMmd', graph);
+      root.innerHTML = res.svg;
+      // file node renders dashed to read as a config note
+      root.querySelectorAll('.file rect').forEach((r2) => r2.setAttribute('stroke-dasharray', '5 5'));
+    } catch (err) {
+      root.innerHTML =
+        `<p class="muted small" style="padding:1rem">Diagram failed to render (${err.message})</p>`;
+    }
+  };
+  render();
 </script>
 
 <style>

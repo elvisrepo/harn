@@ -95,14 +95,14 @@ src/styles/global.css            design tokens + app styles
 - Design tokens live only in `src/styles/global.css` (dark block + light
   override) — the harness map's C4 diagram reads them at runtime for its
   palette; they are not part of the snapshot record.
-- Skills: all 7 (`web-search`, `code-search`, `grilling`, `to-spec`,
-  `to-tickets`, `implement`, `grill-me`) are canonically committed to this
-  repo under `.pi/skills/` (pi discovers project-level skills there) and
-  installed globally via `scripts/setup-harness.sh` → `~/.pi/agent/skills/`.
-  Snapshots count both locations. ketch binary: `~/.pi/agent/bin/ketch.exe`
-  (vendor pattern like `fd.exe`/`rg.exe`); search backend Firecrawl — the API
-  key is configured in `%APPDATA%\ketch\config.json` and is never read by this
-  app. grilling is trigger-invokable; the others are `disable-model-invocation`
+- Skills: all 5 (`grilling`, `grill-me`, `to-spec`, `to-tickets`,
+  `implement`) are canonically committed to this repo under `.pi/skills/`
+  (pi discovers project-level skills there). Snapshots count the user-level
+  (`~/.pi/agent/skills/`) and project-level (`.pi/skills/`) locations. Web
+  search/scrape/crawl is handled by the global `firecrawl`
+  skill family (Firecrawl CLI — `firecrawl --status`); the Firecrawl API key
+  is configured via the CLI and is never read by this app. grilling is
+  trigger-invokable; the others are `disable-model-invocation`
   and run via `/skill:`. Pipeline artifacts (`docs/specs/`, `docs/tickets/`)
   are project files, not app data.
 - Context measurement: tokens are an estimate (`chars ÷ 4` — the

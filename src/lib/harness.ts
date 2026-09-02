@@ -4,6 +4,7 @@ import path from 'node:path';
 import { desc } from 'drizzle-orm';
 import { db, schema } from '../../db/client.ts';
 import { measureContext, type ContextMeasurement } from './context.ts';
+import { c4HlLabels, ensureC4Artifact } from './c4.ts';
 
 export interface HarnessSnapshot {
   provider: string;
@@ -13,7 +14,7 @@ export interface HarnessSnapshot {
   authToken: { status: 'present' | 'missing'; source: string; masked: string };
   tools: string[];
   skillsInstalled: number;
-  /** installed skill names (web-search, code-search, …) */
+  /** installed skill names (grilling, to-spec, …) */
   skills: string[];
   /** per-turn context token estimate (base + instructions + session branch) */
   contextTokens: ContextMeasurement;
@@ -116,5 +117,9 @@ export async function createHarnessVersion(label: string, summary: string) {
     snapshot: JSON.stringify(snapshot),
     createdAt: new Date(),
   });
+  // versioned C4 artifact -> data/c4/v<version>.mmd (regenerated on demand if missing)
+  const prevRow = rows.find((r) => r.version === next - 1);
+  const prevSnapshot = prevRow ? (JSON.parse(prevRow.snapshot) as HarnessSnapshot) : undefined;
+  ensureC4Artifact(next, snapshot, c4HlLabels(prevSnapshot, snapshot));
   return { id, version: next };
 }

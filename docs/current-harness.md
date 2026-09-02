@@ -12,7 +12,7 @@ _As of snapshot v3 · "firecrawl key wired" (see `/harness` for live facts)._
 | Model | deepseek-v4-flash |
 | Credential | `~/.pi/agent/auth.json` (presence only — never stored by this app) |
 | Tools | `read` · `bash` · `edit` · `write` |
-| Skills installed | 7 — `web-search`, `code-search`, `grilling`, `to-spec`, `to-tickets`, `implement`, `grill-me` (canonical source: `.pi/skills/` in this repo, git-versioned; installed globally by `scripts/setup-harness.sh`) |
+| Skills installed | 5 — `grilling`, `grill-me`, `to-spec`, `to-tickets`, `implement` (canonical source: `.pi/skills/` in this repo, git-versioned) |
 | Per-turn context | ≈40k tokens (measured at snapshot time; chars÷4 estimate — the model tokenizer isn't available) |
 
 ## How a turn flows
@@ -44,56 +44,33 @@ The full numbered cycle (1–13) is drawn in the C4 pipeline on `/harness`.
 
 ## Web search — how it works
 
-There is **no built-in web search** in pi. Search is a **skill**: a
-SKILL.md package in `~/.pi/agent/skills/` whose body tells the model to run a
-local CLI called **ketch**. The model only sees the skill's
-name/description/location in its catalog; when a task matches, it reads the
-full body and executes the commands through the existing `bash` tool.
+There is **no built-in web search** in pi. Search is a **skill**: a SKILL.md
+package whose body tells the model to run a local CLI. The model only sees the
+skill's name/description/location in its catalog; when a task matches, it reads
+the full body and executes the commands through the existing `bash` tool.
 
-### ketch
+### firecrawl
 
-- **Binary**: `~/.pi/agent/bin/ketch.exe` (vendored like `fd.exe`/`rg.exe`);
-  stateless, single binary, no daemon.
-- **Config**: `%APPDATA%\ketch\config.json` — backend **firecrawl** with the
-  user's API key. The key lives only in that file; this app never reads it.
-  Keyless fallbacks (`--backend exa` / `keenable` / `ddg`) work without setup.
-- **Output**: `--json` everywhere (shape varies by backend — `--minimal` is
-  the stable tab-separated fallback); documented exit codes (2/3/4/5/6);
-  `ketch doctor` health-checks all backends.
+The global **firecrawl** skill family (installed at `~/.pi/agent/skills/`)
+wraps the **Firecrawl CLI** (`firecrawl`, npm-global):
 
-### `web-search` skill
+- **Authenticated** via the CLI's stored Firecrawl API key (config lives in
+  `firecrawl`'s own store — this app never reads it). Check health with
+  `firecrawl --status` (shows credits + concurrency).
+- **Commands** (each a separate skill in the family):
+  - `firecrawl search "query"` — web search (`--scrape` fetches full content)
+  - `firecrawl scrape <url>` — URL → clean LLM-optimized markdown
+  - `firecrawl map` / `crawl` / `download` — site discovery & bulk extraction
+  - `firecrawl interact` — clicks/form fills/pagination for JS-rendered pages
+  - `firecrawl agent` — structured data extraction from complex sites
+- **Costs are real money**: search = 2 credits / 10 results, scrape = 1 credit
+  / page, `--query` = 5 credits/page (free tier ≈ 1,000/month). The skills
+  instruct the model to keep `--limit` ≤ 10 and scrape only the top 1–2 hits,
+  and to write outputs to `.firecrawl/` instead of the context window.
 
-```bash
-ketch search "query" --limit 10 --json          # Firecrawl backend (default)
-ketch search "query" --limit 3 --scrape --json  # + full content per result
-ketch scrape <url> --json                       # URL → clean markdown
-ketch crawl <url> --limit 20                    # site crawl
-```
-
-- **Costs**: Firecrawl search = 2 credits / 10 results, scrape = 1 credit /
-  page (free tier ≈ 1,000 credits/month). The skill instructs the model to
-  keep `--limit` ≤ 10 and scrape only the top 1–2 hits.
-- The agent can search, get ranked results with snippets, then scrape the
-  relevant pages into markdown — all as structured output the model can read
-  in-context.
-
-### `code-search` skill
-
-```bash
-ketch code "query" --lang go --limit 5          # grep.app (zero config)
-ketch code "query" --backend sourcegraph        # fallback when grep.app is slow
-```
-
-Real OSS source across public repositories — for API usage examples,
-signatures, and copyable implementations.
-
-### Getting this on a new machine
-
-`scripts/setup-harness.sh` (bash, git-bash on Windows) does it from the repo
-alone: downloads the ketch binary to `~/.pi/agent/bin/`, configures backend
-`firecrawl` and prompts for the API key (never committed), copies `.pi/skills/*`
-to `~/.pi/agent/skills/` (global scope), and checks the app `.env`.
-Snapshots count skills from both locations (user-level + `.pi/skills/`).
+There is **no OSS code-grep skill** (the old `code-search`/`ketch` was
+removed); `firecrawl search --categories github` only filters web results,
+it does not grep real source.
 
 ## The skills — details
 
@@ -102,7 +79,8 @@ Matt Pocock–style engineering skills, adapted for pi and local tooling:
 1. **`grilling`** (trigger-invokable) — the design interview. Builds a **design
    tree** of every decision, asks it in **rounds** (whole frontier at once,
    numbered questions with a recommended answer each), looks up all *facts*
-   itself via the search skills (never asks the user what it can look up), and
+   itself via the firecrawl search skills (never asks the user what it can look
+   up), and
    ends when the frontier is empty and the user confirms shared understanding.
    For greenfield fullstack projects it seeds the tree from a **14-area
    coverage list** (requirements → architecture → risks/compliance →

@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import C4Diagram from '../components/C4Diagram.astro';
 import { listHarnessVersions } from '../lib/harness.ts';
+import { loadC4Graph } from '../lib/c4.ts';
 
 const versions = await listHarnessVersions();
 const wanted = Number(Astro.url.searchParams.get('v'));
@@ -58,27 +59,11 @@ const changes = selected ? diffSnapshot(selected) : [];
 const prevVer = selected ? prevOf(selected.version) : undefined;
 const changedSet = new Set(versions.filter((v) => diffSnapshot(v).length > 0).map((v) => v.version));
 
-// — which diagram elements the latest change added/touched (highlighted in the map) —
-const latest = versions[0];
-const latestChanges = latest ? diffSnapshot(latest) : [];
-const HL_NODES: Record<string, string[]> = {
-  skills: ['WS'],
-  tools: ['TOOLS'],
-  model: ['MODEL'],
-  provider: ['MODEL'],
-  credential: ['AUTH'],
-  'context / turn': ['ASM'],
-};
-const hlNodes = new Set<string>();
-const hlEdges = new Set<number>();
-for (const c of latestChanges) {
-  for (const n of HL_NODES[c.label] ?? []) hlNodes.add(n);
-  if (c.label === 'skills' || c.label === 'tools') hlEdges.add(7);
-}
-const diagramHighlights =
-  selected?.isCurrent
-    ? { nodes: [...hlNodes], edges: [...hlEdges] }
-    : { nodes: [] as string[], edges: [] as number[] };
+// — diagram highlights track the SELECTED version's diff, so each snapshot's
+//   C4 (a versioned artifact at data/c4/v<version>.mmd) reflects what changed
+//   at that point in history (v1 barebone → none) —
+const hlLabels = changes.map((c) => c.label);
+const c4Graph = selected ? loadC4Graph(selected.version, selected.snapshot, hlLabels) : '';
 
 function fmtDate(ms: number | Date) {
   return new Date(ms).toLocaleDateString('en-CA', {
@@ -101,12 +86,12 @@ function fmtDate(ms: number | Date) {
   </p>
 
   <div class="card">
-    <C4Diagram highlights={diagramHighlights} />
+    <C4Diagram graph={c4Graph} />
   </div>
-  {diagramHighlights.nodes.length + diagramHighlights.edges.length > 0 && (
+  {hlLabels.length > 0 && (
     <p class="muted small" style="margin:.2rem 0 .6rem">
       <span style="color:var(--accent);font-weight:700">◆ amber + thick</span> = added/changed in
-      the latest version (v{latest.version})
+      this snapshot (v{selected?.version}) — what reached this version
     </p>
   )}
 
