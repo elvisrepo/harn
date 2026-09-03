@@ -33,19 +33,13 @@ function diffSnapshot(cur: (typeof versions)[number]): DiffRow[] {
     const pSkills = p.skills ?? [];
     const added = sSkills.filter((x) => !pSkills.includes(x));
     const removed = pSkills.filter((x) => !sSkills.includes(x));
-    // mark changes INLINE (each skill shown once): removed = red strike (from),
-    // added = green (to) — no separate +/- suffix lists.
-    const mark = (list: string[], isNew: boolean) =>
-      list
-        .map((x) => {
-          const flag = isNew ? added.includes(x) : removed.includes(x);
-          return flag ? `<span class=${isNew ? 'add' : 'rm'}>${x}</span>` : x;
-        })
-        .join(' · ');
+    // compact: only the delta (counts + added/removed lists), never the full before/after lists
+    const chip = (list: string[], sign: string, cls: string) =>
+      list.length ? ` <span class=${cls}>${sign}${list.join(', ')}</span>` : '';
     out.push({
       label: 'skills',
-      from: `${pSkills.length ? mark(pSkills, false) : p.skillsInstalled}`,
-      to: `${sSkills.length ? mark(sSkills, true) : s.skillsInstalled}`,
+      from: `${p.skillsInstalled}${chip(removed, '−', 'rm')}`,
+      to: `${s.skillsInstalled}${chip(added, '+', 'add')}`,
     });
   }
   if (s.authToken.status !== p.authToken.status)
@@ -144,6 +138,13 @@ function fmtDate(ms: number | Date) {
           ))}
         </div>
       )}
+      {changes.some((c) => c.label === 'context / turn') && (
+        <p class="muted small" style="margin:-.35rem 0 .9rem">
+          Context is measured at capture time — the session-branch part varies with how long that
+          session was. A drop/gain here usually means a shorter/longer session at snapshot time,
+          not a harness change.
+        </p>
+      )}
 
       <table class="kv">
         <tbody>
@@ -202,6 +203,9 @@ function fmtDate(ms: number | Date) {
                       <div class="muted">current user message + attachments add per turn — varies.</div>
                       <div class="muted" style="margin-top:.3rem;border-top:1px dashed var(--border);padding-top:.3rem">
                         ≈{selected.snapshot.contextTokens.totalTokens.toLocaleString()} is context <i>size</i> — billed input per turn is lower: the repeated prefix (system prompt + earlier turns) hits provider-side prompt caching at the cache-read rate (DeepSeek ≈ 10% of input price; cache breaks after ~5 min idle), and pi auto-compaction keeps old spans as summaries as the session grows.
+                      </div>
+                      <div class="muted" style="margin-top:.3rem">
+                        <b>Capture-time measurement:</b> the <i>branch</i> part above is the size of the session that was active when the snapshot was taken — it varies wildly between snapshots (a short fresh session vs a long one). Drops/gains across versions are measurement, not harness regressions; the base + AGENTS.md parts are the stable harness facts.
                       </div>
                     </div>
                   </details>

@@ -69,6 +69,7 @@ const seedMods: SeedMod[] = [
     links: [
       { label: 'repo · tt-a1i/archify', url: 'https://github.com/tt-a1i/archify' },
       { label: 'artifact (this repo)', url: 'docs/harness-mods.architecture.html' },
+      { label: 'better-auth flow (sequence)', url: 'docs/better-auth-flow.sequence.html' },
     ],
   },
   {

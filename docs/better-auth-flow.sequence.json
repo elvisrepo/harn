@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "better-auth flow \u2014 sign-in + session-protected admin",
+    "output": "better-auth-flow.sequence.html",
+    "viewBox": [
+      860,
+      850
+    ],
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "sign-in",
+        "label": "Email + password sign-in",
+        "focus": [
+          "eng",
+          "ui",
+          "api",
+          "auth",
+          "db"
+        ],
+        "note": "Follow the credential sign-in and the session cookie it returns."
+      },
+      {
+        "id": "admin-gate",
+        "label": "Session-protected admin",
+        "focus": [
+          "eng",
+          "api",
+          "auth"
+        ],
+        "note": "See the Astro middleware session check gate /admin and mutation APIs."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "eng",
+      "type": "external",
+      "label": "Engineer",
+      "sublabel": "browser"
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "Astro Pages",
+      "sublabel": "SSR \u00b7 login \u00b7 admin"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "API Routes",
+      "sublabel": "routes + middleware"
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "better-auth",
+      "sublabel": "sessions \u00b7 scrypt"
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "SQLite",
+      "sublabel": "users \u00b7 sessions"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 520,
+      "label": "Sign-in (email + password)"
+    },
+    {
+      "from": 545,
+      "to": 778,
+      "label": "Session-protected access"
+    }
+  ],
+  "messages": [
+    {
+      "id": "enter-credentials",
+      "from": "eng",
+      "to": "ui",
+      "y": 190,
+      "label": "enter email + password",
+      "variant": "default"
+    },
+    {
+      "id": "sign-in-post",
+      "from": "ui",
+      "to": "api",
+      "y": 238,
+      "label": "POST /api/auth/sign-in/email",
+      "variant": "emphasis"
+    },
+    {
+      "id": "route-to-auth",
+      "from": "api",
+      "to": "auth",
+      "y": 282,
+      "label": "sign-in route (auth api)",
+      "variant": "security"
+    },
+    {
+      "id": "lookup-user",
+      "from": "auth",
+      "to": "db",
+      "y": 322,
+      "label": "lookup user + credential account",
+      "variant": "security"
+    },
+    {
+      "id": "credential-row",
+      "from": "db",
+      "to": "auth",
+      "y": 362,
+      "label": "email + scrypt hash",
+      "variant": "return"
+    },
+    {
+      "id": "insert-session",
+      "from": "auth",
+      "to": "db",
+      "y": 402,
+      "label": "scrypt match \u00b7 insert session row",
+      "variant": "security"
+    },
+    {
+      "id": "session-stored",
+      "from": "db",
+      "to": "auth",
+      "y": 438,
+      "label": "session + token",
+      "variant": "return"
+    },
+    {
+      "id": "session-cookie",
+      "from": "auth",
+      "to": "api",
+      "y": 474,
+      "label": "httpOnly session cookie",
+      "variant": "return"
+    },
+    {
+      "id": "redirect-admin",
+      "from": "ui",
+      "to": "eng",
+      "y": 512,
+      "label": "redirect \u2192 /admin",
+      "variant": "return"
+    },
+    {
+      "id": "open-admin",
+      "from": "eng",
+      "to": "ui",
+      "y": 560,
+      "label": "open /admin",
+      "variant": "default"
+    },
+    {
+      "id": "get-admin",
+      "from": "ui",
+      "to": "api",
+      "y": 606,
+      "label": "GET /admin (cookie)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "middleware-session",
+      "from": "api",
+      "to": "auth",
+      "y": 650,
+      "label": "auth.api.getSession (Astro middleware)",
+      "variant": "security"
+    },
+    {
+      "id": "read-session",
+      "from": "auth",
+      "to": "db",
+      "y": 702,
+      "label": "read session token",
+      "variant": "security"
+    },
+    {
+      "id": "session-row",
+      "from": "db",
+      "to": "auth",
+      "y": 738,
+      "label": "valid session",
+      "variant": "return"
+    },
+    {
+      "id": "allow-admin",
+      "from": "auth",
+      "to": "api",
+      "y": 766,
+      "label": "session OK \u2192 200 /admin",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "ui",
+      "from": 170,
+      "to": 800,
+      "type": "frontend"
+    },
+    {
+      "participant": "api",
+      "from": 235,
+      "to": 800,
+      "type": "backend"
+    },
+    {
+      "participant": "auth",
+      "from": 285,
+      "to": 800,
+      "type": "security"
+    },
+    {
+      "participant": "db",
+      "from": 335,
+      "to": 765,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Sign-in",
+      "items": [
+        "Email/password posted to better-auth's route; hashed credential verified",
+        "A session is created and set as an httpOnly cookie",
+        "signUp API exists only for seed convenience \u2014 no register UI"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Session protection",
+      "items": [
+        "Astro middleware runs auth.api.getSession on protected requests",
+        "/admin and every mutation API (POST/PUT/DELETE) require a session",
+        "Astro's origin check blocks cross-site mutations"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Storage",
+      "items": [
+        "Password stored as a scrypt hash in account.password \u2014 never the provider credential",
+        "The pi credential (~/.pi/agent/auth.json) is only probed for existence",
+        "Sessions cascade-delete with the user row"
+      ]
+    }
+  ]
+}
