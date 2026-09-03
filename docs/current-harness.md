@@ -103,3 +103,36 @@ Matt Pocock–style engineering skills, adapted for pi and local tooling:
 
 The pipeline artifacts (`docs/specs/`, `docs/tickets/`) live in the repo, not
 in the harness app.
+
+## Browser QA & screenshots
+
+Local-repo browser testing is a **script-in-a-skill** (pi has no built-in MCP
+client — `docs/usage.md`), powered by headless Playwright against system
+Chrome (`playwright-core`, devDependency): `.pi/skills/browser-qa/`.
+
+What `browser-qa` can do:
+
+- **Error capture** — console errors/warnings, uncaught page errors, failed
+  requests, per run.
+- **DOM assertions** — `--assert` / `--reject` selectors, `--text` presence,
+  `--wait` for a selector.
+- **`--eval <js>` — the full browser DOM API** via `page.evaluate`: query the
+  DOM, computed styles, `localStorage`, network state — anything a page script
+  can do. Example on `/harness?v=6`:
+  `{"svg":1,"pills":6,"snap":6,"iframes":2}` (mermaid rendered, 6 version
+  pills, snapshot rows, two archify iframes).
+- **Sign-in flow** — `--login` fills `#loginForm`, submits, waits for the
+  `/admin` redirect (creds via `ADMIN_EMAIL`/`ADMIN_PASSWORD` env, never
+  hardcoded; `--login-expect <path>` to override the landing).
+- **Screenshots** — full-page PNGs written to `public/screenshots/`, served at
+  `/screenshots/…` (e.g. `qa-harness-map.png`, `qa-admin.png`).
+
+Run: `node .pi/skills/browser-qa/scripts/qa.mjs "<url>" [flags] --json`.
+Dev-mode caveat: `npm run dev` emits Vite dev-toolbar 504s in headless runs, so
+`--expect-error-free` is meaningful against the prod build (`npm run preview`).
+
+**Can pi view images?** The `read` tool accepts PNG/JPG/GIF/WebP/BMP and
+attaches them to the model — but the default model `deepseek-v4-flash` is
+text-only, so image contents are omitted from the request. Point pi at a
+multimodal model (Claude, GPT, …, via a vision-capable provider) and the agent
+can actually look at screenshots and other images.
