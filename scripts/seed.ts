@@ -55,6 +55,23 @@ const seedMods: SeedMod[] = [
     ],
   },
   {
+    title: 'Archify — validated architecture diagrams',
+    category: 'Tooling',
+    summary:
+      'Agent skill turning codebases/descriptions into polished interactive HTML system maps (typed JSON IR + 9-gate showcase validation).',
+    body: `Installed globally at ~/.agents/skills/archify (pi discovers it). The agent authors typed JSON IR against the architecture / workflow / sequence / dataflow / lifecycle schemas; Archify validates 9 showcase gates (crossings, corridors, label clearance, desktop readability) and returns machine-readable repair receipts, then delivers one self-contained HTML (+ PNG/SVG/WebM/share cards).
+
+**Dogfooded:** mapped this repo → docs/harness-mods.architecture.html (6 components, primary Browse → API → SQLite path, better-auth + pi boundaries, 2 views, 3 cards). The delta/compare receipt discipline (added / removed / changed / moved per snapshot, inferred nothing) is worth borrowing for the /harness snapshot diffs.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['architecture', 'diagrams', 'skills', 'validation'],
+    links: [
+      { label: 'repo · tt-a1i/archify', url: 'https://github.com/tt-a1i/archify' },
+      { label: 'artifact (this repo)', url: 'docs/harness-mods.architecture.html' },
+    ],
+  },
+  {
     title: 'Extensions',
     category: 'Extensibility',
     summary: 'Packaged plugins that extend the harness (custom tools, hooks, commands).',

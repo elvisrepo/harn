@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "components": [
+    {
+      "id": "eng",
+      "type": "external",
+      "label": "Engineer",
+      "sublabel": "admin + catalog",
+      "pos": [
+        40,
+        320
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "Astro Pages",
+      "sublabel": "catalog \u00b7 map \u00b7 admin",
+      "pos": [
+        270,
+        320
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "API Routes",
+      "sublabel": "api/mods \u00b7 versions",
+      "pos": [
+        525,
+        320
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "SQLite",
+      "sublabel": "data/app.db \u00b7 drizzle",
+      "pos": [
+        800,
+        320
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "better-auth",
+      "sublabel": "email + password",
+      "pos": [
+        530,
+        80
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "pi",
+      "type": "external",
+      "label": "pi harness",
+      "sublabel": "~/.pi/agent facts",
+      "pos": [
+        525,
+        500
+      ],
+      "size": [
+        140,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Web app \u00b7 Astro SSR",
+      "wraps": [
+        "ui",
+        "api",
+        "auth"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Local data",
+      "wraps": [
+        "db"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "eng-to-ui",
+      "from": "eng",
+      "to": "ui",
+      "label": "HTTPS \u00b7 pages",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ui-to-api",
+      "from": "ui",
+      "to": "api",
+      "label": "fetch JSON"
+    },
+    {
+      "id": "api-to-auth",
+      "from": "api",
+      "to": "auth",
+      "label": "session check",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "api-to-db",
+      "from": "api",
+      "to": "db",
+      "label": "SQL \u00b7 mods/versions"
+    },
+    {
+      "id": "auth-to-db",
+      "from": "auth",
+      "to": "db",
+      "label": "users \u00b7 sessions \u00b7 accounts",
+      "variant": "security",
+      "fromSide": "left",
+      "toSide": "bottom",
+      "via": [
+        [
+          30,
+          112
+        ],
+        [
+          30,
+          620
+        ],
+        [
+          870,
+          620
+        ]
+      ],
+      "labelSegment": 0
+    },
+    {
+      "id": "api-to-pi",
+      "from": "api",
+      "to": "pi",
+      "label": "read harness facts",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Auth & scope",
+      "items": [
+        "Email/password via better-auth; hash stored, provider credential never read",
+        "/admin and mutation APIs require a session; Astro blocks cross-site writes",
+        "signUp API enabled only for seed convenience \u2014 no register UI"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "App & data",
+      "items": [
+        "Astro 7 SSR with @astrojs/node; vanilla JS + Mermaid render the harness map",
+        "SQLite WAL via better-sqlite3 + drizzle; mods tags/links stored as JSON",
+        "harness_versions keep masked token status + a data/c4/v<n>.mmd artifact each"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Harness facts (read-only)",
+      "items": [
+        "Provider/model from ~/.pi/agent/settings.json; token presence only",
+        "Skills counted across ~/.pi/agent/skills and .pi/skills (symlinks resolved)",
+        "Firecrawl CLI handles web search/scrape \u2014 API key never read by the app"
+      ]
+    }
+  ],
+  "meta": {
+    "title": "Harness Mods \u2014 runtime architecture",
+    "output": "harness-mods.architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "primary-path",
+        "label": "Browse \u2192 API \u2192 SQLite",
+        "focus": [
+          "eng",
+          "ui",
+          "api",
+          "db"
+        ],
+        "note": "Follow a catalog request from the browser to the local database."
+      },
+      {
+        "id": "admin-surface",
+        "label": "Admin & auth surface",
+        "focus": [
+          "auth",
+          "api",
+          "ui"
+        ],
+        "note": "Isolate the session-protected admin and mutation APIs."
+      }
+    ],
+    "viewBox": [
+      1120,
+      760
+    ]
+  }
+}

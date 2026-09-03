@@ -101,7 +101,10 @@ src/styles/global.css            design tokens + app styles
   (`~/.pi/agent/skills/`) and project-level (`.pi/skills/`) locations. Web
   search/scrape/crawl is handled by the global `firecrawl`
   skill family (Firecrawl CLI — `firecrawl --status`); the Firecrawl API key
-  is configured via the CLI and is never read by this app. grilling is
+  is configured via the CLI and is never read by this app. Architecture
+  diagrams are produced by the global `archify` skill (Agent Skills standard):
+  typed JSON IR → 9-gate validated interactive HTML; dogfood artifact lives at
+  `docs/harness-mods.architecture.html`. grilling is
   trigger-invokable; the others are `disable-model-invocation`
   and run via `/skill:`. Pipeline artifacts (`docs/specs/`, `docs/tickets/`)
   are project files, not app data.
