@@ -25,7 +25,8 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
-    "drizzle-kit": "^0.31.5"
+    "drizzle-kit": "^0.31.5",
+    "playwright-core": "^1.62.1"
   },
   "allowScripts": {
     "esbuild": true,
