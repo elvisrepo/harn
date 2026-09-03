@@ -55,6 +55,7 @@ src/lib/harness.ts      harness snapshot builder + version queries
 src/lib/context.ts      per-turn context token measurement (chars÷4 estimate)
 data/context-static.txt verbatim static-context sample (base prompt + tool schemas)
 src/middleware.ts       session via auth.api.getSession; protects /admin
+                        docs/archify/* artifacts before route negotiation
 src/pages/
   index.astro                    searchable catalog (client-side filter)
   mods/[id].astro                detail page (markdown via marked)
@@ -104,7 +105,7 @@ src/styles/global.css            design tokens + app styles
   is configured via the CLI and is never read by this app. Architecture
   diagrams are produced by the global `archify` skill (Agent Skills standard):
   typed JSON IR → 9-gate validated interactive HTML; dogfood artifact lives at
-  `docs/harness-mods.architecture.html`. grilling is
+  `public/docs/archify/harness-mods.architecture.html` (served at `/docs/archify/…`). grilling is
   trigger-invokable; the others are `disable-model-invocation`
   and run via `/skill:`. Pipeline artifacts (`docs/specs/`, `docs/tickets/`)
   are project files, not app data.
