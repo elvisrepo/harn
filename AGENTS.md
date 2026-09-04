@@ -68,6 +68,8 @@ versioned snapshots of the harness config + tokens.
 | `npm run db:push` | sync drizzle schema to SQLite (creates `data/app.db`) |
 | `npm run db:seed` | seed/upsert mod catalog, admin user, harness v1 |
 | `npm run db:setup` | `db:push` + `db:seed` |
+| `npm run versions:export` | export harness snapshot history (v1..vN) to `data/harness-versions.json` (committable, no auth data) |
+| `npm run versions:import` | restore snapshot history from that JSON on a fresh machine (`--force` to overwrite the placeholder v1) |
 
 Background-mode dev (`astro dev --background`) is available; manage with
 `astro dev stop | status | logs`.

@@ -28,3 +28,4 @@ drizzle/
 # ignore the api keys / local db, but always ship the static context sample
 data/*
 !data/context-static.txt
+!data/harness-versions.json

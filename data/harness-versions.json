@@ -1,0 +1,437 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-09-04T15:11:01.083Z",
+  "count": 7,
+  "versions": [
+    {
+      "id": "0583e29d-f5fd-4785-b905-5ad39e814b7c",
+      "version": 1,
+      "label": "current",
+      "summary": "Initial snapshot of the harness at setup",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash"
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 0,
+        "designTokens": {
+          "bg": "#0b0d10",
+          "surface": "#12151a",
+          "surface2": "#181c22",
+          "surface3": "#1e242c",
+          "border": "#222833",
+          "border-strong": "#2d3542",
+          "text": "#e5e8ed",
+          "dim": "#98a1ad",
+          "faint": "#6b7480",
+          "accent": "#e3b35c",
+          "accent-ink": "#171209",
+          "link": "#d9a94e",
+          "green": "#7cc47f",
+          "sky": "#79b6e8",
+          "red": "#e0736b",
+          "mono": "ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'SF Mono', Menlo,\n    Consolas, 'Liberation Mono', monospace",
+          "sans": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,\n    'Helvetica Neue', Arial, sans-serif",
+          "radius": "7px",
+          "radius-sm": "5px"
+        },
+        "lightOverrides": true,
+        "capturedAt": "2026-08-29T17:31:31.467Z"
+      },
+      "createdAt": 1788024691468
+    },
+    {
+      "id": "66b6bbc0-7be7-47de-8599-0c211a431c24",
+      "version": 2,
+      "label": "context measurement",
+      "summary": "first per-turn context token estimate",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash"
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 0,
+        "designTokens": {
+          "bg": "#0b0d10",
+          "surface": "#12151a",
+          "surface2": "#181c22",
+          "surface3": "#1e242c",
+          "border": "#222833",
+          "border-strong": "#2d3542",
+          "text": "#e5e8ed",
+          "dim": "#98a1ad",
+          "faint": "#6b7480",
+          "accent": "#e3b35c",
+          "accent-ink": "#171209",
+          "link": "#d9a94e",
+          "green": "#7cc47f",
+          "sky": "#79b6e8",
+          "red": "#e0736b",
+          "mono": "ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'SF Mono', Menlo,\n    Consolas, 'Liberation Mono', monospace",
+          "sans": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,\n    'Helvetica Neue', Arial, sans-serif",
+          "radius": "7px",
+          "radius-sm": "5px"
+        },
+        "lightOverrides": true,
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 1585,
+          "branchTokens": 16635,
+          "totalTokens": 18905,
+          "durableTokens": 16635,
+          "branchChars": 66539,
+          "staticChars": 9078
+        },
+        "capturedAt": "2026-08-29T19:04:52.580Z"
+      },
+      "createdAt": 1788030292580
+    },
+    {
+      "id": "d18a9b8e-acda-43f0-bc0c-2fe8754939b5",
+      "version": 3,
+      "label": "firecrawl key wired",
+      "summary": "installed ketch in ~/.pi/agent/bin; web-search + code-search skills; firecrawl backend, keyless fallback",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash"
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 2,
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 1757,
+          "branchTokens": 37536,
+          "totalTokens": 39978,
+          "durableTokens": 37536,
+          "branchChars": 150142,
+          "staticChars": 9765
+        },
+        "capturedAt": "2026-08-30T19:16:05.105Z",
+        "skills": [
+          "code-search",
+          "web-search"
+        ]
+      },
+      "createdAt": 1788117365107
+    },
+    {
+      "id": "518bd8cf-5c72-482d-9697-b1e634168630",
+      "version": 4,
+      "label": "workflow pipeline (matt-style skills)",
+      "summary": "grilling → to-spec → to-tickets → implement, adapted to pi: ketch for facts, local markdown tracker, fullstack 14-area coverage seed",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash"
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 7,
+        "skills": [
+          "code-search",
+          "grill-me",
+          "grilling",
+          "implement",
+          "to-spec",
+          "to-tickets",
+          "web-search"
+        ],
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 1848,
+          "branchTokens": 52869,
+          "totalTokens": 55402,
+          "durableTokens": 52869,
+          "branchChars": 211476,
+          "staticChars": 10131
+        },
+        "capturedAt": "2026-09-01T19:20:31.216Z"
+      },
+      "createdAt": 1788290431217
+    },
+    {
+      "id": "15ba6c0b-3b9a-4127-a71f-f9efeb19f908",
+      "version": 5,
+      "label": "skills repo-canonical · bootstrap",
+      "summary": "v5 refreshed in place: web search = firecrawl family (global); repo skills (grilling, grill-me, to-spec, to-tickets, implement); snapshots count user + project locations",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash"
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 13,
+        "skills": [
+          "firecrawl",
+          "firecrawl-agent",
+          "firecrawl-browser",
+          "firecrawl-crawl",
+          "firecrawl-download",
+          "firecrawl-map",
+          "firecrawl-scrape",
+          "firecrawl-search",
+          "grill-me",
+          "grilling",
+          "implement",
+          "to-spec",
+          "to-tickets"
+        ],
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 1933,
+          "branchTokens": 59258,
+          "totalTokens": 61876,
+          "durableTokens": 59258,
+          "branchChars": 237032,
+          "staticChars": 10469
+        },
+        "capturedAt": "2026-09-01T19:42:59.075Z"
+      },
+      "createdAt": 1788291779076
+    },
+    {
+      "id": "68b3e612-de25-457f-a175-dbace69b6ce7",
+      "version": 6,
+      "label": "firecrawl first-class · v5 refreshed in place",
+      "summary": "v6 capture (no v6 before — this is it): skills = firecrawl family (global) + 5 repo skills; C4 per version now includes v6 artifact.",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "theme": "dark",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash",
+          "defaultThinkingLevel": "high",
+          "skills": [
+            "-skills/google-agents-cli-adk-code",
+            "-skills/google-agents-cli-deploy",
+            "-skills/google-agents-cli-eval",
+            "-skills/google-agents-cli-observability",
+            "-skills/google-agents-cli-publish",
+            "-skills/google-agents-cli-scaffold",
+            "-skills/google-agents-cli-workflow",
+            "-skills/find-skills",
+            "-skills/amazon-bedrock",
+            "-skills/aws-auth",
+            "-skills/aws-billing-and-cost-management",
+            "-skills/aws-blocks",
+            "-skills/aws-cdk",
+            "-skills/aws-cloudformation",
+            "-skills/aws-compute",
+            "-skills/aws-containers",
+            "-skills/aws-deployment",
+            "-skills/aws-messaging-and-streaming",
+            "-skills/aws-observability",
+            "-skills/aws-sdk-js-v3-usage",
+            "-skills/aws-sdk-python-usage",
+            "-skills/aws-sdk-swift-usage",
+            "-skills/aws-security",
+            "-skills/aws-serverless",
+            "-skills/aws-storage",
+            "-skills/launch-with-aws",
+            "-skills/signing-in-to-aws"
+          ]
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 14,
+        "skills": [
+          "archify",
+          "firecrawl",
+          "firecrawl-agent",
+          "firecrawl-browser",
+          "firecrawl-crawl",
+          "firecrawl-download",
+          "firecrawl-map",
+          "firecrawl-scrape",
+          "firecrawl-search",
+          "grill-me",
+          "grilling",
+          "implement",
+          "to-spec",
+          "to-tickets"
+        ],
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 1970,
+          "branchTokens": 0,
+          "totalTokens": 2655,
+          "durableTokens": 0,
+          "branchChars": 0,
+          "staticChars": 10620
+        },
+        "capturedAt": "2026-09-03T11:03:34.150Z"
+      },
+      "createdAt": 1788433414150
+    },
+    {
+      "id": "c31d9581-bba3-4738-9274-fd561656165c",
+      "version": 7,
+      "label": "browser-qa skill + playwright-core",
+      "summary": "v7: new project skill browser-qa (headless Playwright against system Chrome — console/DOM/eval/sign-in flow/screenshots to public/screenshots); playwright-core devDependency; docs/current-harness.md documents the capability.",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "theme": "dark",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash",
+          "defaultThinkingLevel": "high",
+          "skills": [
+            "-skills/google-agents-cli-adk-code",
+            "-skills/google-agents-cli-deploy",
+            "-skills/google-agents-cli-eval",
+            "-skills/google-agents-cli-observability",
+            "-skills/google-agents-cli-publish",
+            "-skills/google-agents-cli-scaffold",
+            "-skills/google-agents-cli-workflow",
+            "-skills/find-skills",
+            "-skills/amazon-bedrock",
+            "-skills/aws-auth",
+            "-skills/aws-billing-and-cost-management",
+            "-skills/aws-blocks",
+            "-skills/aws-cdk",
+            "-skills/aws-cloudformation",
+            "-skills/aws-compute",
+            "-skills/aws-containers",
+            "-skills/aws-deployment",
+            "-skills/aws-messaging-and-streaming",
+            "-skills/aws-observability",
+            "-skills/aws-sdk-js-v3-usage",
+            "-skills/aws-sdk-python-usage",
+            "-skills/aws-sdk-swift-usage",
+            "-skills/aws-security",
+            "-skills/aws-serverless",
+            "-skills/aws-storage",
+            "-skills/launch-with-aws",
+            "-skills/signing-in-to-aws"
+          ]
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 15,
+        "skills": [
+          "archify",
+          "browser-qa",
+          "firecrawl",
+          "firecrawl-agent",
+          "firecrawl-browser",
+          "firecrawl-crawl",
+          "firecrawl-download",
+          "firecrawl-map",
+          "firecrawl-scrape",
+          "firecrawl-search",
+          "grill-me",
+          "grilling",
+          "implement",
+          "to-spec",
+          "to-tickets"
+        ],
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 2000,
+          "branchTokens": 0,
+          "totalTokens": 2685,
+          "durableTokens": 0,
+          "branchChars": 0,
+          "staticChars": 10739
+        },
+        "capturedAt": "2026-09-03T12:24:53.922Z"
+      },
+      "createdAt": 1788438293922
+    }
+  ]
+}

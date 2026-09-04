@@ -13,7 +13,9 @@
     "db:push": "drizzle-kit push",
     "db:seed": "node --env-file=.env --experimental-strip-types scripts/seed.ts",
     "db:setup": "npm run db:push && npm run db:seed",
-    "check": "astro build && node scripts/qa-flows.mjs"
+    "check": "astro build && node scripts/qa-flows.mjs",
+    "versions:export": "node scripts/export-versions.mjs",
+    "versions:import": "node scripts/import-versions.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.4",
