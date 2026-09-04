@@ -1,4 +1,15 @@
 
+Principles (values to apply with judgment — they outrank other guidance when things conflict):
+- Minimalism: only the code the immediate problem needs; no speculative features, abstractions, or predictive configs.
+- Surgical edits: touch only the lines the task requires; leave adjacent code untouched.
+- Goal-driven: break tasks into steps with explicit success criteria; verify before claiming done.
+- Clarify, don't guess: state assumptions; halt on ambiguity.
+- Receipts over prose: sensors/checks report stable, machine-readable facts — feed evidence back, not guesses.
+- Sensors before handoff: run `npm run check` (build + behaviour flows) before declaring work done.
+- Snapshots are point-in-time truth: diffs must never mislead; never silently rewrite history.
+- Secrets only via env: never logged, echoed, or committed.
+- Fix the kit first: recurring issues get fixed in skills/conventions/checks, not just this instance.
+
 Always begin by thinking deeply before you code—explicitly stating your assumptions,
 surfacing tradeoffs, and halting to ask for clarification the moment you encounter ambiguity
 rather than guessing silently.
