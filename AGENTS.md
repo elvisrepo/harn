@@ -10,6 +10,16 @@ Principles (values to apply with judgment — they outrank other guidance when t
 - Secrets only via env: never logged, echoed, or committed.
 - Fix the kit first: recurring issues get fixed in skills/conventions/checks, not just this instance.
 
+Cross-functional requirements (CfRs — standing quality bars for this project; they are the
+"how the system performs" tiebreakers; where possible, translate them into testable
+acceptance criteria):
+- Security: secrets only via env — never logged, echoed, or committed; session cookies httpOnly; origin checks enforced.
+- Data integrity: snapshots are point-in-time truth; no silent history rewrites; seeding/migrations idempotent.
+- Environment portability: behaviour identical across dev / preview / production (watch AUTH_URL and NODE_ENV-dependent cookie flags) — verify in real conditions, not just dev.
+- Real-browser usability: served URLs must work in actual browsers (content negotiation, cookies), not only via curl or scripted clients.
+- Maintainability: typed artifacts, machine-readable receipts, kit-vs-instance separation (see docs/Harness reuse contract.md).
+- Performance/scalability: explicitly loose — local single-user tool; do not over-engineer.
+
 Always begin by thinking deeply before you code—explicitly stating your assumptions,
 surfacing tradeoffs, and halting to ask for clarification the moment you encounter ambiguity
 rather than guessing silently.

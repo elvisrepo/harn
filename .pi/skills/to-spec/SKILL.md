@@ -17,6 +17,7 @@ Synthesize the settled decisions from the current conversation into a spec file 
    - The ideal number is one; the fewer seams, the better.
    - If new seams are needed, propose them and check with the user that they match expectations.
 3. Write the spec using the template below. Only include what was actually decided (in grilling or the conversation). If something important was never decided, either derive it from an explicit decision or list it under **Open Questions** — do not invent decisions.
+4. **Capture the applicable CfRs** (cross-functional requirements — see AGENTS.md) that constrain this feature, each as a **testable acceptance criterion** where possible. Only the ones that genuinely apply; write "None beyond the repo defaults" when the standing AGENTS.md bars suffice.
 
 ## Template
 
@@ -35,6 +36,11 @@ The solution, from the user's perspective.
 
 ## Implementation Decisions
 - What was decided in grilling, including explicitly deferred items (and why).
+
+## CfRs (cross-functional requirements)
+The applicable quality bars for this feature, each as a testable acceptance criterion where
+possible (e.g. "secrets: no new values logged — assert in code review + grep test"), or
+"None beyond the repo defaults (AGENTS.md)".
 
 ## Test Seam
 The single highest seam at which this feature is tested, and how test doubles plug in.

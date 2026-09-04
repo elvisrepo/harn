@@ -257,6 +257,36 @@ Ours (extracted into AGENTS.md, 2026-09):
     ],
   },
   {
+    title: 'Cross-functional requirements (CfRs)',
+    category: 'Knowledge',
+    summary: 'How the system performs, not what it does — quality bars (security, integrity, portability, usability, maintainability) fed forward to the agent as inferential guides.',
+    body: `CfRs (formerly non-functional requirements) define how a system performs rather than what it does — qualities that cut across features: security, performance, scalability, maintainability, reliability. In the Guides stack they are inferential feedforward: an agent told to "add mod search" will do the feature but will not spontaneously consider quality expectations unless they are fed forward.
+
+Disambiguation (researched 2026-09): CfR is also used for Change Failure Rate (a DORA metric — that is a *sensor*, not a guide) and 21 CFR Part 11 (FDA compliance) — neither is the Guides meaning.
+
+Handling (the article-endorsed move): translate CfRs into architectural building blocks or **testable acceptance criteria** — the bridge to the Architecture-fitness harness: CfRs as guides (feedforward) + fitness-function tests as sensors (feedback). Some CfRs graduate to computational sensors — ours already are: the check suite (build + behaviour flows) and browser-qa verify build/usability on every run.
+
+Ours (added to AGENTS.md, 2026-09):
+
+1. **Security** — secrets only via env; httpOnly session cookies; origin checks enforced.
+2. **Data integrity** — snapshots are point-in-time truth; idempotent seeding/migrations.
+3. **Environment portability** — identical behaviour across dev / preview / production (AUTH_URL, NODE_ENV-dependent cookie flags); verify in real conditions, not just dev.
+4. **Real-browser usability** — served URLs must work in actual browsers (content negotiation, cookies), not only via curl (earned: the /docs/archify Accept-header 404).
+5. **Maintainability** — typed artifacts, machine-readable receipts, kit-vs-instance separation.
+6. **Performance/scalability** — explicitly loose: local single-user tool; do not over-engineer.
+
+**Thoughts:** same story as Principles — the earned lessons were de-facto CfRs (environment portability and real-browser usability came from the preview 403 and the static-serving 404 incidents) but existed only as incident fixes. Stating them as requirements means the agent sees the quality bars when starting feature work, and to-spec captures the per-feature subset as testable criteria.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['cfrs', 'nfrs', 'feedforward', 'guides', 'fitness-functions'],
+    links: [
+      { label: 'article — guides', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'CfR handling (Kua)', url: 'https://thekua.com/atwork/2017/05/three-ways-to-handle-cfrs/' },
+      { label: 'GovStack CFR architecture', url: 'https://govstack.gitbook.io/cfr-architecture/6-cross-functional-requirements' },
+    ],
+  },
+  {
     title: 'Workflow pipeline (grill → spec → tickets → slices)',
     category: 'Workflow',
     summary: 'Matt Pocock–style engineering skills, pi-adapted: grilling, to-spec, to-tickets, implement (+ grill-me wrapper).',
