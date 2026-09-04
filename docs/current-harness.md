@@ -1,19 +1,22 @@
 # Current harness — summary
 
-_As of snapshot v3 · "firecrawl key wired" (see `/harness` for live facts)._
+_Verified at snapshot v7 (2026-09-03). Live facts live on `/harness` — this doc describes the
+model and mechanisms, not the drifting numbers (single-source rule: link to systems of
+record, don't copy them)._
 
 ## What the harness is
 
 **pi coding agent v0.84.4** — a local AI coding-agent harness running with:
 
-| Fact | Value |
+| Fact | Value (at v7 — live values on `/harness`) |
 |---|---|
 | Provider | opencode-go |
 | Model | deepseek-v4-flash |
 | Credential | `~/.pi/agent/auth.json` (presence only — never stored by this app) |
 | Tools | `read` · `bash` · `edit` · `write` |
-| Skills installed | 5 — `grilling`, `grill-me`, `to-spec`, `to-tickets`, `implement` (canonical source: `.pi/skills/` in this repo, git-versioned) |
-| Per-turn context | ≈40k tokens (measured at snapshot time; chars÷4 estimate — the model tokenizer isn't available) |
+| Skills installed | 15 at v7 — global (`~/.pi/agent/skills`, incl. symlinks into `~/.agents/skills`): `firecrawl` family ×8, `archify`; project (`.pi/skills/`): `grilling`, `grill-me`, `to-spec`, `to-tickets`, `implement`, `browser-qa` |
+| Agent guides | AGENTS.md — **Principles** (9) · **CfRs** (6) · reference-doc index (read every turn; decisions in `docs/Principles and CfRs.md`) |
+| Per-turn context | ≈2.7k at v7 — session-branch-dependent; see the capture-time caveat on `/harness` |
 
 ## How a turn flows
 
@@ -39,6 +42,9 @@ The full numbered cycle (1–13) is drawn in the C4 pipeline on `/harness`.
   long sessions.
 - Snapshots on `/harness` record the estimate; `data/context-static.txt` is the
   verbatim static-context sample.
+- Capture-time caveat: the session-branch part varies with how long the session
+  was when the snapshot was taken — drops/gains across versions are
+  measurement, not regressions.
 
 ---
 
@@ -89,7 +95,7 @@ Matt Pocock–style engineering skills, adapted for pi and local tooling:
    features it uses only the applicable subset.
 2. **`to-spec`** (`/skill:to-spec`) — no-interview synthesis of the confirmed
    tree into `docs/specs/<slug>.md` (Problem/Solution/User Stories/
-   Implementation Decisions/**Test Seam**/Open Questions).
+   Implementation Decisions/**CfRs**/**Test Seam**/Open Questions).
 3. **`to-tickets`** (`/skill:to-tickets`) — breaks the spec into tracer-bullet
    **vertical slice** tickets at `docs/tickets/NN-<slug>.md` (full path through
    schema/API/UI/tests, demoable alone, one context window each, `blocks:`
@@ -100,6 +106,12 @@ Matt Pocock–style engineering skills, adapted for pi and local tooling:
    end, self-review, commit with the ticket id.
 5. **`grill-me`** (`/skill:grill-me`) — explicit entry point that runs the
    grilling protocol.
+6. **`browser-qa`** (project skill, not pipeline) — headless-Playwright
+   sensor for the app itself; see the section below.
+
+Globals (installed outside this repo): `firecrawl` family (web
+search/scrape — section above) and `archify` (validated interactive
+architecture diagrams; artifacts served at `/docs/archify/…`).
 
 The pipeline artifacts (`docs/specs/`, `docs/tickets/`) live in the repo, not
 in the harness app.

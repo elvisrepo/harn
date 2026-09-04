@@ -68,3 +68,16 @@ The article's missing tooling — "configure, sync, and reason about guides and
 sensors as a system" — is what this app *is*. The reuse contract is the handle
 that lets the same harness be instantiated elsewhere without forking the
 app-specific mess. See `docs/Harness engineering for coding agent users.md`.
+
+## Glossary
+
+- **Kit / Instance** — the portable harness (skills, conventions, check discipline) vs this project's concrete app
+- **Guide (feedforward)** — steers the agent before it acts: principles, rules, CfRs, ref docs, how-tos, CLIs/LSPs
+- **Sensor (feedback)** — observes after the act and enables self-correction: tests, browser-qa, linters, review agents
+- **CfR** — cross-functional requirement: a quality bar for *how the system performs* (security, integrity, portability, usability, maintainability)
+- **Receipt** — machine-readable sensor output: stable facts + evidence + fix hints (archify diagnostics, browser-qa JSON)
+- **Steering loop** — human practice: recurring issue → improve the control (kit first) → snapshot
+- **`check`** — `npm run check`: build + browser behaviour flows — the pre-handoff sensor
+- **Snapshot / C4 artifact** — versioned capture of harness state (`/harness`, `data/c4/v<n>.mmd`)
+- **Mod** — a catalog entry: one way to modify the harness (considered / implemented / wanted)
+- **Single-source rule** — ref docs link to systems of record; they do not copy drifting facts

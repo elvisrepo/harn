@@ -20,6 +20,14 @@ acceptance criteria):
 - Maintainability: typed artifacts, machine-readable receipts, kit-vs-instance separation (see docs/Harness reuse contract.md).
 - Performance/scalability: explicitly loose — local single-user tool; do not over-engineer.
 
+Reference docs (read on demand; single-source rule — they link to systems of record like
+/harness and the snapshots, they do not copy drifting facts):
+- docs/current-harness.md — how the harness works (turn flow, context model, skills, browser QA); verified at v7
+- docs/Principles and CfRs.md — decision record for both guide sets, with the incidents that earned them
+- docs/Harness reuse contract.md — kit vs instance; read before instantiating the harness elsewhere or changing skills/conventions
+- docs/Harness engineering for coding agent users.md — Böckeler's harness-engineering article condensed (guides/sensors/CfRs vocabulary)
+- docs/Harness review — feedforward guides.md — working notes on the Guides/Sensors figure
+
 Always begin by thinking deeply before you code—explicitly stating your assumptions,
 surfacing tradeoffs, and halting to ask for clarification the moment you encounter ambiguity
 rather than guessing silently.
