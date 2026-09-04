@@ -287,6 +287,34 @@ Ours (added to AGENTS.md, 2026-09):
     ],
   },
   {
+    title: 'Reference docs (Ref Docs)',
+    category: 'Knowledge',
+    summary: 'Facts to consult on demand, not instructions — the progressive-disclosure guides: zero token cost until needed; quality = discoverable AND current.',
+    body: `Ref Docs are the "what is true about this system" layer of the Guides stack (Principles = values, Rules/CfRs = constraints, How-tos = procedures, Ref Docs = facts). Inferential because the agent must decide to look and interpret what it finds; economical because they cost zero tokens until loaded — but only if they are discoverable.
+
+Two failure modes define quality:
+
+1. **Stale doc** — worse than no doc: the agent trusts it. (The article's coherence worry: guides must not contradict each other.)
+2. **Invisible doc** — exists but nobody knows when to read it.
+
+Ours (added 2026-09):
+
+1. **Doc index in AGENTS.md** — five docs with when-to-read purpose; the agent sees the index every turn.
+2. **Refreshed docs/current-harness.md to v7** — was written at v3-era ("5 skills", ≈40k context) while AGENTS.md said 15 — two ref docs disagreeing is exactly the incoherence failure. Now stamped "Verified at snapshot v7" and restructured to defer to /harness + snapshots for live values.
+3. **Single-source rule** — ref docs link to systems of record (/harness, snapshots); they do not copy drifting facts. Stated in AGENTS.md + the glossary.
+4. **Glossary** — in the reuse contract: Kit/Instance, Guide, Sensor, CfR, Receipt, Steering loop, check, Snapshot/C4 artifact, Mod, Single-source rule.
+
+**Thoughts:** earned lessons drove this — current-harness.md sat stale from v3 through v5 while facts drifted elsewhere, and the /docs/archify serving incident proved "discoverable + current" is the whole game. A stale ref doc actively misleads the agent; an invisible one never helps.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['ref-docs', 'docs', 'feedforward', 'guides', 'index'],
+    links: [
+      { label: 'article — guides', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'our review (fig 2)', url: 'docs/Harness review — feedforward guides.md' },
+    ],
+  },
+  {
     title: 'Workflow pipeline (grill → spec → tickets → slices)',
     category: 'Workflow',
     summary: 'Matt Pocock–style engineering skills, pi-adapted: grilling, to-spec, to-tickets, implement (+ grill-me wrapper).',
