@@ -229,6 +229,34 @@ const seedMods: SeedMod[] = [
     links: [{ label: 'agents.md spec', url: AGS }],
   },
   {
+    title: 'Principles',
+    category: 'Knowledge',
+    summary: 'Durable value statements the agent applies with judgment — the top inferential feedforward guide (they outrank other guidance on conflict).',
+    body: `Principles are the top layer of the Guides stack (see docs/Harness review — feedforward guides.md): short, durable value statements the agent must **interpret**, not mechanically follow — that's why they're inferential. Distinct from Rules (checkable constraints), Ref Docs (facts), and How-tos (procedures); principles are the tiebreaker when rules conflict or a situation is ambiguous.
+
+Ours (extracted into AGENTS.md, 2026-09):
+
+1. **Minimalism** — only the code the immediate problem needs; no speculative features, abstractions, or predictive configs.
+2. **Surgical edits** — touch only the lines the task requires; leave adjacent code untouched.
+3. **Goal-driven** — steps with explicit success criteria; verify before claiming done.
+4. **Clarify, don't guess** — state assumptions; halt on ambiguity.
+5. **Receipts over prose** — sensors/checks report stable, machine-readable facts.
+6. **Sensors before handoff** — run \`npm run check\` (build + behaviour flows) before declaring work done.
+7. **Snapshots are point-in-time truth** — diffs must never mislead; no silent history rewrites.
+8. **Secrets only via env** — never logged, echoed, or committed.
+9. **Fix the kit first** — recurring issues get fixed in skills/conventions/checks, not just the instance.
+
+**Thoughts:** these existed implicitly inside AGENTS.md's instruction paragraph, unlabeled and mixed with mundane rules. Extracting them as a labeled block makes the steering explicit — the agent reads them every turn and uses them as tiebreakers (earned lessons like "snapshots are point-in-time truth" came from real incidents: the v5/v6 context-drop confusion).`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['principles', 'agents-md', 'feedforward', 'guides'],
+    links: [
+      { label: 'article — guides', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'our review (fig 2)', url: 'docs/Harness review — feedforward guides.md' },
+    ],
+  },
+  {
     title: 'Workflow pipeline (grill → spec → tickets → slices)',
     category: 'Workflow',
     summary: 'Matt Pocock–style engineering skills, pi-adapted: grilling, to-spec, to-tickets, implement (+ grill-me wrapper).',
