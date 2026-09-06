@@ -15,7 +15,7 @@ record, don't copy them)._
 | Credential | `~/.pi/agent/auth.json` (presence only — never stored by this app) |
 | Tools | `read` · `bash` · `edit` · `write` |
 | Skills installed | 15 at v7 — global (`~/.pi/agent/skills`, incl. symlinks into `~/.agents/skills`): `firecrawl` family ×8, `archify`; project (`.pi/skills/`): `grilling`, `grill-me`, `to-spec`, `to-tickets`, `implement`, `browser-qa` |
-| Agent guides | AGENTS.md — **Principles** (9) · **CfRs** (6) · reference-doc index (read every turn; decisions in `docs/Principles and CfRs.md`) |
+| Agent guides | AGENTS.md — **Principles** (9) · **CfRs** (6) · reference-doc index (read every turn; decisions in `docs/Harness decisions.md`) |
 | Per-turn context | ≈2.7k at v7 — session-branch-dependent; see the capture-time caveat on `/harness` |
 
 ## How a turn flows

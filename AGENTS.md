@@ -23,7 +23,7 @@ acceptance criteria):
 Reference docs (read on demand; single-source rule — they link to systems of record like
 /harness and the snapshots, they do not copy drifting facts):
 - docs/current-harness.md — how the harness works (turn flow, context model, skills, browser QA); verified at v7
-- docs/Principles and CfRs.md — decision record for both guide sets, with the incidents that earned them
+- docs/Harness decisions.md — running decision record for the article review (Principles, CfRs, Ref Docs, Rules; the incidents that earned them)
 - docs/Harness reuse contract.md — kit vs instance; read before instantiating the harness elsewhere or changing skills/conventions
 - docs/Harness engineering for coding agent users.md — Böckeler's harness-engineering article condensed (guides/sensors/CfRs vocabulary)
 - docs/Harness review — feedforward guides.md — working notes on the Guides/Sensors figure
@@ -70,6 +70,7 @@ versioned snapshots of the harness config + tokens.
 | `npm run db:setup` | `db:push` + `db:seed` |
 | `npm run versions:export` | export harness snapshot history (v1..vN) to `data/harness-versions.json` (committable, no auth data) |
 | `npm run versions:import` | restore snapshot history from that JSON on a fresh machine (`--force` to overwrite the placeholder v1) |
+| `npm run check` | pre-handoff sensor: secrets scan + build + browser behaviour flows (self-boots preview if no server is up) |
 
 Background-mode dev (`astro dev --background`) is available; manage with
 `astro dev stop | status | logs`.
@@ -119,6 +120,8 @@ src/styles/global.css            design tokens + app styles
 
 - Adding a mod: use the `/admin` form (POST `/api/mods`) or extend the seed
   list in `scripts/seed.ts`. Slug must be unique — auto-generated from title.
+  **Catalog is code**: any mod edit made through the `/admin` UI must be
+  mirrored into `scripts/seed.ts`, or the next `db:seed` reverts it.
 - Status semantics: `considered` = we evaluated it; `implemented` = live in the
   current harness; `wanted` = on the shortlist.
 - Snapshot flows: when the harness changes (provider/model/token/design
