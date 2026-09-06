@@ -315,6 +315,35 @@ Ours (added 2026-09):
     ],
   },
   {
+    title: 'Browser QA',
+    category: 'Tooling',
+    summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',
+    body: `Project skill (.pi/skills/browser-qa + playwright-core devDependency): a scriptable headless-Chrome sensor for the harness app — the behaviour side of the article's regulation model (it catches what typecheck/build cannot: the page actually rendering, the auth flow actually working, the browser actually accepting our responses).
+
+What it does (node .pi/skills/browser-qa/scripts/qa.mjs <url> [flags]):
+
+1. **Error capture** — console errors/warnings, uncaught page errors, failed requests, per run.
+2. **DOM assertions** — --assert / --reject selectors, --text presence, --wait.
+3. **--eval <js>** — the full browser DOM API via page.evaluate: e.g. on /harness → {"svg":1,"pills":6,"snap":6,"iframes":2} (mermaid rendered, 6 version pills, 2 archify iframes).
+4. **--login** — fills #loginForm, submits, waits for the /admin redirect (creds via ADMIN_EMAIL/ADMIN_PASSWORD env — never hardcoded).
+5. **--shot** — full-page PNGs to public/screenshots/ (served at /screenshots/…).
+
+Wired into the suite: scripts/qa-flows.mjs runs 4 flows (catalog, harness, archify, login) and npm run check gates them after a build. All 4 green: 0 console errors / 0 page errors / 0 failed requests on the preview build.
+
+**Earned lessons (this sensor already paid rent):** it caught the /docs/archify serving failure (curl got 200 with Accept */*, real browsers got 404 — Accept: text/html) and the preview login 403 (better-auth origin vs AUTH_URL mismatch + Secure cookies over http). Both were invisible to curl and build checks.
+
+Dev-mode caveat: npm run dev emits Vite dev-toolbar 504s in headless runs — expect-error-free is meaningful against the prod build (npm run preview), which check self-serves.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['browser', 'qa', 'sensor', 'playwright', 'behaviour'],
+    links: [
+      { label: 'playwright-core', url: 'https://playwright.dev' },
+      { label: 'check flows (runner)', url: 'scripts/qa-flows.mjs' },
+      { label: 'screenshots', url: '/screenshots/qa-harness-map.png' },
+    ],
+  },
+  {
     title: 'Workflow pipeline (grill → spec → tickets → slices)',
     category: 'Workflow',
     summary: 'Matt Pocock–style engineering skills, pi-adapted: grilling, to-spec, to-tickets, implement (+ grill-me wrapper).',
