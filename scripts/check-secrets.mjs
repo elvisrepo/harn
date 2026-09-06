@@ -18,7 +18,7 @@ const PATTERNS = [
   ['GitHub token', /\bgh[pousr]_[A-Za-z0-9]{30,}\b/],
   ['OpenAI-style key', /\bsk-[A-Za-z0-9_-]{20,}\b/],
   ['Firecrawl API key', /\bfc-[0-9a-f]{20,}\b/i],
-  ['env-style assignment', /\b(AUTH_SECRET|ADMIN_PASSWORD|FIRECRAWL_API_KEY)\s*=\s*\S+/],
+  ['env-style assignment', /\b(AUTH_SECRET|ADMIN_PASSWORD|FIRECRAWL_API_KEY)\s*=\s*(?!<)\S+/], // <placeholder> values (docs) don't count
 ];
 
 let tracked;

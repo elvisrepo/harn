@@ -47,8 +47,9 @@ const { graph = '' } = Astro.props as Props;
       // file node renders dashed to read as a config note
       root.querySelectorAll('.file rect').forEach((r2) => r2.setAttribute('stroke-dasharray', '5 5'));
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
       root.innerHTML =
-        `<p class="muted small" style="padding:1rem">Diagram failed to render (${err.message})</p>`;
+        `<p class="muted small" style="padding:1rem">Diagram failed to render (${msg})</p>`;
     }
   };
   render();

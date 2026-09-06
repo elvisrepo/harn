@@ -77,8 +77,8 @@ git rm --cached .env && git commit -m "security: untrack .env"
 python3 - <<'EOF'
 import secrets, re
 p = open('.env').read()
-p = re.sub(r'AUTH_SECRET=.*', 'AUTH_SECRET=' + secrets.token_urlsafe(32), p)
-p = re.sub(r'ADMIN_PASSWORD=.*', 'ADMIN_PASSWORD=Pi-admin-' + secrets.token_urlsafe(9), p)
+for key in ('AUTH_SECRET', 'ADMIN_PASSWORD'):   # any env secret to rotate
+    p = re.sub(key + r'=.*', key + '=' + secrets.token_urlsafe(24), p)
 open('.env','w').write(p)
 print('rotated')
 EOF

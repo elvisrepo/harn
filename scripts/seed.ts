@@ -344,6 +344,28 @@ Dev-mode caveat: npm run dev emits Vite dev-toolbar 504s in headless runs — ex
     ],
   },
   {
+    title: 'Language servers (astro check)',
+    category: 'Tooling',
+    summary: 'Deterministic code intelligence as a batch sensor: astro check type-checks the whole repo in npm run check — the control astro build pretended to be.',
+    body: `The article's Language Servers guide (computational): ground-truth code intelligence — types, signatures, definitions, references, diagnostics — steering the agent before it writes. The same engine run after a change is a sensor; placement decides the role.
+
+**The audit finding that earned this mod:** npm run check ran astro build… which does NOT type-check TypeScript (esbuild strips types without checking). The typecheck sensor we thought we had did not exist — a type error in src/lib sailed through build and check.
+
+Decision (2026-09): astro check (the TS/Astro language engine in CLI mode) chained into npm run check (build → typecheck → secrets scan → behaviour flows). DevDeps: @astrojs/check + typescript@6. First run: 1 real error (unknown catch binding in C4Diagram.astro) — fixed; now 0 errors / 0 warnings.
+
+*Gotcha:* TypeScript 7 (the new native compiler) does not expose the programmatic API astro check needs — pin typescript@6.x until Astro supports it (docs.astro.build, withastro/roadmap#1321).
+
+**Honest limit:** the interactive form (diagnostics surfaced while editing — the true LSP-as-guide) needs pi-side integration that does not exist today (tools: read/bash/edit/write; no MCP client). Batch mode captures most of the value for a repo this size; the interactive frontier stays open.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['typecheck', 'lsp', 'sensor', 'typescript', 'computational'],
+    links: [
+      { label: 'astro check docs', url: 'https://docs.astro.build/en/reference/cli-reference/#astro-check' },
+      { label: 'TS 7 API gap (roadmap#1321)', url: 'https://github.com/withastro/roadmap/discussions/1321' },
+    ],
+  },
+  {
     title: 'Workflow pipeline (grill → spec → tickets → slices)',
     category: 'Workflow',
     summary: 'Matt Pocock–style engineering skills, pi-adapted: grilling, to-spec, to-tickets, implement (+ grill-me wrapper).',

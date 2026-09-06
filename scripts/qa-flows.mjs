@@ -57,7 +57,7 @@ async function ensureApp() {
 
 const flows = [
   { name: 'catalog', path: '/', args: ['--assert', 'main', '--text', 'Harness Mods', '--shot', path.join(SHOT_DIR, 'check-catalog.png')] },
-  { name: 'harness', path: '/harness', args: ['--assert', '.ver-switch .vs-item', '--assert', '#harness-mermaid', '--eval', 'document.querySelectorAll("#harness-mermaid svg").length', '--shot', path.join(SHOT_DIR, 'check-harness.png')] },
+  { name: 'harness', path: '/harness', args: ['--wait', '.mmd svg', '--assert', '.ver-switch .vs-item', '--assert', '#harness-mermaid', '--eval', 'document.querySelectorAll("#harness-mermaid svg").length', '--shot', path.join(SHOT_DIR, 'check-harness.png')] },
   { name: 'archify', path: '/docs/archify/harness-mods.architecture.html', args: ['--assert', 'svg', '--shot', path.join(SHOT_DIR, 'check-archify.png')] },
 ];
 if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {

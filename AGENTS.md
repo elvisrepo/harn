@@ -5,7 +5,7 @@ Principles (values to apply with judgment — they outrank other guidance when t
 - Goal-driven: break tasks into steps with explicit success criteria; verify before claiming done.
 - Clarify, don't guess: state assumptions; halt on ambiguity.
 - Receipts over prose: sensors/checks report stable, machine-readable facts — feed evidence back, not guesses.
-- Sensors before handoff: run `npm run check` (build + behaviour flows) before declaring work done.
+- Sensors before handoff: run `npm run check` (build + typecheck + secrets scan + behaviour flows) before declaring work done.
 - Snapshots are point-in-time truth: diffs must never mislead; never silently rewrite history.
 - Secrets only via env: never logged, echoed, or committed.
 - Fix the kit first: recurring issues get fixed in skills/conventions/checks, not just this instance.
@@ -71,7 +71,7 @@ versioned snapshots of the harness config + tokens.
 | `npm run db:setup` | `db:push` + `db:seed` |
 | `npm run versions:export` | export harness snapshot history (v1..vN) to `data/harness-versions.json` (committable, no auth data) |
 | `npm run versions:import` | restore snapshot history from that JSON on a fresh machine (`--force` to overwrite the placeholder v1) |
-| `npm run check` | pre-handoff sensor: secrets scan + build + browser behaviour flows (self-boots preview if no server is up) |
+| `npm run check` | pre-handoff sensor: build + typecheck (astro check, TS 6) + secrets scan + browser behaviour flows (self-boots preview if no server is up) |
 
 Background-mode dev (`astro dev --background`) is available; manage with
 `astro dev stop | status | logs`.

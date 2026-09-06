@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos** — the full inferential Guides stack.
+How-tos · Language Servers (batch form)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -157,3 +157,40 @@ Decisions (2026-09-04):
    before doing any of them").
 3. **Snapshot convention extended** — snapshots are explicitly followed by
    `npm run versions:export` (portable history stays current).
+
+---
+
+## Language Servers
+
+The only semantic control that is fully deterministic (⚙ computational guide):
+ground-truth code intelligence — exact types, signatures, definitions,
+references, live diagnostics. As a feedforward guide it steers the agent
+*before* it writes; the same diagnostics run *after* a change are a sensor.
+The LSP is the engine — placement decides the role. Article status: *"increased
+chatter about the integration of LSPs and code intelligence in coding
+agents"* — emerging.
+
+Audit finding (2026-09-04, the interesting one): our `npm run check` ran
+`astro build`… which **does not type-check TypeScript** (esbuild strips types
+without checking). A type error in `src/lib/*.ts` sailed through build AND
+check. The typecheck sensor we thought we had did not exist.
+
+Decisions (2026-09-04):
+
+1. **Batch form adopted: `astro check`** (the TypeScript/Astro language engine
+   in CLI mode) chained into `npm run check` (build → typecheck → secrets →
+   flows). DevDeps: `@astrojs/check` + `typescript@6` — *gotcha:* TypeScript
+   7 (the new native compiler) does not yet expose the programmatic API
+   `astro check` needs; it fails until TS 6.x is pinned (per Astro's guidance).
+   First run earned its keep immediately: 1 real error (`err` typed `unknown`
+   in C4Diagram.astro's catch) — fixed; now **0 errors / 0 warnings** (6
+   cosmetic hints, non-gating).
+2. **Interactive LSP = open frontier, honestly deferred.** The guide form
+   (diagnostics surfaced while editing) needs pi-side integration that does not
+   exist today (tools are read/bash/edit/write; no MCP client). The batch
+   sensor captures most of the value for a repo this size. `implement`'s
+   "typecheck" step now has a concrete command (`npx astro check`).
+3. **Secrets-sensor refinement** (same session): env-style pattern now skips
+   `<placeholder>` values so the how-to doc's rotation teaching doesn't false-
+   positive; the rotation snippet itself made generic (no literal secret-prefix
+   in docs).
