@@ -23,9 +23,10 @@ acceptance criteria):
 Reference docs (read on demand; single-source rule — they link to systems of record like
 /harness and the snapshots, they do not copy drifting facts):
 - docs/current-harness.md — how the harness works (turn flow, context model, skills, browser QA); verified at v7
-- docs/Harness decisions.md — running decision record for the article review (Principles, CfRs, Ref Docs, Rules; the incidents that earned them)
+- docs/Harness decisions.md — running decision record for the article review (Principles, CfRs, Rules, Ref Docs, How-tos; the incidents that earned them)
 - docs/Harness reuse contract.md — kit vs instance; read before instantiating the harness elsewhere or changing skills/conventions
 - docs/Harness engineering for coding agent users.md — Böckeler's harness-engineering article condensed (guides/sensors/CfRs vocabulary)
+- docs/Harness how-tos.md — step-by-step procedures for harness operations (snapshot, new machine, secret rotation, archify regen, check) — read before doing any of them
 - docs/Harness review — feedforward guides.md — working notes on the Guides/Sensors figure
 
 Always begin by thinking deeply before you code—explicitly stating your assumptions,
@@ -126,7 +127,8 @@ src/styles/global.css            design tokens + app styles
   current harness; `wanted` = on the shortlist.
 - Snapshot flows: when the harness changes (provider/model/token/design
   tokens), take a snapshot from `/admin` → the harness map shows the current
-  version and the timeline of all versions.
+  version and the timeline of all versions. Follow with `npm run versions:export`
+  so the portable history stays current (see docs/Harness how-tos.md).
 - Design tokens live only in `src/styles/global.css` (dark block + light
   override) — the harness map's C4 diagram reads them at runtime for its
   palette; they are not part of the snapshot record.

@@ -2,7 +2,8 @@
 
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
-article 1 by 1**. Covered so far: **Principles · CfRs · Ref Docs · Rules**.
+article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
+How-tos** — the full inferential Guides stack.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -116,3 +117,43 @@ Decisions (2026-09-03):
 4. **Glossary** — added to the reuse contract (Kit/Instance, Guide, Sensor,
    CfR, Receipt, Steering loop, `check`, Snapshot/C4 artifact, Mod,
    Single-source rule).
+
+---
+
+## How-tos
+
+Procedures: the verified, step-by-step path to accomplish a specific task —
+the last ✦ inferential guide. The agent reads the steps and adapts them to the
+situation; the best how-tos embed exact commands and expected receipts so
+judgment stays minimal. Distinctions: rules say what must/mustn't happen,
+ref docs say what is true, how-tos say the ordered steps. In agent terms a
+how-to usually *becomes* a skill (the article's example: "Skill with
+instructions and a bootstrap script" — rated Both computational and
+inferential).
+
+Quality properties: **executable by the agent** (exact commands, expected
+outputs, verification per step) and it is the **steering loop's capture
+mechanism** — the article: agents can "create how-to guides from codebase
+archaeology". Every hard-won one-off debugging session should crystallize into
+a how-to, or it decays back into tribal memory.
+
+Decisions (2026-09-04):
+
+1. **Created `docs/Harness how-tos.md`** — five procedures, each with exact
+   commands, expected receipts, and the gotchas we earned:
+   - *Take a harness snapshot* (/admin or API flow → then `versions:export`)
+   - *New-machine setup* (clone → install → `.env` → `db:setup` →
+     `versions:import --force` → `check`)
+   - *Rotate leaked secrets* — earned 2026-09-03 (`.env` pushed to GitHub):
+     untrack (tracked files override `.gitignore`), rotate, wipe admin,
+     reseed, verify via browser-qa, history-scrub decision
+   - *Regenerate archify diagrams* (typed JSON → validate → deliver; common
+     showcase failures listed: label/edge clearance, desktop-readability, the
+     MODS/FILES-outside-subgraph cycle)
+   - *Run & interpret `npm run check`* — expected receipt + a
+     failure-interpretation table (encoding the AUTH_URL-origin, Secure-cookie
+     and Accept-header lessons)
+2. **Doc index wiring** — AGENTS.md index gained the how-tos line ("read
+   before doing any of them").
+3. **Snapshot convention extended** — snapshots are explicitly followed by
+   `npm run versions:export` (portable history stays current).
