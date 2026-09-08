@@ -202,6 +202,18 @@ catching type errors the agent already could have known about.
 | On-demand probe | `diagnostics` custom tool (option A complement) |
 | Failure policy | server won't start → stay silent; `npm run check` (`astro check`) remains the batch sensor |
 
+### Lesson: a client-side crash is masked by the silent-when-clean policy
+
+`waitDiagnostics`' return read `this.diagnostics.get(uri)` while the field is
+`this.diags` — a `TypeError` on `undefined`, thrown *exactly when a file has
+diagnostics*. It surfaced here via the `diagnostics` probe (the raw error
+leaks out of the tool call). The `edit`/`write` hook runs the same call, so it
+was equally vulnerable — but the failure policy made it invisible: when a
+hook crashes, no receipt is appended, which is byte-identical to "file is
+clean" (silent-when-clean). A broken integration can look exactly like a
+correct one until the probe (or `npm run check`) catches it. Fixed in one
+line (`this.diags`); reproduce with a file that has a real type error.
+
 ## 7. Mapping to the article
 
 Language Servers are the **computational feedforward guide** (⚙ in Fig 2):
@@ -217,5 +229,10 @@ together cover both placements.
 - Richer client: `hover`/`definition`/`references` could become additional
   agent tools over the same connection (already negotiated capabilities).
 - Track pi upstream for native LSP/MCP support.
+- Harden the `edit`/`write` hook against client-side crashes: today a throw
+  inside the hook is indistinguishable from a clean file (silent-when-clean
+  policy). Wrap the sync/wait in a guard that appends a distinct
+  `[LSP] diagnostics failed` note (not an error receipt) so the failure class
+  above cannot hide again.
 - Server config (formatting, preferences) via `workspace/configuration` if we
   ever want formatting-in-loop.
