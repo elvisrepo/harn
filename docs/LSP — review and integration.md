@@ -196,9 +196,9 @@ catching type errors the agent already could have known about.
 | Client | `.pi/extensions/lsp-diagnostics/index.ts` (the "development tool" role) |
 | Server | `typescript-language-server --stdio` (lazy-spawned on first edit) |
 | Lifecycle | `initialize` (with `textDocument.publishDiagnostics` capability) → `initialized` → … → `exit` on process exit |
-| Document sync | `didOpen` on first touch, `didChange` (full text, version++) on edits; files read from disk after the tool result |
+| Document sync | `didOpen` on first touch, `didChange` (full text, version++) on edits, `didClose` when a file disappears from disk; files read from disk after the tool result |
 | Diagnostics | receive `publishDiagnostics` pushes; per-URI store + epoch counter |
-| The guide placement | `tool_result` hook on `edit`/`write`: sync the file, wait ≤2 s for a fresh push, if diagnostics exist (severity ≤ 2, capped at 10) append the receipt to the tool result — **silent when clean** |
+| The guide placement | `tool_result` hook on `edit`/`write` **and `bash`**: for edit/write, sync the edited file; for bash, diff all handled files against a workspace mtime/size snapshot and sync anything that changed since the last tool result — so files written via bash (echo/tee/sed/cp/git checkout) or edited in VS Code between agent actions are receipted on the next tool. Wait ≤2 s for a fresh push; if diagnostics exist (severity ≤ 2, capped at 10) append the receipt to the tool result — **silent when clean** |
 | On-demand probe | `diagnostics` custom tool (option A complement) |
 | Failure policy | server won't start → stay silent; `npm run check` (`astro check`) remains the batch sensor |
 
@@ -229,10 +229,14 @@ together cover both placements.
 - Richer client: `hover`/`definition`/`references` could become additional
   agent tools over the same connection (already negotiated capabilities).
 - Track pi upstream for native LSP/MCP support.
-- Harden the `edit`/`write` hook against client-side crashes: today a throw
+- Harden the `tool_result` hook against client-side crashes: today a throw
   inside the hook is indistinguishable from a clean file (silent-when-clean
   policy). Wrap the sync/wait in a guard that appends a distinct
   `[LSP] diagnostics failed` note (not an error receipt) so the failure class
   above cannot hide again.
+- Bash-diff receipts attach to the *next tool result*: an idle pi (no tool
+  run since an external change) doesn't see a VS Code edit until a tool
+  fires again — inherent, there's no tool result to attach to; `diagnostics`
+  remains the explicit probe.
 - Server config (formatting, preferences) via `workspace/configuration` if we
   ever want formatting-in-loop.

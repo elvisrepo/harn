@@ -9,6 +9,11 @@
  *   file into the server (didOpen/didChange), wait briefly for fresh
  *   diagnostics, and if any exist append a receipt to the tool result
  *   (clean file → silent, like an IDE with no squiggles).
+ * - bash → diff all handled files against an mtime/size snapshot and sync any
+ *   that changed since the last tool result, so a file written via bash (echo,
+ *   tee, sed -i, cp, git checkout…) or edited in VS Code between agent actions
+ *   still gets receipted on the next tool; files deleted on disk are didClosed
+ *   so stale documents can't pollute later diagnostics.
  * - `diagnostics` custom tool — on-demand probe (optional path).
  * - Lazy: the server spawns on first edit, not at session start.
  * - Errors (severity 1) and warnings (2), capped at 10 per receipt.
@@ -201,6 +206,17 @@ class LspClient {
 		return this.diags.get(uri) ?? [];
 	}
 
+	/** didClose a previously-opened document (e.g. deleted on disk), dropping its diagnostics */
+	close(absPath: string) {
+		const uri = "file://" + absPath;
+		if (!this.opened.has(uri)) return;
+		this.notify("textDocument/didClose", { textDocument: { uri } });
+		this.opened.delete(uri);
+		this.fileVersion.delete(uri);
+		this.diags.delete(uri);
+		this.diagEpoch.delete(uri);
+	}
+
 	forUri(absPath: string): LspDiagnostic[] {
 		return this.diags.get("file://" + absPath) ?? [];
 	}
@@ -245,32 +261,64 @@ export default function (pi: ExtensionAPI) {
 		}
 	};
 
-	// ---- the guide: diagnostics appended to edit/write results --------------
-	pi.on("tool_result", async (event, ctx) => {
-		if (event.toolName !== "edit" && event.toolName !== "write") return;
-		const input = (event.input ?? {}) as { path?: string; file_path?: string; filePath?: string };
-		const rel = input.path ?? input.file_path ?? input.filePath;
-		if (!rel || typeof rel !== "string") return;
-		const abs = path.resolve(ctx.cwd, rel);
-		if (!HANDLED.test(abs) || !fs.existsSync(abs)) return;
-		if (!(await ensure())) return;
+	// ---- the guide: diagnostics appended to edit/write/bash results ----------
+	// edit/write → the edited file. bash → any handled file that changed on
+	// disk since the last tool result (mtime/size diff), so files written via
+	// bash, cp/tee/sed, git checkout — or edited in VS Code between agent
+	// actions — still get receipted on the next tool result.
+	const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "data", ".pi", ".astro", ".vercel", "coverage"]);
+	const walkHandled = (): Map<string, { mtimeMs: number; size: number }> => {
+		const out = new Map<string, { mtimeMs: number; size: number }>();
+		const stack = [rootDir];
+		while (stack.length) {
+			const dir = stack.pop()!;
+			let entries: fs.Dirent[];
+			try {
+				entries = fs.readdirSync(dir, { withFileTypes: true });
+			} catch {
+				continue;
+			}
+			for (const e of entries) {
+				const full = path.join(dir, e.name);
+				if (e.isDirectory()) {
+					if (!SKIP_DIRS.has(e.name) && !e.name.startsWith(".")) stack.push(full);
+				} else if (HANDLED.test(full)) {
+					try {
+						const st = fs.statSync(full);
+						out.set(full, { mtimeMs: st.mtimeMs, size: st.size });
+					} catch {
+						/* race with deletion */
+					}
+				}
+			}
+		}
+		return out;
+	};
+	// baseline at session start: bash receipts diff against this
+	let fsSnap = walkHandled();
 
+	const syncAndWait = async (abs: string): Promise<LspDiagnostic[]> => {
 		const text = fs.readFileSync(abs, "utf8");
 		const before = await client.sync(abs, text);
-		const diags = await client.waitDiagnostics("file://" + abs, before, 2000);
-		const relevant = diags
+		return client.waitDiagnostics("file://" + abs, before, 2000);
+	};
+
+	const relevant = (diags: LspDiagnostic[]) =>
+		diags
 			.filter((d) => (d.severity ?? 1) <= 2)
 			.sort((a, b) => (a.severity ?? 1) - (b.severity ?? 1) || a.range.start.line - b.range.start.line);
-		if (relevant.length === 0) return; // clean → silent (IDE with no squiggles)
 
-		const lines = relevant.slice(0, 10).map((d) => {
+	const buildNote = (abs: string, diags: LspDiagnostic[]): string => {
+		const lines = diags.slice(0, 10).map((d) => {
 			const l = d.range.start.line + 1;
 			const c = d.range.start.character + 1;
 			return `  ${d.severity === 1 ? "✗" : "⚠"} ${path.basename(abs)}:${l}:${c} — ${d.message}${d.code !== undefined ? ` (${d.code})` : ""}`;
 		});
-		const more = relevant.length > 10 ? `\n  … +${relevant.length - 10} more (use the diagnostics tool)` : "";
-		const note = `\n\n[LSP] ${relevant.length} diagnostic(s) in this file — fix before continuing:\n${lines.join("\n")}${more}`;
+		const more = diags.length > 10 ? `\n  … +${diags.length - 10} more (use the diagnostics tool)` : "";
+		return `\n\n[LSP] ${diags.length} diagnostic(s) in this file — fix before continuing:\n${lines.join("\n")}${more}`;
+	};
 
+	const appendReceipt = (event: any, note: string) => {
 		const content = Array.isArray(event.content)
 			? [...event.content]
 			: [{ type: "text" as const, text: String(event.content ?? "") }];
@@ -281,6 +329,49 @@ export default function (pi: ExtensionAPI) {
 			content.push({ type: "text", text: note });
 		}
 		return { content };
+	};
+
+	pi.on("tool_result", async (event, ctx) => {
+		if (event.toolName === "edit" || event.toolName === "write") {
+			const input = (event.input ?? {}) as { path?: string; file_path?: string; filePath?: string };
+			const rel = input.path ?? input.file_path ?? input.filePath;
+			if (!rel || typeof rel !== "string") return;
+			const abs = path.resolve(ctx.cwd, rel);
+			if (!HANDLED.test(abs) || !fs.existsSync(abs)) return;
+			if (!(await ensure())) return;
+
+			const hit = relevant(await syncAndWait(abs));
+			if (hit.length === 0) return; // clean → silent (IDE with no squiggles)
+			return appendReceipt(event, buildNote(abs, hit));
+		}
+
+		if (event.toolName === "bash") {
+			const now = walkHandled();
+			const changed: string[] = [];
+			for (const [abs, st] of now) {
+				const prev = fsSnap.get(abs);
+				if (!prev || prev.mtimeMs !== st.mtimeMs || prev.size !== st.size) changed.push(abs);
+			}
+			for (const abs of fsSnap.keys()) if (!now.has(abs)) client.close(abs); // deleted on disk → drop from server
+			fsSnap = now;
+			if (changed.length === 0 || !(await ensure())) return;
+
+			const notes: string[] = [];
+			let checked = 0;
+			for (const abs of changed) {
+				if (checked >= 5) break;
+				try {
+					checked++;
+					const hit = relevant(await syncAndWait(abs));
+					if (hit.length) notes.push(buildNote(abs, hit));
+				} catch {
+					/* unreadable file — skip it */
+				}
+			}
+			if (notes.length === 0) return; // silent when clean
+			if (changed.length > checked) notes.push(`\n… +${changed.length - checked} more changed file(s) — use the \`diagnostics\` tool`);
+			return appendReceipt(event, notes.join("\n"));
+		}
 	});
 
 	// ---- the on-demand probe (complement) ------------------------------------
