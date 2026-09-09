@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-09-09T11:40:56.021Z",
-  "count": 9,
+  "exportedAt": "2026-09-09T12:43:57.660Z",
+  "count": 10,
   "versions": [
     {
       "id": "0583e29d-f5fd-4785-b905-5ad39e814b7c",
@@ -606,6 +606,93 @@
         "capturedAt": "2026-09-09T11:40:55.922Z"
       },
       "createdAt": 1788954055922
+    },
+    {
+      "id": "a8dcb410-0584-4391-85f5-095404348147",
+      "version": 10,
+      "label": "eslint + semgrep sensors",
+      "summary": "Static-analysis ring extended: eslint (flat config, recommended minus tsc-covered noise) + semgrep (2 earned rules: no absolute-local fetch, no eval), both wired into npm run check. Deferral overturned by explicit call; future lint rules must encode earned bars.",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "theme": "dark",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash",
+          "defaultThinkingLevel": "high",
+          "skills": [
+            "-skills/google-agents-cli-adk-code",
+            "-skills/google-agents-cli-deploy",
+            "-skills/google-agents-cli-eval",
+            "-skills/google-agents-cli-observability",
+            "-skills/google-agents-cli-publish",
+            "-skills/google-agents-cli-scaffold",
+            "-skills/google-agents-cli-workflow",
+            "-skills/find-skills",
+            "-skills/amazon-bedrock",
+            "-skills/aws-auth",
+            "-skills/aws-billing-and-cost-management",
+            "-skills/aws-blocks",
+            "-skills/aws-cdk",
+            "-skills/aws-cloudformation",
+            "-skills/aws-compute",
+            "-skills/aws-containers",
+            "-skills/aws-deployment",
+            "-skills/aws-messaging-and-streaming",
+            "-skills/aws-observability",
+            "-skills/aws-sdk-js-v3-usage",
+            "-skills/aws-sdk-python-usage",
+            "-skills/aws-sdk-swift-usage",
+            "-skills/aws-security",
+            "-skills/aws-serverless",
+            "-skills/aws-storage",
+            "-skills/launch-with-aws",
+            "-skills/signing-in-to-aws"
+          ]
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 15,
+        "skills": [
+          "archify",
+          "browser-qa",
+          "firecrawl",
+          "firecrawl-agent",
+          "firecrawl-browser",
+          "firecrawl-crawl",
+          "firecrawl-download",
+          "firecrawl-map",
+          "firecrawl-scrape",
+          "firecrawl-search",
+          "grill-me",
+          "grilling",
+          "implement",
+          "to-spec",
+          "to-tickets"
+        ],
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 2898,
+          "branchTokens": 0,
+          "totalTokens": 3583,
+          "durableTokens": 0,
+          "branchChars": 0,
+          "staticChars": 14331
+        },
+        "capturedAt": "2026-09-09T12:43:57.563Z"
+      },
+      "createdAt": 1788957837563
     }
   ]
 }

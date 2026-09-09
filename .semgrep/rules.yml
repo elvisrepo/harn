@@ -1,0 +1,24 @@
+# Custom semgrep rules: earned bars, not generic lint.
+# Run: semgrep --config .semgrep/rules.yml --error <paths>
+# (findings exit nonzero; clean exits 0 — wired into `npm run check`)
+rules:
+  - id: no-absolute-local-fetch
+    patterns:
+      - pattern-either:
+          - pattern: fetch($URL)
+          - pattern: fetch($URL, ...)
+      - metavariable-regex:
+          metavariable: $URL
+          regex: (?i)^["']https?://(localhost|127\.0\.0\.1)
+    message: >-
+      Use relative URLs (same-origin) or an AUTH_URL-derived base —
+      hardcoded origins break dev/preview/prod parity
+      (CfR: environment portability; earned: the preview login 403).
+    languages: [javascript, typescript]
+    severity: ERROR
+  - id: no-eval
+    pattern: eval(...)
+    message: >-
+      eval() is a code-injection primitive — use structured parsing instead.
+    languages: [javascript, typescript]
+    severity: ERROR

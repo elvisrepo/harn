@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -281,3 +281,43 @@ Decisions (2026-09-09 — reviewed, deliberately deferred):
    the TS 6→7 pin flip when Astro supports it.
 3. **Catalog mod added** so the feedforward set reads complete and the
    deferral is visible, not tribal.
+
+---
+
+## Static analysis (Sensors I)
+
+Computational (⚙) feedback, Fig 2's first sensor row — deterministic,
+millisecond-to-second checks on every change so the agent self-corrects
+before human eyes. Fig 3's fast ring: `npx eslint`, `semgrep`,
+`npm run coverage`, `npm run dep-cruiser`. The quality bar she sets:
+signals *optimised for LLM consumption* — "custom linter messages that
+include self-correction instructions."
+
+Decisions (2026-09-09 — reviewed, have with one queued hole):
+
+1. **Have (3 layers, all in `check`):** `astro build` (compile gate) +
+   `astro check` under `astro/tsconfigs/strict` (0 errors / 0 warnings /
+   6 non-gating hints) + `check-secrets.mjs` (6 patterns over
+   git-tracked files; `file:line` + pattern + fix, value never printed).
+   The secrets scanner is her "positive prompt injection" verbatim — a
+   rule graduated into a sensor — and it caught a live `.env` push on its
+   first run. Textbook steering-loop closure.
+2. **Style/structural lint deferred-by-rule, not by neglect.** Install on
+   the *second occurrence* of a lint-catchable defect. Rationale: the
+   steering loop earns controls through recurrence, and our whole
+   incident record (type error, secret leak, origin/cookie, Accept
+   header) would have sailed past `eslint`/`semgrep` untouched; strict
+   `tsc` already covers the high-signal half (unused locals, implicit
+   any). A linter with no earned failure fires trivia, and trivia trains
+   the agent to discount sensors.
+   **Overturned same session (explicit user call):** installed anyway —
+   `eslint` (flat config, recommended minus tsc-covered noise rules) +
+   `semgrep` with 2 earned rules (no absolute-local `fetch`, no
+   `eval`), both green on day one and both wired into `check`. The
+   deferral rationale above stands as the bar for *future* lint rules:
+   new rules must encode an earned bar, not generic hygiene.
+3. **Queued (post-Sensors-review build task):** a thin runnable suite
+   mirroring the 4 qa-flows, so `check` verifies behaviour
+   computationally instead of only in a browser. The
+   coverage-percentage game is explicitly *not* queued — the suite
+   proves the seams, not a number.

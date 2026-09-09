@@ -43,7 +43,8 @@ git add data/harness-versions.json
 
 ```bash
 git clone <repo> && cd harn
-npm install                       # engines: node >= 22.12
+npm install                       # engines: node >= 22.12 (includes eslint)
+pip install --user semgrep        # structural lint sensor (binary lands in ~/.local/bin — ensure it is on PATH)
 cat > .env <<'EOF'                # NEVER commit this file
 AUTH_SECRET=<random>
 AUTH_URL=http://127.0.0.1:4321
@@ -134,7 +135,8 @@ node bin/archify.mjs deliver architecture <json> /home/sevi/harn/public/docs/arc
 
 ## 5. Run and interpret `npm run check`
 
-The pre-handoff sensor: `astro build` + secrets scan + 4 browser behaviour
+The pre-handoff sensor: `astro build` + `astro check` (typecheck) +
+`eslint` + `semgrep` (custom rules) + secrets scan + 4 browser behaviour
 flows. Self-contained — if no server is running it boots `astro preview` on
 the fresh build (port 54321) and shuts it down after.
 
@@ -151,6 +153,9 @@ Exit 0 = pass.
 | Failing flow | Likely cause → fix |
 |---|---|
 | server won't boot | `astro build` failed → fix the compile error printed above |
+| typecheck ✗ | `astro check` error with file:line → fix the type error (esbuild strips types — build alone never catches these) |
+| eslint ✗ | rule + file:line printed → fix or, if the rule misfires on convention (e.g. Astro files), tune `eslint.config.mjs` minimally |
+| semgrep ✗ | rule id + file:line → fix the finding, or amend `.semgrep/rules.yml` if the rule is wrong (rules are earned bars — keep them tight) |
 | secrets scan ✗ | file:line + pattern given → move the secret to `.env`, never echo it |
 | catalog | app/DB broken → check `data/app.db`, run `npm run db:setup` |
 | harness | version switcher or mermaid broken → open `/harness`, check browser console via `--eval` |
