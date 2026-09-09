@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only)**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -214,3 +214,41 @@ Decisions (2026-09-09 — interactive landed, then qualified pi-only):
    in-loop LSP cover on opencode runs. Open hardening still applies
    (hook throw ≡ silent-clean — needs a distinct `[LSP] diagnostics
    failed` note).
+
+---
+
+## CLIs, scripts
+
+Computational (⚙) feedforward guides: deterministic tooling the agent invokes
+*before/during* generation instead of guessing. The article's shape for them
+is the hybrid — *"Skill with instructions and a bootstrap script"*, rated
+Both computational and inferential — and Fig 3's lifecycle gives the family:
+`/xyz-api-docs`-style fact skills feedforward; `npx eslint` / `semgrep` /
+`npm run coverage`-style commands as the fast feedback ring.
+
+Decisions (2026-09-09 — reviewed, verified present):
+
+1. **The pattern is skill + script with receipts — keep it.** Inventory
+   (verified this session: `firecrawl` CLI v1.12.2 authenticated with
+   970/1,000 credits; `archify` validate → deliver; `qa.mjs` with `--json`
+   / `--assert` / `--eval`): inferential instructions wrapped around a
+   deterministic command that returns machine-readable output, stable exit
+   codes, and cost guards (`--limit` caps, scrape top hits only, outputs to
+   `.firecrawl/` not the context window). Any new control ships in this
+   form.
+2. **CLI/script form first — portability rule.** CLIs run through `bash`,
+   which exists in both pi and opencode: they are the one guide category
+   that survives the harness switch unchanged (unlike the pi-only LSP
+   extension above). Prefer encoding a new control as a script over an
+   extension. Three placements, all kept: mid-loop via `bash` (facts,
+   diagrams, browser evidence), `npm run check` as the left-shifted gate,
+   one-shot harness-ops scripts with exact commands + expected receipts
+   (see `docs/Harness how-tos.md`).
+3. **Known gaps, named not hidden:** (a) `qa.mjs --help` omits real flags
+   (`--eval`, `--login`, `--login-expect`) — the article's coherence
+   question in miniature; fix the help text. (b) No structural linters
+   (Fig 3's `eslint`/`semgrep`/`dep-cruiser` ring) — deliberately deferred
+   at this repo size; typecheck + secrets + browser carry the load.
+   (c) Firecrawl budget has no sensor — proposal: a warn-only
+   `--status` line (never fail) so cost is visible before the skills burn
+   it.

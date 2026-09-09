@@ -355,7 +355,7 @@ Decision (2026-09): astro check (the TS/Astro language engine in CLI mode) chain
 
 *Gotcha:* TypeScript 7 (the new native compiler) does not expose the programmatic API astro check needs — pin typescript@6.x until Astro supports it (docs.astro.build, withastro/roadmap#1321).
 
-**Honest limit:** the interactive form (diagnostics surfaced while editing — the true LSP-as-guide) needs pi-side integration that does not exist today (tools: read/bash/edit/write; no MCP client). Batch mode captures most of the value for a repo this size; the interactive frontier stays open.`,
+**Interactive form landed (2026-09, pi-only):** \`.pi/extensions/lsp-diagnostics/\` speaks LSP over stdio to \`typescript-language-server\` and appends \`[LSP]\` receipts to edit/write/bash tool results (silent when clean) + a \`diagnostics\` on-demand probe — the true guide placement. It needs pi's ExtensionAPI, so under opencode it does not execute; the batch sensor above is the portable cover. Protocol review: docs/LSP — review and integration.md. Open hardening: a hook crash is byte-identical to "clean" (needs a distinct failure note).`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -385,6 +385,31 @@ Decision (2026-09): astro check (the TS/Astro language engine in CLI mode) chain
     links: [
       { label: 'mattpocock/skills', url: 'https://github.com/mattpocock/skills' },
       { label: 'Agent Skills spec', url: AGS },
+    ],
+  },
+  {
+    title: 'CLIs + scripts',
+    category: 'Tooling',
+    summary: 'Deterministic commands behind skill wrappers — the portable computational guides: same bash in pi and opencode.',
+    body: `The article's CLIs/scripts guide (computational feedforward): deterministic tooling the agent invokes before/during generation instead of guessing. Its endorsed shape is the hybrid — "skill with instructions and a bootstrap script", rated Both computational and inferential — which is exactly our inventory:
+
+1. **firecrawl CLI** (web facts) — search/scrape/crawl behind the skill family, with cost guards (--limit caps, top hits only, outputs to .firecrawl/ not the context window).
+2. **archify CLI** (diagrams) — typed JSON in, validate → deliver, 9-gate receipt out.
+3. **browser-qa qa.mjs** (behaviour evidence) — --json / --assert / --eval / --login / --shot.
+4. **npm scripts + scripts/*.mjs** — the pre-handoff gate (npm run check) and harness-ops one-shots (seed, export/import, secrets scan).
+
+Three placements: mid-loop via bash (facts, diagrams, browser evidence), check as the left-shifted gate, one-shot harness ops with exact commands + expected receipts (docs/Harness how-tos.md).
+
+**Portability rule (earned in the pi → opencode move):** CLIs run through bash, which both harnesses have — they are the one guide category that survives the switch unchanged, unlike pi-only extensions. New controls ship as skill + script first.
+
+**Named gaps:** qa.mjs --help omits real flags (--eval, --login); no structural linters (eslint/semgrep ring — deferred at this size); Firecrawl budget has no sensor (proposal: warn-only --status line).`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['cli', 'scripts', 'feedforward', 'guides', 'receipts', 'portable'],
+    links: [
+      { label: 'article — guides', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'our review (fig 2)', url: 'docs/Harness review — feedforward guides.md' },
     ],
   },
 ];
