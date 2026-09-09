@@ -329,3 +329,24 @@ Decisions (2026-09-09 — reviewed, have with one queued hole):
    preview) — and writing it caught a real kit bug: `astro preview`
    daemonizes, so spawner-kill leaked the server (stale 54321); both the
    suite helper and qa-flows now reap via `preview stop`.
+5. **Coverage investigated, not adopted — negative result with receipts.**
+   Black-box HTTP coverage must come from the *server* process, but:
+   `astro preview` daemonizes (measured env never reaches the worker —
+   raw V8 data held 2,311 hit functions, zero under `/dist/server/`);
+   direct `node dist/server/entry.mjs` wrote no coverage files at all;
+   and c8 remapped Astro's rolldown bundles to `src/**` at 0% despite
+   real traffic. Cheap V8+c8 cannot see this server. Speculative
+   machinery (sourcemap flag, c8 dep, runner script) was reverted, not
+   kept as shelfware. Revisit triggers: suite growth past ~30 tests, a
+   bug slipping a tested seam, or upstream Astro/Vite coverage support.
+   The suite remains the behavioural gate — it proves the seams.
+6. **Unit coverage adopted for the pure lib core (same session).**
+   Correction to the blanket "unmeasurable": `c4`/`mods`/`context`
+   export pure functions that run in-process — `test/lib.test.mjs`
+   (13 tests: slugify cases, toView fallbacks, token math, highlight
+   dimensions, graph shape + the mermaid-bracket regression + step
+   contiguity) reports real per-file lines (c4 ~90%, mods ~90%,
+   context ~35% — `measureContext` needs fs fakes, openly uncovered).
+   `npm run coverage` uses the built-in flag (zero deps); thresholds
+   stay off until earned — the uncovered-lines list is feedback for the
+   next test session, not a gate.

@@ -177,8 +177,12 @@ Thin runnable suite (`test/`, zero deps — `node:test` + global fetch):
 `npm test` runs 9 tests mirroring the 4 qa-flows computationally
 (catalog · harness · archify · login, incl. the Accept-header and
 Origin-header lessons). Reuses `APP_URL` or self-boots preview;
-login write-paths need env creds and sign out after. Wired into
-`npm run check` before the browser flows. Manual smoke checklist retired —
+login write-paths need env creds and sign out after. `npm run coverage`
+runs 13 unit tests over the pure lib core (`c4`, `mods`, `context` —
+incl. the mermaid-bracket regression) with a real per-file report;
+black-box HTTP coverage is unmeasurable on this server (see decisions),
+so thresholds stay off until earned. Both wired into `npm run check`
+before the browser flows. Manual smoke checklist retired —
 the suite + flows are the check; also verify in a real browser on change:
 
 1. `npm run db:setup`
