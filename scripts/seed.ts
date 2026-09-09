@@ -412,6 +412,24 @@ Three placements: mid-loop via bash (facts, diagrams, browser evidence), check a
       { label: 'our review (fig 2)', url: 'docs/Harness review — feedforward guides.md' },
     ],
   },
+  {
+    title: 'Code mods',
+    category: 'Tooling',
+    summary: 'Deterministic program transforms (OpenRewrite-style recipes) — reviewed and deliberately deferred: no codemod tooling at this size, with a trigger rule instead.',
+    body: `Fig 2's last feedforward guide (computational): deterministic program transformations — AST rewrites, migration recipes, scaffolders — that put code in the desired shape without LLM judgment. The agent says "apply recipe X" instead of hand-editing dozens of files probabilistically.
+
+**Status: verified gap, not neglect (2026-09).** Grep finds only the word "codemods" in the article-summary doc; no jscodeshift / recast / OpenRewrite / scaffolders anywhere. Rationale: ~30-file single-user tool — every candidate change is rare and reads better as a reviewed hand-edit (Minimalism; the Performance/scalability CfR explicitly forbids over-engineering here).
+
+**Trigger rule instead of tooling:** the third occurrence of the same mechanical multi-file edit gets encoded as a script, shipped in skill + script form (see the CLIs + scripts mod). Named candidates: seed-mirror generation, repetitive Astro/API-route scaffolding, the TS 6→7 pin flip.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['codemods', 'feedforward', 'guides', 'deferred'],
+    links: [
+      { label: 'article — guides', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'OpenRewrite recipes', url: 'https://docs.openrewrite.org/' },
+    ],
+  },
 ];
 
 async function upsertMods() {

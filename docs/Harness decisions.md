@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -252,3 +252,32 @@ Decisions (2026-09-09 — reviewed, verified present):
    (c) Firecrawl budget has no sensor — proposal: a warn-only
    `--status` line (never fail) so cost is visible before the skills burn
    it.
+
+---
+
+## Code mods
+
+Computational (⚙) feedforward, Fig 2's last guide row — the article's
+example: *"a tool with access to OpenRewrite recipes."* Deterministic
+program transformations (AST rewrites, migration recipes, scaffolders)
+that put code in the desired shape without LLM judgment: the agent says
+"apply recipe X" instead of hand-editing dozens of files probabilistically.
+Sibling to CLIs/scripts, but it *writes code precisely* where they fetch
+facts or check results.
+
+Decisions (2026-09-09 — reviewed, deliberately deferred):
+
+1. **No codemod tooling adopted — verified gap, not neglect.** Grep over
+   the repo finds only the word "codemods" in the article-summary doc; no
+   jscodeshift / recast / OpenRewrite / scaffolders, no local transform
+   scripts. Rationale: ~30-file single-user tool; every candidate change
+   is rare and reads better as a reviewed hand-edit (Minimalism; CfR 6
+   explicitly forbids over-engineering here).
+2. **A trigger rule instead of tooling.** The third occurrence of the same
+   mechanical multi-file edit gets encoded as a script — which then ships
+   in skill + script form per the CLIs decision. Named candidates, should
+   they ever hurt enough: seed-mirror generation (the catalog-mirror rule
+   currently runs on discipline), repetitive Astro/API-route scaffolding,
+   the TS 6→7 pin flip when Astro supports it.
+3. **Catalog mod added** so the feedforward set reads complete and the
+   deferral is visible, not tribal.
