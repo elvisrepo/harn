@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "LSP and VS Code's built-in TypeScript — two routes, one engine",
+    "output": "lsp-vscode.architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/elvisrepo/harn.git",
+      "revision": "db92be3e66aee5603983072c93f2d3ef0454bbcf"
+    },
+    "views": [
+      {
+        "id": "human-lane",
+        "label": "Human lane — VS Code",
+        "focus": ["human", "vscode", "vscode-tsserver", "files"],
+        "note": "The human's route: TypeScript's private protocol, squiggles on screen."
+      },
+      {
+        "id": "agent-lane",
+        "label": "Agent lane — pi + LSP",
+        "focus": ["human", "pi", "ext", "tls", "lsp-tsserver", "files"],
+        "note": "The agent's route: LSP receipts appended to edit/write/bash results."
+      },
+      {
+        "id": "machine",
+        "label": "Where everything lives",
+        "focus": ["human", "vscode", "vscode-tsserver", "pi", "ext", "tls", "lsp-tsserver", "files"],
+        "note": "Only the human is outside the machine; every server is a local child process."
+      }
+    ],
+    "viewBox": [1100, 452]
+  },
+  "components": [
+    {
+      "id": "human",
+      "type": "external",
+      "label": "Human (you)",
+      "sublabel": "writes code · reads squiggles",
+      "pos": [5, 126],
+      "size": [140, 64]
+    },
+    {
+      "id": "vscode",
+      "type": "frontend",
+      "label": "VS Code",
+      "sublabel": "editor · built-in TS support",
+      "pos": [185, 34],
+      "size": [150, 68]
+    },
+    {
+      "id": "vscode-tsserver",
+      "type": "backend",
+      "label": "tsserver (VS Code's instance)",
+      "sublabel": "TypeScript 6.0.3 · project analysis",
+      "tag": "private protocol",
+      "brand": "typescript",
+      "pos": [395, 34],
+      "size": [200, 68]
+    },
+    {
+      "id": "pi",
+      "type": "backend",
+      "label": "pi harness (the agent)",
+      "sublabel": "terminal · hosts extensions",
+      "pos": [185, 214],
+      "size": [150, 68]
+    },
+    {
+      "id": "ext",
+      "type": "backend",
+      "label": "lsp-diagnostics extension",
+      "sublabel": ".pi/extensions/lsp-diagnostics",
+      "tag": "LSP client",
+      "sources": [
+        { "path": ".pi/extensions/lsp-diagnostics/index.ts", "line": 88, "label": "publishDiagnostics capability" },
+        { "path": ".pi/extensions/lsp-diagnostics/index.ts", "line": 334, "label": "tool_result hook" },
+        { "path": ".pi/extensions/lsp-diagnostics/index.ts", "line": 378, "label": "diagnostics tool" }
+      ],
+      "pos": [395, 214],
+      "size": [180, 68]
+    },
+    {
+      "id": "tls",
+      "type": "backend",
+      "label": "typescript-language-server",
+      "sublabel": "v6 · LSP server · stdio",
+      "tag": "LSP server",
+      "sources": [
+        { "path": "package.json", "line": 35, "label": "devDependency" }
+      ],
+      "pos": [640, 214],
+      "size": [180, 68]
+    },
+    {
+      "id": "lsp-tsserver",
+      "type": "backend",
+      "label": "tsserver (LSP's instance)",
+      "sublabel": "TypeScript 6.0.3 · workspace node_modules",
+      "brand": "typescript",
+      "pos": [870, 214],
+      "size": [200, 68]
+    },
+    {
+      "id": "files",
+      "type": "database",
+      "label": "Workspace files",
+      "sublabel": ".ts/.tsx/.js on disk",
+      "pos": [680, 354],
+      "size": [180, 68]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "This machine (dev box) — everything local",
+      "wraps": ["vscode", "vscode-tsserver", "pi", "ext", "tls", "lsp-tsserver", "files"],
+      "pad": 14
+    }
+  ],
+  "connections": [
+    { "id": "human-vscode", "from": "human", "to": "vscode", "label": "types · edits", "labelAt": [145, 106] },
+    { "id": "vscode-ts", "from": "vscode", "to": "vscode-tsserver", "label": "private JSON protocol — NOT LSP", "variant": "emphasis", "labelAt": [365, 126] },
+    { "id": "ts-vscode", "from": "vscode-tsserver", "to": "vscode", "label": "squiggles · completions · refactors", "labelAt": [520, 144] },
+    { "id": "human-pi", "from": "human", "to": "pi", "label": "tasks · prompts" },
+    { "id": "pi-ext", "from": "pi", "to": "ext", "label": "hooks tool results: edit · write · bash", "labelAt": [365, 180] },
+    { "id": "ext-tls", "from": "ext", "to": "tls", "label": "LSP · JSON-RPC over stdio — didOpen/didChange · publishDiagnostics", "variant": "emphasis", "labelAt": [607, 198] },
+    { "id": "tls-ts", "from": "tls", "to": "lsp-tsserver", "label": "wraps the same engine", "labelAt": [845, 198] },
+    { "id": "ext-files", "from": "ext", "to": "files", "label": "syncs file text · mtime snapshot", "variant": "dashed" },
+    { "id": "pi-files", "from": "pi", "to": "files", "label": "edit/write write to disk", "variant": "dashed" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Two routes → one engine",
+      "items": [
+        "VS Code → tsserver over TypeScript's private JSON protocol — NOT LSP",
+        "pi → typescript-language-server over LSP (JSON-RPC over stdio) → its own tsserver",
+        "Same engine (tsserver), two independent processes — nothing shared between them"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Where everything lives",
+      "items": [
+        "All editors, servers, and files run locally as child processes on this machine",
+        "The human (you) is the only actor outside the machine",
+        "No cloud, no network hops — LSP and tsserver communicate over stdin/stdout pipes",
+        "Both tsservers analyze the same workspace files on disk (separate processes, shared files)"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "How the agent sees errors",
+      "items": [
+        "After each edit/write/bash: extension syncs the file → LSP pushes diagnostics → [LSP] receipt lands in the tool result",
+        "diagnostics tool = on-demand probe; npm run check (astro check) = batch fallback",
+        "VS Code edits between agent actions surface on the next tool result (mtime snapshot)"
+      ]
+    }
+  ]
+}
