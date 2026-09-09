@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-09-09T12:43:57.660Z",
-  "count": 10,
+  "exportedAt": "2026-09-09T12:54:34.268Z",
+  "count": 11,
   "versions": [
     {
       "id": "0583e29d-f5fd-4785-b905-5ad39e814b7c",
@@ -693,6 +693,93 @@
         "capturedAt": "2026-09-09T12:43:57.563Z"
       },
       "createdAt": 1788957837563
+    },
+    {
+      "id": "d7cb7ad8-0c07-443c-ae9f-fb4297babf59",
+      "version": 11,
+      "label": "thin test suite",
+      "summary": "Queued thin suite implemented: test/ (node:test, zero deps, 9 tests mirroring the 4 qa-flows incl. Accept/Origin lessons), wired into check before browser flows. Same run fixed the astro-preview daemon leak in qa-flows + suite teardown (preview stop).",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "theme": "dark",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash",
+          "defaultThinkingLevel": "high",
+          "skills": [
+            "-skills/google-agents-cli-adk-code",
+            "-skills/google-agents-cli-deploy",
+            "-skills/google-agents-cli-eval",
+            "-skills/google-agents-cli-observability",
+            "-skills/google-agents-cli-publish",
+            "-skills/google-agents-cli-scaffold",
+            "-skills/google-agents-cli-workflow",
+            "-skills/find-skills",
+            "-skills/amazon-bedrock",
+            "-skills/aws-auth",
+            "-skills/aws-billing-and-cost-management",
+            "-skills/aws-blocks",
+            "-skills/aws-cdk",
+            "-skills/aws-cloudformation",
+            "-skills/aws-compute",
+            "-skills/aws-containers",
+            "-skills/aws-deployment",
+            "-skills/aws-messaging-and-streaming",
+            "-skills/aws-observability",
+            "-skills/aws-sdk-js-v3-usage",
+            "-skills/aws-sdk-python-usage",
+            "-skills/aws-sdk-swift-usage",
+            "-skills/aws-security",
+            "-skills/aws-serverless",
+            "-skills/aws-storage",
+            "-skills/launch-with-aws",
+            "-skills/signing-in-to-aws"
+          ]
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 15,
+        "skills": [
+          "archify",
+          "browser-qa",
+          "firecrawl",
+          "firecrawl-agent",
+          "firecrawl-browser",
+          "firecrawl-crawl",
+          "firecrawl-download",
+          "firecrawl-map",
+          "firecrawl-scrape",
+          "firecrawl-search",
+          "grill-me",
+          "grilling",
+          "implement",
+          "to-spec",
+          "to-tickets"
+        ],
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 3006,
+          "branchTokens": 0,
+          "totalTokens": 3691,
+          "durableTokens": 0,
+          "branchChars": 0,
+          "staticChars": 14762
+        },
+        "capturedAt": "2026-09-09T12:54:34.169Z"
+      },
+      "createdAt": 1788958474169
     }
   ]
 }

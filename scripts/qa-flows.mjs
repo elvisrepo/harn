@@ -84,7 +84,11 @@ try {
 } finally {
   if (previewChild) {
     previewChild.kill();
-    await new Promise((r) => setTimeout(r, 300));
+    // astro preview daemonizes — killing the spawner leaves the managed
+    // daemon bound to the port (stale-server evidence: 54321 survived a
+    // check run); `preview stop` reaps it
+    spawnSync(path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'astro.cmd' : 'astro'), ['preview', 'stop'], { stdio: 'ignore' });
+    await new Promise((r) => setTimeout(r, 500));
   }
 }
 

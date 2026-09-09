@@ -13,7 +13,8 @@
     "db:push": "drizzle-kit push",
     "db:seed": "node --env-file=.env --experimental-strip-types scripts/seed.ts",
     "db:setup": "npm run db:push && npm run db:seed",
-    "check": "astro build && astro check && eslint . && semgrep --config .semgrep/rules.yml --error --include='*.ts' --include='*.js' --include='*.mjs' --include='*.cjs' src scripts db .pi && node scripts/check-secrets.mjs && node scripts/qa-flows.mjs",
+    "test": "node --test test/app.test.mjs",
+    "check": "astro build && astro check && eslint . && semgrep --config .semgrep/rules.yml --error --include='*.ts' --include='*.js' --include='*.mjs' --include='*.cjs' src scripts db .pi && node scripts/check-secrets.mjs && npm run test --silent && node scripts/qa-flows.mjs",
     "versions:export": "node scripts/export-versions.mjs",
     "versions:import": "node scripts/import-versions.mjs"
   },

@@ -321,3 +321,11 @@ Decisions (2026-09-09 — reviewed, have with one queued hole):
    computationally instead of only in a browser. The
    coverage-percentage game is explicitly *not* queued — the suite
    proves the seams, not a number.
+4. **Implemented same session (`test/`, 9 tests, zero deps).**
+   `node:test` + global fetch mirror the 4 flows (catalog coherence incl.
+   seed-wiring pins; harness contiguity 1..N + snapshot soundness;
+   archify under both Accept headers; login incl. sign-out cleanup, env-
+   gated). Same server conventions as qa-flows (`APP_URL` or self-booted
+   preview) — and writing it caught a real kit bug: `astro preview`
+   daemonizes, so spawner-kill leaked the server (stale 54321); both the
+   suite helper and qa-flows now reap via `preview stop`.

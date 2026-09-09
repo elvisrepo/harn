@@ -173,7 +173,13 @@ src/styles/global.css            design tokens + app styles
 
 ## Testing
 
-No test suite yet — smoke-check flows manually:
+Thin runnable suite (`test/`, zero deps — `node:test` + global fetch):
+`npm test` runs 9 tests mirroring the 4 qa-flows computationally
+(catalog · harness · archify · login, incl. the Accept-header and
+Origin-header lessons). Reuses `APP_URL` or self-boots preview;
+login write-paths need env creds and sign out after. Wired into
+`npm run check` before the browser flows. Manual smoke checklist retired —
+the suite + flows are the check; also verify in a real browser on change:
 
 1. `npm run db:setup`
 2. `npm run dev`
