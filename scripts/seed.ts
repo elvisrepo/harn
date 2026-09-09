@@ -430,6 +430,34 @@ Three placements: mid-loop via bash (facts, diagrams, browser evidence), check a
       { label: 'OpenRewrite recipes', url: 'https://docs.openrewrite.org/' },
     ],
   },
+  {
+    title: 'Static analysis',
+    category: 'Tooling',
+    summary: 'Deterministic checks on every change (Fig 2 first sensor row): build + strict typecheck + secrets scanner + eslint/semgrep, with a thin HTTP suite and unit-covered lib core as the behavioural backstop.',
+    body: `Fig 2's first sensor row (computational feedback): deterministic, millisecond-to-second checks on every change so the agent self-corrects before human eyes — with signals optimised for LLM consumption ("positive prompt injection").
+
+Layers, all in npm run check:
+
+1. **astro build** — compile gate (esbuild strips types; checks nothing semantic).
+2. **astro check** — strict typecheck (astro/tsconfigs/strict); 0 errors / 0 warnings.
+3. **check-secrets.mjs** — the exemplar: 6 credential patterns over git-tracked files, file:line + fix, value never printed. Caught a live .env push on its first run.
+4. **eslint** (flat config, recommended minus tsc-covered noise) + **semgrep** (2 earned rules: no absolute-local fetch, no eval).
+
+Behavioural backstop (the Fig 3 coverage ring, honestly scoped):
+
+- **Thin suite** (test/, 9 tests, zero deps) — node:test + fetch mirror the 4 browser flows computationally, incl. the Accept-header and Origin-header lessons. Env-gated login paths sign out after.
+- **Unit coverage** (test/lib.test.mjs, 13 tests) — pure core (c4/mods/context) with real per-file lines; black-box HTTP coverage proven unmeasurable on this server (V8 data exists but Astro's bundles don't attribute), thresholds off until earned.
+
+Explicitly parked: **mutation testing** (trigger: ~30 tests or a slipped seam) and **dep-cruiser** (trigger: second boundary violation) — no earned pain yet, so no tooling.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['static-analysis', 'sensor', 'tests', 'coverage', 'computational'],
+    links: [
+      { label: 'article — sensors', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'suite runner', url: 'scripts/qa-flows.mjs' },
+    ],
+  },
 ];
 
 async function upsertMods() {
