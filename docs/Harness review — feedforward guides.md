@@ -62,18 +62,23 @@ text); sensors skew **computational** (verification wants determinism).
 
 ## Feedforward / Guides — our current state
 
+_Verified 2026-09-09. Decisions behind each row live in `docs/Harness decisions.md` — this table is the index, not the record (single-source rule)._
+
 | Guide (article) | Ours | Status |
 |---|---|---|
-| Principles | implied inside AGENTS.md, but never stated as *principles* | thin |
-| CfRs (rules for contributing) | AGENTS.md covers a slice | partial |
-| Rules | AGENTS.md + skill instructions | have (informal) |
-| Ref Docs | `docs/` (current-harness, reuse contract, article summary) — agent-readable but not *curated for the agent* | partial |
-| How-tos | none as standalone skills/docs (how-to-test, how-to-add-a-mod…) | **gap** |
-| Language Servers | none wired into pi | **gap** |
+| Principles | 9 stated in AGENTS.md + decisions record + catalog mod | have |
+| CfRs | 6 standing bars in AGENTS.md + `to-spec` template slot | have |
+| Rules | AGENTS.md + skill-scoped rules + catalog-mirror rule (secrets rule graduated to sensor) | have |
+| Ref Docs | `docs/` indexed in AGENTS.md, single-source rule, `current-harness.md` verified at v7 | have |
+| How-tos | `docs/Harness how-tos.md` — 5 procedures (snapshot, new-machine, rotate secrets, archify regen, check) | have |
+| Language Servers | batch: `astro check` in `npm run check` (portable) + interactive: `.pi/extensions/lsp-diagnostics/` (**pi-only** — inert under opencode) | have (portable batch; pi-only interactive) |
 | CLIs, scripts | firecrawl, archify CLI, browser-qa qa.mjs, npm scripts | have |
 | Code mods | none | gap (low priority here) |
 
-Highest-leverage guide gaps for us: **How-tos** (cheap — e.g. "how to add a
-mod", "how to run/interpret `npm run check`", "how to take a snapshot") and
-**Principles** (a short stated set in AGENTS.md so steering is explicit, not
-tribal).
+Former top gaps (How-tos, Principles) closed 2026-09-03/04. Remaining
+feedforward gap: **Code mods** (deliberately deferred — low leverage here).
+**Runtime note (2026-09-09):** we run **opencode** while keeping the pi
+harness conventions. The LSP extension is **pi-only** (needs pi's
+ExtensionAPI: `tool_result` hook + `registerTool`) — under opencode it does
+not execute; the portable language-server cover is the batch sensor
+(`npx astro check` inside `npm run check`).

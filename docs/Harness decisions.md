@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch form)**.
+How-tos · Language Servers (batch + interactive, pi-only)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -194,3 +194,23 @@ Decisions (2026-09-04):
    `<placeholder>` values so the how-to doc's rotation teaching doesn't false-
    positive; the rotation snippet itself made generic (no literal secret-prefix
    in docs).
+
+Decisions (2026-09-09 — interactive landed, then qualified pi-only):
+
+4. **Interactive form adopted: `.pi/extensions/lsp-diagnostics/`** (pi
+   extension, LSP client over stdio to `typescript-language-server`):
+   `didOpen`/`didChange` sync + `publishDiagnostics` pushes appended as
+   `[LSP]` receipts to `edit`/`write`/`bash` tool results (silent when
+   clean, ≤2 s wait, severity ≤ 2 capped at 10) + `diagnostics` on-demand
+   probe. Bash-diffing also `didClose`s files deleted on disk. Failure
+   policy: server won't start → stay silent; batch sensor still covers
+   handoff. Protocol review in `docs/LSP — review and integration.md`.
+5. **LSP extension is pi-only — recorded explicitly.** It imports
+   `@earendil-works/pi-coding-agent` and uses pi's `tool_result` hook +
+   `registerTool`: under **opencode it does not execute** (no
+   `opencode.json` / `.opencode/` mapping exists). While we run opencode
+   keeping pi conventions, the portable language-server cover is the
+   **batch sensor** (`astro check` in `npm run check`). Do not claim
+   in-loop LSP cover on opencode runs. Open hardening still applies
+   (hook throw ≡ silent-clean — needs a distinct `[LSP] diagnostics
+   failed` note).
