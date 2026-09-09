@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-09-04T15:11:01.083Z",
-  "count": 7,
+  "exportedAt": "2026-09-09T11:40:56.021Z",
+  "count": 9,
   "versions": [
     {
       "id": "0583e29d-f5fd-4785-b905-5ad39e814b7c",
@@ -432,6 +432,180 @@
         "capturedAt": "2026-09-03T12:24:53.922Z"
       },
       "createdAt": 1788438293922
+    },
+    {
+      "id": "6dbeb88e-b615-4f90-8088-2926bd1369f7",
+      "version": 8,
+      "label": "opencode run · LSP pi-only",
+      "summary": "Guides refresh: feedforward table + decisions closed (Principles/CfRs/How-tos/LSP gaps); LSP interactive recorded pi-only — opencode runs batch astro check only; scratch probe removed; check green (0 errors, 4/4 flows).",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "theme": "dark",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash",
+          "defaultThinkingLevel": "high",
+          "skills": [
+            "-skills/google-agents-cli-adk-code",
+            "-skills/google-agents-cli-deploy",
+            "-skills/google-agents-cli-eval",
+            "-skills/google-agents-cli-observability",
+            "-skills/google-agents-cli-publish",
+            "-skills/google-agents-cli-scaffold",
+            "-skills/google-agents-cli-workflow",
+            "-skills/find-skills",
+            "-skills/amazon-bedrock",
+            "-skills/aws-auth",
+            "-skills/aws-billing-and-cost-management",
+            "-skills/aws-blocks",
+            "-skills/aws-cdk",
+            "-skills/aws-cloudformation",
+            "-skills/aws-compute",
+            "-skills/aws-containers",
+            "-skills/aws-deployment",
+            "-skills/aws-messaging-and-streaming",
+            "-skills/aws-observability",
+            "-skills/aws-sdk-js-v3-usage",
+            "-skills/aws-sdk-python-usage",
+            "-skills/aws-sdk-swift-usage",
+            "-skills/aws-security",
+            "-skills/aws-serverless",
+            "-skills/aws-storage",
+            "-skills/launch-with-aws",
+            "-skills/signing-in-to-aws"
+          ]
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 15,
+        "skills": [
+          "archify",
+          "browser-qa",
+          "firecrawl",
+          "firecrawl-agent",
+          "firecrawl-browser",
+          "firecrawl-crawl",
+          "firecrawl-download",
+          "firecrawl-map",
+          "firecrawl-scrape",
+          "firecrawl-search",
+          "grill-me",
+          "grilling",
+          "implement",
+          "to-spec",
+          "to-tickets"
+        ],
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 2889,
+          "branchTokens": 0,
+          "totalTokens": 3574,
+          "durableTokens": 0,
+          "branchChars": 0,
+          "staticChars": 14293
+        },
+        "capturedAt": "2026-09-09T11:34:08.273Z"
+      },
+      "createdAt": 1788953648273
+    },
+    {
+      "id": "2c1dd083-e8be-47fd-8d4b-9e59039d2c75",
+      "version": 9,
+      "label": "LSP on the map",
+      "summary": "Harness map builder now shows the Language Server guide: lsp-diagnostics extension as LSP dev-tool client, typescript-language-server, and the receipt loop back into orchestration (steps 14-17). v8 artifact left frozen (point-in-time truth).",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "theme": "dark",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash",
+          "defaultThinkingLevel": "high",
+          "skills": [
+            "-skills/google-agents-cli-adk-code",
+            "-skills/google-agents-cli-deploy",
+            "-skills/google-agents-cli-eval",
+            "-skills/google-agents-cli-observability",
+            "-skills/google-agents-cli-publish",
+            "-skills/google-agents-cli-scaffold",
+            "-skills/google-agents-cli-workflow",
+            "-skills/find-skills",
+            "-skills/amazon-bedrock",
+            "-skills/aws-auth",
+            "-skills/aws-billing-and-cost-management",
+            "-skills/aws-blocks",
+            "-skills/aws-cdk",
+            "-skills/aws-cloudformation",
+            "-skills/aws-compute",
+            "-skills/aws-containers",
+            "-skills/aws-deployment",
+            "-skills/aws-messaging-and-streaming",
+            "-skills/aws-observability",
+            "-skills/aws-sdk-js-v3-usage",
+            "-skills/aws-sdk-python-usage",
+            "-skills/aws-sdk-swift-usage",
+            "-skills/aws-security",
+            "-skills/aws-serverless",
+            "-skills/aws-storage",
+            "-skills/launch-with-aws",
+            "-skills/signing-in-to-aws"
+          ]
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 15,
+        "skills": [
+          "archify",
+          "browser-qa",
+          "firecrawl",
+          "firecrawl-agent",
+          "firecrawl-browser",
+          "firecrawl-crawl",
+          "firecrawl-download",
+          "firecrawl-map",
+          "firecrawl-scrape",
+          "firecrawl-search",
+          "grill-me",
+          "grilling",
+          "implement",
+          "to-spec",
+          "to-tickets"
+        ],
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 2889,
+          "branchTokens": 0,
+          "totalTokens": 3574,
+          "durableTokens": 0,
+          "branchChars": 0,
+          "staticChars": 14293
+        },
+        "capturedAt": "2026-09-09T11:40:55.922Z"
+      },
+      "createdAt": 1788954055922
     }
   ]
 }

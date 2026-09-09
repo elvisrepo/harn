@@ -32,7 +32,7 @@ record, don't copy them)._
 4. **Reply & persist** — the streamed reply returns to the TUI and the JSONL
    log is appended.
 
-The full numbered cycle (1–13) is drawn in the C4 pipeline on `/harness`.
+The full numbered cycle (1–17) is drawn in the C4 pipeline on `/harness`.
 
 ## Context size & caching
 

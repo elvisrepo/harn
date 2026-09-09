@@ -128,6 +128,12 @@ export function buildC4Graph(snapshot: any, palette: C4Palette = C4_PALETTE, hlL
   add(inside, 'MODEL', 'ORCH', 'reply', { cate: 'model' });
   add(inside, 'ORCH', 'TUI', 'streamed reply');
   add(inside, 'TUI', 'SESS', 'appends JSONL', { dashed: true });
+  // LSP guide loop (pi-only): the extension is the LSP "development tool"
+  // (client); the language server holds the type intelligence for the agent.
+  add(inside, 'TOOLS', 'EXT', 'tool results · hook', { cate: 'lsp' });
+  add(inside, 'EXT', 'LSP', 'didOpen · didChange sync', { cate: 'lsp' });
+  add(inside, 'LSP', 'EXT', 'publishDiagnostics push', { cate: 'lsp' });
+  add(inside, 'EXT', 'ORCH', 'LSP receipt · self-correct', { cate: 'lsp' });
   outside.push({ a: 'MODS', b: 'FILES', label: 'reads · snapshots', cate: 'dim', dashed: true });
   outside.push({ a: 'MODS', b: 'PI', label: 'tracks config + token status', cate: 'dim', dashed: true });
 
@@ -135,7 +141,7 @@ export function buildC4Graph(snapshot: any, palette: C4Palette = C4_PALETTE, hlL
   // all edges in declaration order → linkStyle index = array position + 1 (Dev edge sits first)
   const order: Edge[] = [...inside, ...outside];
 
-  const cateColor: Record<string, string> = { tool: green, search: sky, model: sky, auth: red, dim };
+  const cateColor: Record<string, string> = { tool: green, lsp: green, search: sky, model: sky, auth: red, dim };
   const styleLines: string[] = [];
   for (const [cate, color] of Object.entries(cateColor)) {
     const inds = order.map((e, i) => (e.cate === cate ? i + 1 : 0)).filter(Boolean);
@@ -177,10 +183,12 @@ export function buildC4Graph(snapshot: any, palette: C4Palette = C4_PALETTE, hlL
       direction LR
       ASM["⎘ Context assembler<br/>base prompt · project instructions<br/>skills catalog · extension hooks"]:::container
     end
-    subgraph LOOP["3 · AGENT LOOP — tools${hasSearch ? ' · web' : ''} · model"]
+    subgraph LOOP["3 · AGENT LOOP — tools · lsp${hasSearch ? ' · web' : ''} · model"]
       direction LR
       ORCH["◎ Agent orchestration<br/>the core loop"]:::container
       TOOLS["⚙ Tools<br/>read · bash · edit · write"]:::container
+      EXT["⛭ LSP client · dev tool<br/>lsp-diagnostics · pi-only<br/>hooks edit · write · bash"]:::container
+      LSP["⚙ TypeScript language server<br/>typescript-language-server --stdio<br/>types · diagnostics"]:::container
 ${wsNode}      MODEL["◈ Model provider<br/>routes prompts to an LLM"]:::container
       AUTH["🔑 Auth / credentials<br/>token on every prompt"]:::container
       MS["🗎 models-store.json<br/>provider/model catalog"]:::file
