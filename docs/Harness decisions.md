@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV)**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -435,3 +435,30 @@ Decisions (2026-09-10 — reviewed, have, two micro-fixes + one note):
    vision-capable model the agent can actually look at them — same
    sensor, strictly stronger reader. Remember this before adding any
    new visual-verification machinery.
+
+---
+
+## Architecture doc (Fig 3 feedforward)
+
+The change-lifecycle figure feeds `architecture.md` into initial
+generation: a curated map of the system *under work*. Split deliberately
+from `docs/current-harness.md`, which describes the harness *around* the
+agent — the article's two different things, and conflating them is how
+the AGENTS.md arch map rotted.
+
+Decisions (2026-09-10 — reviewed, created):
+
+1. **New root-level `architecture.md`** — routes table (file, auth,
+   notes incl. the Astro-7 destructured-exports gotcha), middleware
+   pipeline, DB schema with the catalog-is-code rule, snapshot/C4 flow,
+   the Accept-header static-serving lesson marked do-not-regress, client
+   JS + tokens, and where each seam is proven. Structure only, no
+   drifting numbers (single-source rule).
+2. **The audit that earned it** — AGENTS.md map was missing 10 entries
+   (tests, lint, semgrep, extension, 4 scripts, data artifacts), said "5
+   skills" for 6, mislabeled `browser-qa` invocation, and
+   current-harness.md sat stamped v7 in a v12 world: the coherence
+   failure, live. Fixed in the same pass; both docs current at v12+.
+3. **Indexed first in the AGENTS.md ref-docs list** ("read before
+   changing any route/table/flow") + catalog mod, snapshot v14. One
+   buddy, discoverable where the agent looks every turn.
