@@ -502,6 +502,24 @@ Explicitly out of scope: continuous log-anomaly judges — no runtime users, no 
       { label: 'check flows (runner)', url: 'scripts/qa-flows.mjs' },
     ],
   },
+  {
+    title: 'Steering loop',
+    category: 'Workflow',
+    summary: 'The human iterates the harness on recurrence (our Principle 9); the loop is human-triggered today — an automatic repetition tripwire is the wanted upgrade.',
+    body: `The article's steering loop: whenever an issue recurs, improve the controls so it gets less probable — and use AI to build those controls (draft rules, scaffold linters, how-tos from archaeology). This repo is the loop running: secrets incident → secrets scanner, invisible rule → AGENTS.md rule, bracket bug → unit test, daemon leak → preview-stop fix. The decisions doc is the loop's journal.
+
+Gap: the loop is human-triggered — recurrence is noticed by a person, then encoded. Nothing counts repetitions, so the "second occurrence" (lint) and "third occurrence" (codemod) triggers assume someone is counting.
+
+Proposed mechanism (wanted, ~1 hour, zero deps): a failure ledger — check appends each sensor failure as one JSONL line (date, step, class, file) to data/failures.jsonl — plus a warn-only scripts/steering-review.mjs that counts classes in a window and prints rule candidates ("login flow failed 3rd time in 14 days — encode the bar?"). Thresholds mirror the existing rules (2 for lint-class, 3 for mechanical edits). Warn-only until the signal proves itself; a tripwire that cries wolf trains disregard, same as a noisy sensor.`,
+    considered: true,
+    implemented: true,
+    wanted: true,
+    tags: ['steering-loop', 'meta', 'repetition', 'tripwire'],
+    links: [
+      { label: 'article — steering loop', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'decisions journal', url: 'docs/Harness decisions.md' },
+    ],
+  },
 ];
 
 async function upsertMods() {
