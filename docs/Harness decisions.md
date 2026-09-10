@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3)**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -483,3 +483,31 @@ Decisions (2026-09-10 — reviewed, have, two nits fixed):
    suite" without naming it — now `npm run check` (with the mid-loop
    commands spelled out); the §5 failure table had no test-failure row —
    a failing seam test sent the reader nowhere. Both one-liners, done.
+
+---
+
+## MCP knowledge (Fig 3 feedforward)
+
+The figure's knowledge-management entry: the agent querying team
+knowledge at generation time through a protocol instead of relying on
+what is already in context.
+
+Decisions (2026-09-10 — reviewed, gap that mostly isn't):
+
+1. **The knowledge exists; the protocol doesn't.** pi has no MCP
+   client (why everything here is files + CLI skills); opencode does
+   (verified: `opencode.json` → `mcp`, local + remote, tools
+   auto-available) — but this repo has no `opencode.json`, so zero
+   servers configured. Meanwhile the knowledge itself (indexed docs,
+   decision journal, 29-mod catalog, 14 snapshots) is the most complete
+   thing here.
+2. **Files win on cost — the docs say so verbatim.** Opencode's own MCP
+   page warns servers "add to your context… be careful which ones you
+   enable." An MCP filesystem/sqlite server would charge tokens every
+   turn for what `read` + grep give at zero cost until needed
+   (progressive disclosure already does the rationing).
+3. **Split by where knowledge lives:** in-repo → files, no MCP
+   warranted. Off-repo (Astro/better-auth API docs) → firecrawl skills
+   cover it today via CLI; a Context7-style remote is the convenience
+   upgrade. Trigger: first repeated off-repo lookup firecrawl handles
+   clumsily, or knowledge spanning repos. One stanza away when earned.

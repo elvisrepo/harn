@@ -358,6 +358,26 @@ Complete in three layers (2026-09):
     ],
   },
   {
+    title: 'MCP knowledge',
+    category: 'Tooling',
+    summary: 'The Fig-3 knowledge-protocol entry: the knowledge exists (docs, journal, catalog, snapshots) but no MCP server exposes it — files win on context cost; remote docs are the trigger.',
+    body: `The figure's knowledge-management entry: the agent querying team knowledge at generation time through a protocol instead of relying on what is in context.
+
+Status (2026-09): gap that mostly isn't. pi has no MCP client; opencode does (opencode.json → mcp, verified in its docs) but this repo has no opencode.json — zero servers configured. The knowledge itself is complete: indexed docs, decision journal, 29-mod catalog, 14 snapshots.
+
+Why files win: opencode's own MCP page warns servers add to context every turn. Files + grep + progressive disclosure give the same knowledge at zero cost until needed.
+
+Split: in-repo knowledge → files, no MCP warranted. Off-repo (library API docs) → firecrawl skills cover it via CLI today; a Context7-style remote is the convenience upgrade. Trigger: repeated off-repo lookups firecrawl handles clumsily, or multi-repo knowledge.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['mcp', 'knowledge', 'feedforward', 'deferred'],
+    links: [
+      { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'opencode MCP servers', url: 'https://opencode.ai/docs/mcp-servers' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',
