@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II)**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -380,3 +380,30 @@ Decisions (2026-09-09 — reviewed, thin, now ritualized):
 3. **Deferred with triggers:** second-model spot review on risky diffs
    (auth, migrations, map) after the next semantic slip past the
    checklist; janitor/GC agents — no, nothing here drifts at army scale.
+
+---
+
+## Logs (Sensors III)
+
+Computational (⚙) feedback, Fig 2's third sensor row — runtime output
+observed after the act — plus her Fig-4 continuous form (`/log-anomalies`
+judges, SLO monitors) and the fitness variant (logging standards as
+guide + debugging against the logs available).
+
+Decisions (2026-09-10 — reviewed, recognized + cleaned, continuous out):
+
+1. **The sensor already exists per-run:** browser-qa captures console
+   errors/warnings, page errors, and failed requests on every `check`
+   run, gated with the rest. That per-run console capture *is* our logs
+   sensor — no new infrastructure, just the name on what we do.
+2. **Server logs stay informal by decision.** Process stdout (terminal,
+   `/tmp` when backgrounded) with machine-readable one-line receipts in
+   scripts. No structured logging, no viewer: single-user local scale
+   owes none, and our debugging history never once needed more.
+3. **Hygiene (same accident class as `.env`):** `dev.log` + `prod.log`
+   (stale, Sep 2) were git-tracked though nobody reads them — untracked
+   (`git rm --cached`, files kept) and `*.log` ignored. Tracked files
+   override gitignore; local process output is never committed.
+4. **Continuous log-anomaly explicitly out of scope:** no runtime users,
+   no SLOs — a `/log-anomalies` judge here would be theater. Revisit if
+   this ever serves anyone but us.

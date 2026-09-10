@@ -478,6 +478,28 @@ Deferred with triggers: second-model spot review on risky diffs (auth, migration
       { label: 'implement skill', url: '.pi/skills/implement/SKILL.md' },
     ],
   },
+  {
+    title: 'Logs',
+    category: 'Tooling',
+    summary: 'Runtime output as feedback (Fig 2 computational sensor): per-run browser console capture gated in check; server logs informal by decision; continuous anomaly detection out of scope.',
+    body: `Fig 2's computational log sensor plus the Fig-4 continuous form (/log-anomalies judges, SLO monitors): runtime output observed after the act.
+
+What it is here (2026-09):
+
+1. **The sensor already exists per-run** — browser-qa captures console errors/warnings, page errors, and failed requests on every check run, gated with the rest. No new infrastructure; just the name on what we do.
+2. **Server logs informal by decision** — process stdout with machine-readable one-line receipts in scripts. No structured logging, no viewer; single-user local scale owes none.
+3. **Hygiene earned twice now** — dev.log + prod.log were git-tracked though nobody reads them (same accident class as the .env push: tracked files override gitignore). Untracked, *.log ignored; local process output is never committed.
+
+Explicitly out of scope: continuous log-anomaly judges — no runtime users, no SLOs. Revisit if this ever serves anyone but us.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['logs', 'sensor', 'console', 'computational'],
+    links: [
+      { label: 'article — sensors', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'check flows (runner)', url: 'scripts/qa-flows.mjs' },
+    ],
+  },
 ];
 
 async function upsertMods() {
