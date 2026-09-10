@@ -332,7 +332,9 @@ Wired into the suite: scripts/qa-flows.mjs runs 4 flows (catalog, harness, archi
 
 **Earned lessons (this sensor already paid rent):** it caught the /docs/archify serving failure (curl got 200 with Accept */*, real browsers got 404 — Accept: text/html) and the preview login 403 (better-auth origin vs AUTH_URL mismatch + Secure cookies over http). Both were invisible to curl and build checks.
 
-Dev-mode caveat: npm run dev emits Vite dev-toolbar 504s in headless runs — expect-error-free is meaningful against the prod build (npm run preview), which check self-serves.`,
+Dev-mode caveat: npm run dev emits Vite dev-toolbar 504s in headless runs — expect-error-free is meaningful against the prod build (npm run preview), which check self-serves.
+
+Sensor record (2026-09, Fig 2 Browser row): this is the backstop of the Real-browser-usability CfR, which exists because scripted clients lie. Hygiene: per-run check-*.png screenshots are untracked noise (ignored); curated qa-* evidence stays committed. The --help usage line now lists every flag. Opencode-era upgrade, free: with a vision-capable model the agent can actually look at the screenshots — same sensor, strictly stronger reader.`,
     considered: true,
     implemented: true,
     wanted: false,

@@ -31,7 +31,7 @@ const flag = (name, fallback) => {
 const has = (name) => args.includes(`--${name}`);
 const url = args[0];
 if (!url || !/^https?:\/\//.test(url)) {
-  console.error('usage: node qa.mjs <url> [--timeout ms] [--wait sel] [--assert sel] [--reject sel] [--text str] [--shot path] [--expect-error-free] [--json]');
+  console.error('usage: node qa.mjs <url> [--timeout ms] [--wait sel] [--assert sel] [--reject sel] [--text str] [--eval js] [--login [--email e --password p] [--login-expect path]] [--shot path] [--expect-error-free] [--json]');
   process.exit(2);
 }
 

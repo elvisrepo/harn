@@ -9,6 +9,9 @@ node_modules/
 # logs (local process output only — never committed; cf. the .env tracking incident)
 *.log
 
+# per-run check screenshots (regenerated noise) — curated qa-* evidence stays tracked
+public/screenshots/check-*.png
+
 
 # environment variables
 .env

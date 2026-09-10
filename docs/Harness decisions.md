@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III)**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -407,3 +407,31 @@ Decisions (2026-09-10 — reviewed, recognized + cleaned, continuous out):
 4. **Continuous log-anomaly explicitly out of scope:** no runtime users,
    no SLOs — a `/log-anomalies` judge here would be theater. Revisit if
    this ever serves anyone but us.
+
+---
+
+## Browser (Sensors IV)
+
+Computational (⚙) feedback, Fig 2's last sensor row — the app observed
+as a user sees it: rendering, navigation, auth cookies, console health.
+The backstop of our Real-browser-usability CfR, which exists because
+scripted clients lie (curl said 200, browsers got 404). Our strongest
+sensor: headless Playwright + system Chrome (error capture, DOM
+assertions, `--eval` escape hatch, `--login` flow, screenshots),
+4 flows gated in `check`, two real incidents caught that nothing else
+could see (archify Accept-header 404, preview login 403).
+
+Decisions (2026-09-10 — reviewed, have, two micro-fixes + one note):
+
+1. **Closed CLIs gap (a):** `qa.mjs --help` omitted real flags — the
+   header comment documented them, only the usage-error line was stale.
+   Fixed to list every flag; help text and behaviour agree again.
+2. **Screenshot hygiene:** every `check` run rewrote the tracked
+   `check-*.png` files, dirtying the tree with noise. Untracked
+   (`check-*` ignored); curated `qa-*` evidence stays committed. Signal
+   up, noise down.
+3. **Opencode-era upgrade, free:** under pi + text-only models the
+   screenshots were attached but unseen. Under opencode with a
+   vision-capable model the agent can actually look at them — same
+   sensor, strictly stronger reader. Remember this before adding any
+   new visual-verification machinery.
