@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I)**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -350,3 +350,33 @@ Decisions (2026-09-09 — reviewed, have with one queued hole):
    `npm run coverage` uses the built-in flag (zero deps); thresholds
    stay off until earned — the uncovered-lines list is feedback for the
    next test session, not a gate.
+
+---
+
+## Review agents (Sensors II)
+
+Inferential (✦) feedback, Fig 2's second sensor row — semantic judgment
+after the act for what deterministic checks cannot see (misdiagnosis,
+over-engineering, wrong slice, spec mismatch). Fig 3 rations it by cost:
+`/code-review` in the first self-correction loop (cheap, every change),
+`/architecture-review` + `/detailed-review` post-integration (expensive,
+rare). Her examples: OpenAI's "garbage collection" drift-scanners,
+Stripe's heuristic-triggered hooks, the "janitor army." Her warnings:
+non-deterministic and pricey — ration it — and contradictory signals need
+a tiebreaker (that is what Principles are for).
+
+Decisions (2026-09-09 — reviewed, thin, now ritualized):
+
+1. **Status was one unritualized line** — `implement` step 6, "read it as
+   a reviewer would": same model, same window, no checklist, no evidence
+   required. Earned evidence it was insufficient: the `[LSP]`
+   mermaid-bracket bug sailed through it and was caught by a
+   computational sensor instead.
+2. **Formalized, not expanded** — step 6 is now a 5-point read-back
+   checklist (minimalism · scope · CfRs · catalog mirror · receipts),
+   same cost as before, actual teeth. No second model, no new skill: a
+   ritualized same-model review beats an unritualized line, and nothing
+   in our incident record justifies pricier review yet.
+3. **Deferred with triggers:** second-model spot review on risky diffs
+   (auth, migrations, map) after the next semantic slip past the
+   checklist; janitor/GC agents — no, nothing here drifts at army scale.

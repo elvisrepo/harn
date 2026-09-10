@@ -458,6 +458,26 @@ Explicitly parked: **mutation testing** (trigger: ~30 tests or a slipped seam) a
       { label: 'suite runner', url: 'scripts/qa-flows.mjs' },
     ],
   },
+  {
+    title: 'Review agents',
+    category: 'Tooling',
+    summary: 'Semantic judgment after the act (Fig 2 inferential sensor): the implement self-review formalized into a read-back checklist; second-model and janitor review deferred with triggers.',
+    body: `Fig 2's inferential (semantic) feedback sensor: a model re-reading code for what deterministic checks cannot see — misdiagnosis, over-engineering, wrong slice, spec mismatch. The article rations it by cost (/code-review every change, /architecture-review rarely) and warns contradictory signals need a tiebreaker (our Principles).
+
+Status here was one unritualized line (implement step 6, "read it as a reviewer would") — same model, same window, no checklist. Earned evidence it was insufficient: the [LSP] mermaid-bracket bug sailed through it and was caught by a computational sensor instead.
+
+Formalized, not expanded (2026-09): step 6 is now a 5-point read-back — minimalism · scope · CfRs · catalog mirror · receipts — same cost, actual teeth. No second model, no new skill.
+
+Deferred with triggers: second-model spot review on risky diffs (auth, migrations, map) after the next semantic slip past the checklist; janitor/GC agents — nothing here drifts at army scale.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['review', 'sensor', 'inferential', 'self-review'],
+    links: [
+      { label: 'article — sensors', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'implement skill', url: '.pi/skills/implement/SKILL.md' },
+    ],
+  },
 ];
 
 async function upsertMods() {
