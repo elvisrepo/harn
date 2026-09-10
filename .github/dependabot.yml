@@ -1,0 +1,10 @@
+# Continuous drift sensing (Fig 4): vulnerability updates for the npm tree.
+# Nothing else here has a package manager to watch (semgrep rides pip
+# untracked, by decision — pin it only if its version ever matters).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3

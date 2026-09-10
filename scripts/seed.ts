@@ -400,6 +400,99 @@ Split: in-repo knowledge → files, no MCP warranted. Off-repo (library API docs
     ],
   },
   {
+    title: 'Dead code detection',
+    category: 'Tooling',
+    summary: 'Fig-4 continuous drift sensor (/find-dead-code): no watcher at our size — a one-shot manual pass plus the Minimalism principle instead.',
+    body: `The figure's /find-dead-code: a continuous sensor watching for code nobody calls, so rot accumulates visibly instead of silently.
+
+Status (2026-09): no watcher, by decision — a 30-file repo is cheaper to eyeball than to configure knip for. What exists instead:
+
+1. **One-shot pass, done 2026-09-10:** a references grep over the tree. Found exactly one corpse — measure.mjs, a one-off Playwright measuring helper from the archify-visual-check session, zero references, no doc mentions — deleted on the spot.
+2. **The standing norm:** Minimalism (only the code the immediate problem needs) plus review-checklist read-backs keep new dead code out.
+
+Revisit trigger: the tree past ~100 source files, or a second corpse found by hand — whichever first earns a real watcher.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['dead-code', 'drift', 'continuous', 'minimalism'],
+    links: [
+      { label: 'article — continuous feedback', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+    ],
+  },
+  {
+    title: 'Dependabot',
+    category: 'Tooling',
+    summary: 'Fig-4 continuous drift sensor for the npm tree: weekly vulnerability PRs (max 3 open); the one figure element that was a genuine gap.',
+    body: `The figure's dependabot: someone else's vulnerabilities arrive on their schedule, not ours — 30+ npm deps here including Astro, better-auth, and drizzle. This was the one Fig-4 element that was a genuine gap rather than a scoped-out luxury.
+
+Implemented (2026-09-10): .github/dependabot.yml — npm, weekly, max 3 open PRs. Each PR is just another change walking into the pipeline: check runs on it, the review checklist reads it, the human merges.
+
+Deliberately excluded: pip/semgrep rides untracked (pip install, no requirements file) — pin it only if its version ever matters. Same for the weekly cadence: faster than our ability to review would just stack PRs.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['dependabot', 'drift', 'continuous', 'dependencies', 'security'],
+    links: [
+      { label: 'article — continuous feedback', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'dependabot config', url: '.github/dependabot.yml' },
+    ],
+  },
+  {
+    title: 'Coverage quality',
+    category: 'Tooling',
+    summary: 'Fig-4 /code-coverage-quality: not the percentage but whether tests are toothless — answered here by the 4/4 mutation probe, with thresholds off until earned.',
+    body: `The figure's /code-coverage-quality: the continuous version of the coverage question — not "which lines execute" but "is the suite rotting". Distinct from the coverage number (see the Static analysis and Mutation testing mods).
+
+Status (2026-09): no continuous watcher. What stands in for it:
+
+1. **Unit thresholds off until earned** — the uncovered-lines list is feedback per run, not a gate.
+2. **The 4/4 manual mutation probe** — the quality half, answered with evidence instead of a standing tool.
+3. **The steering-loop tripwire proposal** — if built, suite-rot detection is one of its named jobs.
+
+Revisit trigger: suite past ~30 tests (the number where rot outruns eyeballs), or a test going hollow unnoticed.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['coverage-quality', 'drift', 'continuous', 'tests'],
+    links: [
+      { label: 'article — continuous feedback', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+    ],
+  },
+  {
+    title: 'Runtime SLOs',
+    category: 'Tooling',
+    summary: 'Fig-4 latency / error-rate / availability monitors: explicitly out of scope — no runtime, no users, no objectives to serve.',
+    body: `The figure's computational runtime ring: latency, error rate, availability SLOs feeding agent suggestions. The cheapest, most deterministic continuous sensors in the figure — for a system that serves traffic.
+
+Status (2026-09): out of scope, same reasoning as the Logs decision. This app serves one local human from a dev/preview server that exists only while looked at. There is no latency to degrade, no error budget to burn, no availability to promise. A status page here would monitor the developer's laptop.
+
+Revisit order, if this ever serves anyone: error-rate first (the browser flows already assert zero console/page errors per run — the seed of it), then availability, then latency. Objectives before monitors: an SLO nobody agreed is just a number.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['slo', 'runtime', 'continuous', 'out-of-scope'],
+    links: [
+      { label: 'article — continuous feedback', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+    ],
+  },
+  {
+    title: 'Runtime AI judges',
+    category: 'Tooling',
+    summary: 'Fig-4 /response-quality-sampling + /log-anomalies: inferential runtime monitors — theater without traffic; parked behind real users.',
+    body: `The figure's inferential runtime pair: AI judges continuously sampling response quality and flagging log anomalies, feeding suggestions back to the agent unprompted. The most expensive sensors in the figure — GPU/NPU judgment, always on — and the least deterministic.
+
+Status (2026-09): parked behind real users, no trigger defined beyond that. Without traffic there is nothing to sample and no baseline for "anomaly" to mean anything; a judge watching an idle local server would bill tokens to admire silence. If users ever arrive, response-quality sampling comes before log-anomaly (sampling answers "is it good", anomaly answers "is it weird" — goodness first).
+
+Related out-of-scope kin: the Logs mod records the same verdict for the batch form.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['ai-judge', 'runtime', 'continuous', 'out-of-scope', 'inferential'],
+    links: [
+      { label: 'article — continuous feedback', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+    ],
+  },
+  {
     title: 'Mutation testing',
     category: 'Tooling',
     summary: 'The honest signal for suite strength (bugs planted, tests must fail): probed manually 4/4 killed; full tooling parked — no node:test runner exists and no mutant has survived.',
