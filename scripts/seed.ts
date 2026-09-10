@@ -378,6 +378,28 @@ Split: in-repo knowledge → files, no MCP warranted. Off-repo (library API docs
     ],
   },
   {
+    title: 'Self-correction loop',
+    category: 'Workflow',
+    summary: 'The Fig-3 first feedback ring, run pre-handoff inside npm run check: review checklist + eslint + semgrep + coverage, with dep-cruiser parked on trigger.',
+    body: `The figure's self-correction loop: the agent's first feedback pass before human eyes — fast controls, every change, fix before handoff. Ours runs pre-handoff inside npm run check:
+
+1. **/code-review** → implement step-6 read-back checklist (minimalism · scope · CfRs · catalog mirror · receipts). Same model, ritualized; second-model review waits on a semantic slip.
+2. **eslint** → flat config (recommended minus tsc-covered noise), green in check.
+3. **semgrep** → 2 earned rules (no absolute-local fetch, no eval), 0 findings in check.
+4. **coverage** → unit-tested lib core with real per-file lines (thresholds off until earned); black-box HTTP coverage proven unmeasurable on this server, suite proves the seams instead.
+5. **dep-cruiser** → parked: no boundary tooling until the second kit/instance violation. Deliberate gap, not neglect.
+
+**Thoughts:** the pipeline re-run half of the figure doesn't exist here (no CI) — the same command serves both halves. The loop is closed except dep-cruiser, which stays parked until a boundary breaks twice.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['self-correction', 'feedback', 'check', 'loop'],
+    links: [
+      { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'run & interpret check', url: 'docs/Harness how-tos.md' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',
