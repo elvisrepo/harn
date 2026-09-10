@@ -300,18 +300,39 @@ Two failure modes define quality:
 Ours (added 2026-09):
 
 1. **Doc index in AGENTS.md** — five docs with when-to-read purpose; the agent sees the index every turn.
-2. **Refreshed docs/current-harness.md to v7** — was written at v3-era ("5 skills", ≈40k context) while AGENTS.md said 15 — two ref docs disagreeing is exactly the incoherence failure. Now stamped "Verified at snapshot v7" and restructured to defer to /harness + snapshots for live values.
+2. **Refreshed docs/current-harness.md to v12** — was written at v3-era ("5 skills", ≈40k context) while AGENTS.md said 15 — two ref docs disagreeing is exactly the incoherence failure; refreshed again at v12 (15 skills, ≈3.8k context, LSP section, opencode-era framing). Now stamped "Verified at snapshot v12" and restructured to defer to /harness + snapshots for live values.
 3. **Single-source rule** — ref docs link to systems of record (/harness, snapshots); they do not copy drifting facts. Stated in AGENTS.md + the glossary.
 4. **Glossary** — in the reuse contract: Kit/Instance, Guide, Sensor, CfR, Receipt, Steering loop, check, Snapshot/C4 artifact, Mod, Single-source rule.
 
-**Thoughts:** earned lessons drove this — current-harness.md sat stale from v3 through v5 while facts drifted elsewhere, and the /docs/archify serving incident proved "discoverable + current" is the whole game. A stale ref doc actively misleads the agent; an invisible one never helps.`,
-    considered: true,
+**Thoughts:** earned lessons drove this — current-harness.md sat stale from v3 through v5 while facts drifted elsewhere, and the /docs/archify serving incident proved "discoverable + current" is the whole game. A stale ref doc actively misleads the agent; an invisible one never helps.`,    considered: true,
     implemented: true,
     wanted: false,
     tags: ['ref-docs', 'docs', 'feedforward', 'guides', 'index'],
     links: [
       { label: 'article — guides', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'our review (fig 2)', url: 'docs/Harness review — feedforward guides.md' },
+    ],
+  },
+  {
+    title: 'Architecture doc (architecture.md)',
+    category: 'Knowledge',
+    summary: 'The Fig-3 feedforward guide for the app itself: routes, pipeline, data, earned gotchas — the buddy the agent reads before changing any route/table/flow.',
+    body: `The article's change-lifecycle figure feeds architecture.md into initial generation: a curated map of the system under work, distinct from the harness around the agent (that's docs/current-harness.md). Ours lives at the repo root, indexed first in the AGENTS.md ref-docs list:
+
+- **Routes table** — every page + API with handler file, auth level, and notes (incl. the Astro-7 destructured-exports gotcha).
+- **Request pipeline** — middleware session handling, page gate vs API re-check, Origin + JSON content-type discipline.
+- **Data** — schema summary, catalog-is-code rule, snapshot/C4 flow.
+- **Static-serving gotcha** — marked do-not-regress, pinned by tests.
+- **Where behaviour is proven** — suite / unit / browser mapping per area.
+
+**Thoughts:** the audit that earned it found the AGENTS.md arch map missing 10 entries and current-harness.md stamped v7 in a v12 world — the article's coherence failure, live. One buddy doc, single-sourced, indexed where the agent looks every turn.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['architecture', 'ref-docs', 'feedforward', 'guides'],
+    links: [
+      { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'the buddy', url: 'architecture.md' },
     ],
   },
   {

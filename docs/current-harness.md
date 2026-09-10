@@ -1,22 +1,26 @@
 # Current harness — summary
 
-_Verified at snapshot v7 (2026-09-03). Live facts live on `/harness` — this doc describes the
+_Verified at snapshot v12 (2026-09-10). Live facts live on `/harness` — this doc describes the
 model and mechanisms, not the drifting numbers (single-source rule: link to systems of
 record, don't copy them)._
 
 ## What the harness is
 
-**pi coding agent v0.84.4** — a local AI coding-agent harness running with:
+**pi coding agent v0.84.4 — run under opencode since 2026-09-09**, keeping
+the pi harness conventions (AGENTS.md, skills, `npm run check` discipline).
+The pi-only LSP extension does not execute under opencode; the portable
+cover is the batch sensor (`astro check` in `check`). Facts below are the
+pi-side capture at v12 — live values on `/harness`:
 
-| Fact | Value (at v7 — live values on `/harness`) |
+| Fact | Value (at v12 — live values on `/harness`) |
 |---|---|
 | Provider | opencode-go |
 | Model | deepseek-v4-flash |
 | Credential | `~/.pi/agent/auth.json` (presence only — never stored by this app) |
 | Tools | `read` · `bash` · `edit` · `write` |
-| Skills installed | 15 at v7 — global (`~/.pi/agent/skills`, incl. symlinks into `~/.agents/skills`): `firecrawl` family ×8, `archify`; project (`.pi/skills/`): `grilling`, `grill-me`, `to-spec`, `to-tickets`, `implement`, `browser-qa` |
+| Skills installed | 15 at v12 — global (`~/.pi/agent/skills`, incl. symlinks into `~/.agents/skills`): `firecrawl` family ×8, `archify`; project (`.pi/skills/`): `grilling`, `grill-me`, `to-spec`, `to-tickets`, `implement`, `browser-qa` |
 | Agent guides | AGENTS.md — **Principles** (9) · **CfRs** (6) · reference-doc index (read every turn; decisions in `docs/Harness decisions.md`) |
-| Per-turn context | ≈2.7k at v7 — session-branch-dependent; see the capture-time caveat on `/harness` |
+| Per-turn context | ≈3.8k at v12 — session-branch-dependent; see the capture-time caveat on `/harness` |
 
 ## How a turn flows
 
@@ -33,6 +37,16 @@ record, don't copy them)._
    log is appended.
 
 The full numbered cycle (1–17) is drawn in the C4 pipeline on `/harness`.
+
+## Language server — pi-only guide, portable batch sensor
+
+The article's Language Servers control in both placements. Batch (portable,
+runs everywhere including opencode): `astro check` inside `npm run check`.
+Interactive (pi-only): `.pi/extensions/lsp-diagnostics/` speaks LSP over
+stdio to `typescript-language-server` and appends `[LSP]` receipts to
+`edit`/`write`/`bash` tool results (silent when clean) plus a `diagnostics`
+probe. Protocol review: `docs/LSP — review and integration.md`; on the map
+since v9 (steps 14–17).
 
 ## Context size & caching
 
@@ -148,3 +162,7 @@ attaches them to the model — but the default model `deepseek-v4-flash` is
 text-only, so image contents are omitted from the request. Point pi at a
 multimodal model (Claude, GPT, …, via a vision-capable provider) and the agent
 can actually look at screenshots and other images.
+
+**Opencode era:** run under opencode with a vision-capable model, the agent
+can look at the `/screenshots/…` evidence directly — the browser sensor's
+screenshots are readable evidence again, not just attachments.
