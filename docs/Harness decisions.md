@@ -343,6 +343,12 @@ Decisions (2026-09-09 — reviewed, have with one queued hole):
    kept as shelfware. Revisit triggers: suite growth past ~30 tests, a
    bug slipping a tested seam, or upstream Astro/Vite coverage support.
    The suite remains the behavioural gate — it proves the seams.
+   Manual mutation probe (2026-09-10, 4 hand mutants, all reverted):
+   slugify-lowercase-drop, toView flag-flip, highlight-dimension-drop,
+   bracket-regression-reintroduction — **4/4 killed** (the predicted
+   survivor died on the unit flag-mapping test). Parked status holds
+   with evidence; full Stryker-style tooling would also need a second
+   test framework (no `node:test` runner exists).
 6. **Unit coverage adopted for the pure lib core (same session).**
    Correction to the blanket "unmeasurable": `c4`/`mods`/`context`
    export pure functions that run in-process — `test/lib.test.mjs`

@@ -400,6 +400,31 @@ Split: in-repo knowledge → files, no MCP warranted. Off-repo (library API docs
     ],
   },
   {
+    title: 'Mutation testing',
+    category: 'Tooling',
+    summary: 'The honest signal for suite strength (bugs planted, tests must fail): probed manually 4/4 killed; full tooling parked — no node:test runner exists and no mutant has survived.',
+    body: `The most honest signal for a test suite's fault-detection: coverage tracks line execution, mutation introduces deliberate bugs and requires tests to fail when behavior breaks. An undetected mutation is a validation gap, not a coverage gap. Critical in the AI era, where high coverage can mask logically hollow, perpetually-green tests (missing assertions, decoupled mocks).
+
+Manual probe, run live here (2026-09-10, all mutants reverted immediately):
+
+1. slugify drops lowercase → killed (3 unit failures).
+2. toView flag-flip (predicted survivor) → killed by the flag-mapping test.
+3. Highlight-dimension drop → killed.
+4. [LSP] bracket reintroduction → killed by the regression test.
+
+Score 4/4 — the 22 tests genuinely validate; no hollow greens found.
+
+Why no Stryker-style tooling: it would need a second test framework (no node:test runner exists — verified), steep price for 22 tests. Triggers to revisit: suite past ~30 tests, a slipped seam, or a survived mutant.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['mutation', 'tests', 'validation', 'deferred'],
+    links: [
+      { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'StrykerJS', url: 'https://stryker-mutator.io/' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',
