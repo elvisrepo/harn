@@ -518,6 +518,37 @@ Why no Stryker-style tooling: it would need a second test framework (no node:tes
     ],
   },
   {
+    title: 'Safeguards against AI missteps',
+    category: 'Knowledge',
+    summary: 'Böckeler’s safeguard list against LLM caprice (individual + team), quoted whole, with each item mapped to our control — the threat model our harness answers.',
+    body: `From "The role of developer skills in agentic coding" (the failure-modes catalog the harness article maps its sensors against) — quoted whole, then mapped:
+
+## Individual coder
+
+- **Always carefully review AI-generated code.** It is very rare that I do NOT find something to fix or improve. → *Ours: implement step-6 read-back checklist; human-review ring stays, no autonomous merging.*
+- **Stop AI coding sessions when you feel overwhelmed.** Revise the prompt and start fresh, or fall back to manual implementation ("artisanal coding"). → *Ours: Clarify-don't-guess principle; short sessions (the context caveat rewards fresh branches).*
+- **Stay cautious of "good enough" solutions** created miraculously fast but carrying maintenance cost. → *Ours: Minimalism + review-checklist over-engineering read.*
+- **Practice pair programming.** Four eyes catch more than two. → *Ours: the agent loop under human eyes is the pair; second-model review waits on trigger.*
+
+## Team and organization
+
+- **Good ol' code quality monitoring** (SonarQube/CodeScene; watch duplication harder now). → *Ours: the computational ring (typecheck, lint, semgrep, tests); duplication watched by review, no dedicated tool yet.*
+- **Pre-commit hooks and IDE-integrated review — shift left.** → *Ours: npm run check pre-handoff + CI on push; the pipeline half now exists.*
+- **Revisit practices; keep a "Go-wrong" log**, reflected on weekly. → *Ours: the decisions journal IS the log; the failure-ledger tripwire is the wanted automation.*
+- **Make use of custom rules** (sent with every prompt — obeyed only probabilistically, worse in long sessions). → *Ours: AGENTS.md + skill rules, with the same caveat recorded; rules that can graduate become sensors.*
+- **Culture of trust and open communication** — pressure to deliver "because AI" is itself a quality risk. → *Ours: single-human scale, but the warning stands against self-pressure to merge green-but-unread diffs.*
+
+**Thoughts:** this list is the threat model; nearly every mod in this catalog is one of its answers. New safeguards should arrive the same way these did — quoted, then mapped, then built.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['safeguards', 'missteps', 'threat-model', 'review', 'culture'],
+    links: [
+      { label: 'role of developer skills', url: 'https://martinfowler.com/articles/exploring-gen-ai/13-role-of-developer-skills.html' },
+      { label: 'harness engineering', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',
