@@ -21,6 +21,9 @@ jobs:
       - run: npm ci
       - run: pip install semgrep
       - run: npm run db:push
+      # db:seed loads --env-file=.env (gitignored, so absent here):
+      # materialize it from secrets — ephemeral runner, values masked
+      - run: printf 'AUTH_SECRET=%s\nADMIN_EMAIL=%s\nADMIN_PASSWORD=%s\n' '${{ secrets.AUTH_SECRET }}' '${{ secrets.ADMIN_EMAIL }}' '${{ secrets.ADMIN_PASSWORD }}' > .env
       - run: npm run db:seed
         env:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}

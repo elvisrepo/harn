@@ -533,7 +533,9 @@ Decisions (2026-09-10 — built, minimal):
 2. **Assumptions to watch on first green run:** `drizzle-kit push` is
    non-interactive on a fresh DB (prompts only on destructive changes);
    runner Chrome lives at `/usr/bin/google-chrome` (qa.mjs default).
-   If either assumption breaks, the run fails loudly — fix the
-   workflow, not the app.
+   First breakage found immediately: `db:seed` loads `--env-file=.env`,
+   which is gitignored — the workflow materializes it from secrets
+   before seeding. If either assumption breaks, the run fails loudly —
+   fix the workflow, not the app.
 3. **Still parked behind CI existing:** architecture/detailed review,
    mutation testing. The pipeline now exists to host them when earned.
