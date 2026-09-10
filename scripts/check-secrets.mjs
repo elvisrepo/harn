@@ -43,6 +43,9 @@ for (const rel of tracked) {
   scanned += 1;
   const lines = text.split('\n');
   for (let i = 0; i < lines.length; i++) {
+    // GitHub Actions references (${{ secrets.X }}) name a secret without
+    // containing one — same class as the <placeholder> docs exemption
+    if (/\$\{\{[^}]*\}\}/.test(lines[i])) continue;
     for (const [name, re] of PATTERNS) {
       if (re.test(lines[i])) {
         findings.push({ file: rel, line: i + 1, pattern: name });
