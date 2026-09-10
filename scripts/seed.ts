@@ -336,6 +336,28 @@ Ours (added 2026-09):
     ],
   },
   {
+    title: 'How-to-test',
+    category: 'Knowledge',
+    summary: 'The Fig-3 feedforward testing guide: how-tos §5 plus the executable suite — doc, tests, and norm agreeing on what green looks like.',
+    body: `The testing counterpart of the bootstrap skill: instructions telling the agent how this repo tests before it writes — seams, commands, green, failure reading.
+
+Complete in three layers (2026-09):
+
+1. **Doc** — docs/Harness how-tos.md §5: exact commands, expected receipts, per-step failure table (incl. a test-failure row, so a failing seam sends the reader somewhere).
+2. **Executable** — test/ (9 HTTP seam tests) + test/lib.test.mjs (13 unit tests), both inside npm run check.
+3. **Norm** — AGENTS.md Testing section plus implement's TDD steps (with the exact mid-loop and full commands spelled out) and the review checklist's receipts line.
+
+**Thoughts:** doc, executable, and norm agreeing is rare enough to state outright — most repos have two of three, and the missing one is usually the doc. Fixed in the same pass: implement step 4 now names npm run check instead of "the full test suite".`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['how-to-test', 'testing', 'feedforward', 'guides'],
+    links: [
+      { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'run & interpret check', url: 'docs/Harness how-tos.md' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',

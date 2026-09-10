@@ -13,7 +13,7 @@ Implement work described by a ticket from `docs/tickets/` and its spec in `docs/
 1. Identify the ticket to work on: the one the user names, or (if asked to proceed) the lowest-id **unblocked** ticket — all its `blocks` must be done.
 2. Read the spec: the **Test Seam** section tells you where tests plug in.
 3. **Write the test first** at that seam (TDD), run it, watch it fail for the right reason.
-4. Implement until the test goes green. Run typechecking regularly and single test files regularly; run the full test suite once at the end.
+4. Implement until the test goes green. Run `npx astro check` and single test files (`node --test test/app.test.mjs`) regularly; run the full `npm run check` once at the end.
 5. Respect the ticket's scope. If the work turns out bigger than the ticket says (scope creep appears), **stop and tell the user** — do not silently expand the slice.
 6. Self-review the diff before committing (read it as a skeptical reviewer, not its author). Check each item, then commit to the current branch with the ticket id in the message: `ticket 4: <title>`.
    - **Minimalism**: every hunk serves the ticket — no speculative extras, no drive-by refactors.

@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3)**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -462,3 +462,24 @@ Decisions (2026-09-10 — reviewed, created):
 3. **Indexed first in the AGENTS.md ref-docs list** ("read before
    changing any route/table/flow") + catalog mod, snapshot v14. One
    buddy, discoverable where the agent looks every turn.
+
+---
+
+## How-to-test (Fig 3 feedforward)
+
+The testing counterpart of the bootstrap skill: instructions telling the
+agent *how this repo tests* before it writes — seams, commands, what
+green looks like, how to read a failure. Same "Both" hybrid as
+bootstrap: inferential steps around deterministic commands.
+
+Decisions (2026-09-10 — reviewed, have, two nits fixed):
+
+1. **Complete in three layers:** doc (`Harness how-tos.md` §5 — exact
+   commands, expected receipts, per-step failure table) + executable
+   (`test/`, 22 tests inside `check`) + norm (AGENTS.md Testing section,
+   `implement` TDD steps, checklist receipts line). Doc, executable, and
+   norm agree — rare enough to state.
+2. **Nits fixed in the pass:** `implement` step 4 named "the full test
+   suite" without naming it — now `npm run check` (with the mid-loop
+   commands spelled out); the §5 failure table had no test-failure row —
+   a failing seam test sent the reader nowhere. Both one-liners, done.

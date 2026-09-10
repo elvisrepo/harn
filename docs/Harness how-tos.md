@@ -157,6 +157,7 @@ Exit 0 = pass.
 | eslint ✗ | rule + file:line printed → fix or, if the rule misfires on convention (e.g. Astro files), tune `eslint.config.mjs` minimally |
 | semgrep ✗ | rule id + file:line → fix the finding, or amend `.semgrep/rules.yml` if the rule is wrong (rules are earned bars — keep them tight) |
 | secrets scan ✗ | file:line + pattern given → move the secret to `.env`, never echo it |
+| thin suite / coverage ✗ | seam or unit test failed with file:line → fix the app (or the test, if the seam moved); re-run `npm test` / `npm run coverage` directly before the full check |
 | catalog | app/DB broken → check `data/app.db`, run `npm run db:setup` |
 | harness | version switcher or mermaid broken → open `/harness`, check browser console via `--eval` |
 | archify | static serving broken → confirm the file exists in `public/docs/archify/` (remember the Accept-header lesson) |
