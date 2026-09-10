@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3)**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3) · Pipeline (CI)**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -511,3 +511,29 @@ Decisions (2026-09-10 — reviewed, gap that mostly isn't):
    cover it today via CLI; a Context7-style remote is the convenience
    upgrade. Trigger: first repeated off-repo lookup firecrawl handles
    clumsily, or knowledge spanning repos. One stanza away when earned.
+
+---
+
+## Pipeline (CI)
+
+Fig 3's bottom half: re-run the fast controls after integration, plus
+the expensive ones. There was no integration event here (single branch,
+single dev), so no pipeline existed — the same `check` served both
+halves by discipline alone.
+
+Decisions (2026-09-10 — built, minimal):
+
+1. **One workflow, the whole gate:** `.github/workflows/check.yml`
+   runs `npm run check` on push to master + PRs (checkout → node 22 →
+   `npm ci` → semgrep via pip → `db:push` → `db:seed` → `check`).
+   Chrome ships on the runner; `AUTH_URL` is set by the boot logic
+   itself. Secrets (`AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`)
+   are test-only creds for the ephemeral CI database, read from
+   `secrets.*`, never logged.
+2. **Assumptions to watch on first green run:** `drizzle-kit push` is
+   non-interactive on a fresh DB (prompts only on destructive changes);
+   runner Chrome lives at `/usr/bin/google-chrome` (qa.mjs default).
+   If either assumption breaks, the run fails loudly — fix the
+   workflow, not the app.
+3. **Still parked behind CI existing:** architecture/detailed review,
+   mutation testing. The pipeline now exists to host them when earned.

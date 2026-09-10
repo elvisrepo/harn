@@ -1,0 +1,33 @@
+# Pipeline half of Fig 3: re-run the fast controls on every push.
+# Needs repo secrets AUTH_SECRET + ADMIN_EMAIL + ADMIN_PASSWORD
+# (test-only creds for the ephemeral CI database — never logged).
+# Chrome ships on the runner; semgrep comes via pip.
+name: check
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: pip install semgrep
+      - run: npm run db:push
+      - run: npm run db:seed
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      - run: npm run check
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
