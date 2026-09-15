@@ -21,5 +21,6 @@ Implement work described by a ticket from `docs/tickets/` and its spec in `docs/
    - **CfRs**: secrets only via env (nothing logged/echoed); snapshots stay point-in-time truth; behaviour verified in real conditions, not just dev.
    - **Catalog mirror**: any catalog-visible change is mirrored into `scripts/seed.ts`.
    - **Receipts**: `npm run check` green with the failure evidence fed back, not summarized away.
+   - **Exceptions**: any `eslint-disable` carries a reason comment; lint threshold raises are a last resort, never silent (exceptions are where the next review starts).
 
 The next unblocked ticket starts only when the user says continue.

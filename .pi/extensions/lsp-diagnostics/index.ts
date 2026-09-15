@@ -331,6 +331,7 @@ export default function (pi: ExtensionAPI) {
 		return { content };
 	};
 
+	// eslint-disable-next-line complexity -- flat per-tool dispatch, not nested logic; split by tool if it grows
 	pi.on("tool_result", async (event, ctx) => {
 		if (event.toolName === "edit" || event.toolName === "write") {
 			const input = (event.input ?? {}) as { path?: string; file_path?: string; filePath?: string };

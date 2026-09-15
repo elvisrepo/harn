@@ -66,22 +66,26 @@ function tint(p: C4Palette, hex: string, ratio: number): string {
  */
 export function c4HlLabels(prev: any, cur: any): string[] {
   if (!prev) return [];
-  const out: string[] = [];
-  if (cur.provider !== prev.provider) out.push('provider');
-  if (cur.model !== prev.model) out.push('model');
-  const tAdd = (cur.tools ?? []).filter((t: string) => !(prev.tools ?? []).includes(t));
-  const tRem = (prev.tools ?? []).filter((t: string) => !(cur.tools ?? []).includes(t));
-  if (tAdd.length || tRem.length) out.push('tools');
-  if (
-    cur.skillsInstalled !== prev.skillsInstalled ||
-    JSON.stringify(cur.skills ?? []) !== JSON.stringify(prev.skills ?? [])
-  )
-    out.push('skills');
-  if (cur.authToken?.status !== prev.authToken?.status) out.push('credential');
-  const ct = cur.contextTokens?.totalTokens;
-  const pt = prev.contextTokens?.totalTokens;
-  if ((ct && !pt) || (ct && pt && ct !== pt) || (!ct && pt)) out.push('context / turn');
-  return out;
+  const changed = {
+    provider: cur.provider !== prev.provider,
+    model: cur.model !== prev.model,
+    tools: addedOrRemoved(cur.tools, prev.tools),
+    skills:
+      cur.skillsInstalled !== prev.skillsInstalled ||
+      JSON.stringify(cur.skills ?? []) !== JSON.stringify(prev.skills ?? []),
+    credential: cur.authToken?.status !== prev.authToken?.status,
+    'context / turn': contextChanged(cur.contextTokens?.totalTokens, prev.contextTokens?.totalTokens),
+  };
+  return (Object.keys(changed) as (keyof typeof changed)[]).filter((k) => changed[k]);
+}
+
+function addedOrRemoved(cur: string[] = [], prev: string[] = []): boolean {
+  return cur.some((t) => !prev.includes(t)) || prev.some((t) => !cur.includes(t));
+}
+
+function contextChanged(cur?: number, prev?: number): boolean {
+  if (cur === prev) return false;
+  return Boolean(cur ?? prev);
 }
 
 const NODE_FOR: Record<string, string> = {

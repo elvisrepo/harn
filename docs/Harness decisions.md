@@ -359,6 +359,15 @@ Decisions (2026-09-09 — reviewed, have with one queued hole):
    `npm run coverage` uses the built-in flag (zero deps); thresholds
    stay off until earned — the uncovered-lines list is feedback for the
    next test session, not a gate.
+7. **AI-shortcoming rules adopted (sensors article, 2026-09-10).**
+   `max-params` 5 / `max-lines-per-function` 150 / `complexity` 20 —
+   first evidence fired 7 errors, adjudicated her way: `c4HlLabels`
+   refactored data-driven (24 → low, test-pinned), framework-forced
+   fives and flat dispatch raised with reasons in config, the one
+   genuinely branchy dispatch suppressed per-site with a reason comment
+   (not a global off). Exceptions-as-review-start added to the
+   implement checklist. No custom formatter messages yet — stock text
+   stands until a message misleads twice.
 
 ---
 
