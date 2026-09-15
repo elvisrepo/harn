@@ -51,6 +51,41 @@ describe('estimateTokens', () => {
   });
 });
 
+// deterministic PRNG (mulberry32) — property fuzz without dependencies,
+// same inputs every run
+function rng(seed) {
+  let a = seed;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+describe('slugify properties', () => {
+  const rand = rng(20260915);
+  const alphabet = 'abcXYZ019 _-+.,!?()[]{}@#%&/\\éü🎉';
+  const arb = (maxLen) => {
+    let s = '';
+    const n = Math.floor(rand() * maxLen);
+    for (let i = 0; i < n; i++) s += alphabet[Math.floor(rand() * alphabet.length)];
+    return s;
+  };
+  const cases = Array.from({ length: 300 }, () => arb(120));
+  it('output charset is [a-z0-9-], max 80 chars', () => {
+    for (const s of cases) {
+      const slug = slugify(s);
+      assert.match(slug, /^[a-z0-9-]*$/, JSON.stringify(s));
+      assert.ok(slug.length <= 80, slug);
+    }
+  });
+  it('idempotent: slugify(slugify(x)) === slugify(x)', () => {
+    for (const s of cases) assert.equal(slugify(slugify(s)), slugify(s));
+  });
+});
+
 describe('c4HlLabels', () => {
   const snap = (over = {}) => ({
     provider: 'p', model: 'm', tools: ['read'], skills: ['x'], skillsInstalled: 1,

@@ -367,6 +367,12 @@ Decisions (2026-09-09 — reviewed, have with one queued hole):
    implement checklist ("does this idea already exist under another
    name?"). Duplicate API route shapes noted, left alone (two instances
    don't earn an abstraction — third one does, per the codemod rule).
+10. **Property + fuzz probes (regression-sensor article).** `slugify`
+    invariants (charset, ≤80, idempotence) over 300 seeded random cases;
+    fuzz on mutation APIs (garbage/wrong-typed/huge bodies, unknown
+    slugs) asserting never-500. First run caught a wrong test
+    assumption, not an app bug (unknown slug redirects home by design —
+    now pinned). Suite 12 + 15 green.
 8. **dep-cruiser adopted (sensors-article technique, explicit call).**
    `.dependency-cruiser.mjs`: 4 rules (lib-no-routes, db-inward-only,
    ops-no-routes, extension-isolation), each message recapping the

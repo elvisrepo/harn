@@ -123,3 +123,40 @@ describe('login', () => {
     assert.ok([301, 302, 303, 307, 308].includes(after.status), 'session should be dead after sign-out');
   });
 });
+
+describe('fuzz (never 500 on hostile input)', () => {
+  it('GET unknown mod slug redirects home, not 500', async () => {
+    // by design ([id].astro): unknown slug → Astro.redirect('/'), never an error
+    const res = await fetch(`${BASE}/mods/never-a-real-slug-zzz`, { redirect: 'manual' });
+    assert.equal(res.status, 302);
+    assert.match(res.headers.get('location') ?? '', /\/$/);
+  });
+
+  it('POST /api/mods with garbage bodies → 4xx, not 500', async () => {
+    const bodies = [
+      '{oops',
+      '[1,2,3]',
+      JSON.stringify({ title: 12345, tags: 'not-an-array' }),
+      JSON.stringify({ title: 'x'.repeat(1_000_000) }),
+      JSON.stringify({}),
+    ];
+    for (const body of bodies) {
+      const res = await fetch(`${BASE}/api/mods`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', origin: BASE },
+        body,
+      });
+      assert.ok(res.status < 500, `500 on body ${(body ?? '').slice(0, 40)}`);
+      await res.text().catch(() => {});
+    }
+  });
+
+  it('POST /api/harness-versions unauthenticated with garbage → 4xx, not 500', async () => {
+    const res = await fetch(`${BASE}/api/harness-versions`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', origin: BASE },
+      body: '{"label":42,"summary":[1]}',
+    });
+    assert.ok(res.status < 500, `500 on wrong-typed body (got ${res.status})`);
+  });
+});

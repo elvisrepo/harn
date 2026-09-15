@@ -194,12 +194,13 @@ src/styles/global.css            design tokens + app styles
 ## Testing
 
 Thin runnable suite (`test/`, zero deps — `node:test` + global fetch):
-`npm test` runs 9 tests mirroring the 4 qa-flows computationally
+`npm test` runs 12 tests mirroring the 4 qa-flows computationally
 (catalog · harness · archify · login, incl. the Accept-header and
-Origin-header lessons). Reuses `APP_URL` or self-boots preview;
+Origin-header lessons) plus fuzz probes (hostile input never 500s).
+Reuses `APP_URL` or self-booted preview;
 login write-paths need env creds and sign out after. `npm run coverage`
-runs 13 unit tests over the pure lib core (`c4`, `mods`, `context` —
-incl. the mermaid-bracket regression) with a real per-file report;
+runs 15 unit tests over the pure lib core (`c4`, `mods`, `context` —
+incl. the mermaid-bracket regression and seeded property cases) with a real per-file report;
 black-box HTTP coverage is unmeasurable on this server (see decisions),
 so thresholds stay off until earned. Both wired into `npm run check`
 before the browser flows. Manual smoke checklist retired —

@@ -749,8 +749,8 @@ Layers, all in npm run check:
 
 Behavioural backstop (the Fig 3 coverage ring, honestly scoped):
 
-- **Thin suite** (test/, 9 tests, zero deps) — node:test + fetch mirror the 4 browser flows computationally, incl. the Accept-header and Origin-header lessons. Env-gated login paths sign out after.
-- **Unit coverage** (test/lib.test.mjs, 13 tests) — pure core (c4/mods/context) with real per-file lines; black-box HTTP coverage proven unmeasurable on this server (V8 data exists but Astro's bundles don't attribute), thresholds off until earned.
+- **Thin suite** (test/, 12 tests, zero deps) — node:test + fetch mirror the 4 browser flows computationally, incl. the Accept-header and Origin-header lessons, plus fuzz probes (hostile input never 500s). Env-gated login paths sign out after.
+- **Unit coverage** (test/lib.test.mjs, 15 tests) — pure core (c4/mods/context) with real per-file lines, incl. the bracket regression and seeded slugify property cases; black-box HTTP coverage proven unmeasurable on this server (V8 data exists but Astro's bundles don't attribute), thresholds off until earned.
 
 Explicitly parked: **mutation testing** (trigger: ~30 tests or a slipped seam). dep-cruiser graduated 2026-09-10 (trigger pulled early): 4 layer rules green in check.`,
     considered: true,
