@@ -359,6 +359,15 @@ Decisions (2026-09-09 — reviewed, have with one queued hole):
    `npm run coverage` uses the built-in flag (zero deps); thresholds
    stay off until earned — the uncovered-lines list is feedback for the
    next test session, not a gate.
+8. **dep-cruiser adopted (sensors-article technique, explicit call).**
+   `.dependency-cruiser.mjs`: 4 rules (lib-no-routes, db-inward-only,
+   ops-no-routes, extension-isolation), each message recapping the
+   layering for self-correction. Green day one (46 modules, 79 deps,
+   0 violations) — the import graph was already clean; the sensor keeps
+   it that way, replacing structure-description prose. Stated blind
+   spot: `.astro` frontmatter is unparseable, so page-side imports are
+   invisible — the ts/js/mjs graph is fully covered. The parked trigger
+   is pulled; the kit/instance boundary now has its fitness function.
 7. **AI-shortcoming rules adopted (sensors article, 2026-09-10).**
    `max-params` 5 / `max-lines-per-function` 150 / `complexity` 20 —
    first evidence fired 7 errors, adjudicated her way: `c4HlLabels`

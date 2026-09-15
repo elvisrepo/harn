@@ -5,7 +5,7 @@ Principles (values to apply with judgment — they outrank other guidance when t
 - Goal-driven: break tasks into steps with explicit success criteria; verify before claiming done.
 - Clarify, don't guess: state assumptions; halt on ambiguity.
 - Receipts over prose: sensors/checks report stable, machine-readable facts — feed evidence back, not guesses.
-- Sensors before handoff: run `npm run check` (build + typecheck + eslint + semgrep + secrets scan + behaviour flows) before declaring work done.
+- Sensors before handoff: run `npm run check` (build + typecheck + eslint + semgrep + dep-cruiser + secrets scan + behaviour flows) before declaring work done.
 - Snapshots are point-in-time truth: diffs must never mislead; never silently rewrite history.
 - Secrets only via env: never logged, echoed, or committed.
 - Fix the kit first: recurring issues get fixed in skills/conventions/checks, not just this instance.
@@ -72,7 +72,7 @@ versioned snapshots of the harness config + tokens.
 | `npm run db:setup` | `db:push` + `db:seed` |
 | `npm run versions:export` | export harness snapshot history (v1..vN) to `data/harness-versions.json` (committable, no auth data) |
 | `npm run versions:import` | restore snapshot history from that JSON on a fresh machine (`--force` to overwrite the placeholder v1) |
-| `npm run check` | pre-handoff sensor: build + typecheck (astro check, TS 6) + eslint + semgrep + secrets scan + thin suite + unit coverage + browser behaviour flows (self-boots preview if no server is up) |
+| `npm run check` | pre-handoff sensor: build + typecheck (astro check, TS 6) + eslint + semgrep + dep-cruiser + secrets scan + thin suite + unit coverage + browser behaviour flows (self-boots preview if no server is up) |
 | `npm test` | thin HTTP suite: 9 tests mirroring the 4 qa-flows (node:test, zero deps; `APP_URL` or self-booted preview) |
 | `npm run coverage` | 13 unit tests over the pure lib core with per-file report (built-in flag; thresholds off until earned) |
 
@@ -102,6 +102,7 @@ test/app.test.mjs       9 HTTP tests mirroring the 4 qa-flows
 test/lib.test.mjs       13 unit tests over the pure lib core
 eslint.config.mjs       flat lint config (recommended minus tsc-covered noise)
 .semgrep/rules.yml      2 earned rules (no absolute-local fetch, no eval)
+.dependency-cruiser.mjs 4 layer rules (routes→lib→db, ops aside, extension isolated)
 scripts/check-secrets.mjs credential-pattern scanner (file:line, never echoes values)
 scripts/qa-flows.mjs    4 browser behaviour flows (self-boots preview, reaps via preview stop)
 scripts/export-versions.mjs / import-versions.mjs portable history round-trip

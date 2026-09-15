@@ -387,9 +387,9 @@ Split: in-repo knowledge → files, no MCP warranted. Off-repo (library API docs
 2. **eslint** → flat config (recommended minus tsc-covered noise), green in check.
 3. **semgrep** → 2 earned rules (no absolute-local fetch, no eval), 0 findings in check.
 4. **coverage** → unit-tested lib core with real per-file lines (thresholds off until earned); black-box HTTP coverage proven unmeasurable on this server, suite proves the seams instead.
-5. **dep-cruiser** → parked: no boundary tooling until the second kit/instance violation. Deliberate gap, not neglect.
+5. **dep-cruiser** → adopted 2026-09-10 (trigger pulled early by explicit call): 4 layer rules in check, green day one (46 modules, 79 deps, 0 violations). Blind spot stated: .astro frontmatter invisible.
 
-**Thoughts:** the pipeline re-run half of the figure doesn't exist here (no CI) — the same command serves both halves. The loop is closed except dep-cruiser, which stays parked until a boundary breaks twice.`,
+**Thoughts:** the pipeline re-run half of the figure doesn't exist here (no CI) — the same command serves both halves. The loop closed fully 2026-09-10 when dep-cruiser's parked trigger was pulled early by explicit call.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -684,7 +684,7 @@ Behavioural backstop (the Fig 3 coverage ring, honestly scoped):
 - **Thin suite** (test/, 9 tests, zero deps) — node:test + fetch mirror the 4 browser flows computationally, incl. the Accept-header and Origin-header lessons. Env-gated login paths sign out after.
 - **Unit coverage** (test/lib.test.mjs, 13 tests) — pure core (c4/mods/context) with real per-file lines; black-box HTTP coverage proven unmeasurable on this server (V8 data exists but Astro's bundles don't attribute), thresholds off until earned.
 
-Explicitly parked: **mutation testing** (trigger: ~30 tests or a slipped seam) and **dep-cruiser** (trigger: second boundary violation) — no earned pain yet, so no tooling.`,
+Explicitly parked: **mutation testing** (trigger: ~30 tests or a slipped seam). dep-cruiser graduated 2026-09-10 (trigger pulled early): 4 layer rules green in check.`,
     considered: true,
     implemented: true,
     wanted: false,

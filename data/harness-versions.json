@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-09-15T10:33:01.841Z",
-  "count": 16,
+  "exportedAt": "2026-09-15T10:51:24.289Z",
+  "count": 17,
   "versions": [
     {
       "id": "0583e29d-f5fd-4785-b905-5ad39e814b7c",
@@ -1215,6 +1215,93 @@
         "capturedAt": "2026-09-15T10:33:01.741Z"
       },
       "createdAt": 1789468381741
+    },
+    {
+      "id": "0197e3f2-0778-4555-9a15-24ec5decb9a9",
+      "version": 17,
+      "label": "dep-cruiser layer rules",
+      "summary": "Sensors-article dependency rules: 4 rules (lib/db/ops/extension layers, guidance messages), green day one (47 modules, 80 deps, 0 violations); parked trigger pulled early; .astro blindness stated; wired into check.",
+      "snapshot": {
+        "provider": "opencode-go",
+        "model": "deepseek-v4-flash",
+        "settings": {
+          "lastChangelogVersion": "0.84.4",
+          "theme": "dark",
+          "defaultProvider": "opencode-go",
+          "defaultModel": "deepseek-v4-flash",
+          "defaultThinkingLevel": "high",
+          "skills": [
+            "-skills/google-agents-cli-adk-code",
+            "-skills/google-agents-cli-deploy",
+            "-skills/google-agents-cli-eval",
+            "-skills/google-agents-cli-observability",
+            "-skills/google-agents-cli-publish",
+            "-skills/google-agents-cli-scaffold",
+            "-skills/google-agents-cli-workflow",
+            "-skills/find-skills",
+            "-skills/amazon-bedrock",
+            "-skills/aws-auth",
+            "-skills/aws-billing-and-cost-management",
+            "-skills/aws-blocks",
+            "-skills/aws-cdk",
+            "-skills/aws-cloudformation",
+            "-skills/aws-compute",
+            "-skills/aws-containers",
+            "-skills/aws-deployment",
+            "-skills/aws-messaging-and-streaming",
+            "-skills/aws-observability",
+            "-skills/aws-sdk-js-v3-usage",
+            "-skills/aws-sdk-python-usage",
+            "-skills/aws-sdk-swift-usage",
+            "-skills/aws-security",
+            "-skills/aws-serverless",
+            "-skills/aws-storage",
+            "-skills/launch-with-aws",
+            "-skills/signing-in-to-aws"
+          ]
+        },
+        "authToken": {
+          "status": "present",
+          "source": "~/.pi/agent/auth.json",
+          "masked": "•••••••• (masked — never stored)"
+        },
+        "tools": [
+          "read",
+          "bash",
+          "edit",
+          "write"
+        ],
+        "skillsInstalled": 15,
+        "skills": [
+          "archify",
+          "browser-qa",
+          "firecrawl",
+          "firecrawl-agent",
+          "firecrawl-browser",
+          "firecrawl-crawl",
+          "firecrawl-download",
+          "firecrawl-map",
+          "firecrawl-scrape",
+          "firecrawl-search",
+          "grill-me",
+          "grilling",
+          "implement",
+          "to-spec",
+          "to-tickets"
+        ],
+        "contextTokens": {
+          "estimator": "chars ÷ 4",
+          "baseTokens": 685,
+          "instructionsTokens": 3490,
+          "branchTokens": 0,
+          "totalTokens": 4175,
+          "durableTokens": 0,
+          "branchChars": 0,
+          "staticChars": 16699
+        },
+        "capturedAt": "2026-09-15T10:51:24.191Z"
+      },
+      "createdAt": 1789469484191
     }
   ]
 }

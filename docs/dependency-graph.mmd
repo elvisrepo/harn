@@ -1,0 +1,187 @@
+flowchart LR
+
+subgraph 0[".pi"]
+subgraph 1["extensions"]
+subgraph 2["lsp-diagnostics"]
+3["index.ts"]
+end
+end
+subgraph A["skills"]
+subgraph B["browser-qa"]
+subgraph C["scripts"]
+D["qa.mjs"]
+end
+end
+end
+end
+subgraph 4["@earendil-works"]
+5["pi-coding-agent"]
+end
+6["child_process"]
+7["fs"]
+8["path"]
+9["typebox"]
+subgraph E["node_modules"]
+subgraph F["playwright-core"]
+G["index.js"]
+end
+subgraph J["better-sqlite3"]
+subgraph K["lib"]
+L["index.js"]
+end
+end
+subgraph M["drizzle-orm"]
+subgraph N["better-sqlite3"]
+O["index.js"]
+end
+subgraph Q["sqlite-core"]
+R["index.js"]
+end
+10["index.cjs"]
+end
+subgraph 14["better-auth"]
+subgraph 15["dist"]
+16["index.mjs"]
+end
+end
+subgraph 1G["astro"]
+1H["client.d.ts"]
+end
+end
+subgraph H["db"]
+I["client.ts"]
+P["schema.ts"]
+end
+subgraph S["scripts"]
+T["check-secrets.mjs"]
+U["export-versions.mjs"]
+V["import-versions.mjs"]
+W["qa-flows.mjs"]
+Z["seed.ts"]
+end
+X["http"]
+Y["url"]
+subgraph 11["src"]
+subgraph 12["lib"]
+13["auth.ts"]
+1A["harness.ts"]
+1C["c4.ts"]
+1D["context.ts"]
+1E["mods.ts"]
+1L["auth-client.ts"]
+end
+1F["env.d.ts"]
+1N["middleware.ts"]
+subgraph 1P["pages"]
+subgraph 1Q["api"]
+subgraph 1R["auth"]
+1S["[...all].ts"]
+end
+1U["harness-versions.ts"]
+1W["mods.ts"]
+end
+end
+end
+subgraph 17["better-auth"]
+subgraph 18["adapters"]
+19["drizzle"]
+end
+1M["client"]
+1T["next-js"]
+end
+1B["os"]
+subgraph 1I[".astro"]
+1J["types.d.ts"]
+end
+1K["content.d.ts"]
+1O["astro:middleware"]
+1V["astro"]
+subgraph 1X["test"]
+1Y["app.test.mjs"]
+22["helpers.mjs"]
+23["lib.test.mjs"]
+end
+subgraph 1Z["assert"]
+20["strict"]
+end
+21["node:test"]
+3-->5
+3-->6
+3-->7
+3-->8
+3-->9
+D-->7
+D-->G
+I-->P
+I-->L
+I-->O
+I-->7
+I-->8
+P-->R
+T-->6
+T-->7
+T-->8
+U-->L
+U-->7
+U-->8
+V-->L
+V-->7
+V-->8
+W-->6
+W-->X
+W-->8
+W-->Y
+Z-->I
+Z-->13
+Z-->1A
+Z-->1E
+Z-->10
+13-->I
+13-->16
+13-->19
+1A-->I
+1A-->1C
+1A-->1D
+1A-->10
+1A-->7
+1A-->1B
+1A-->8
+1C-->7
+1C-->8
+1D-->7
+1D-->1B
+1D-->8
+1E-->I
+1E-->10
+1F-->1J
+1F-->13
+1F-->1H
+1J-->1H
+1J-->1K
+1L-->1M
+1N-->13
+1N-->1O
+1S-->13
+1S-->1T
+1U-->I
+1U-->13
+1U-->1A
+1U-->1V
+1U-->10
+1W-->I
+1W-->13
+1W-->1E
+1W-->1V
+1W-->10
+1Y-->22
+1Y-->20
+1Y-->21
+22-->6
+22-->X
+22-->8
+22-->Y
+23-->1C
+23-->1D
+23-->1E
+23-->20
+23-->21
