@@ -598,6 +598,25 @@ Verified against dependency-cruiser (same in-repo edge set). Stated limits: .ast
     ],
   },
   {
+    title: 'Modularity review (Balanced Coupling)',
+    category: 'Workflow',
+    summary: 'Khononov’s review/design skills adopted globally with a pi adapter: evidence-first (coupling CLI quoted before judgment), grilling-style interviews, reports to docs/.',
+    body: `The sensors article's inferential payoff: AI modularity review with strong prompts (Balanced Coupling model — strength, distance, volatility + balance rule) found what coupling data alone could not, and run-twice surfaced different issues.
+
+Adopted the way firecrawl/archify were (2026-09-15): upstream bodies live globally (~/.agents/skills/modularity, CC BY-NC-SA 4.0 verbatim + LICENSE), modularity-review + modularity-design symlinked into the harness, and .pi/skills/modularity/ adapts Claude-isms — AskUserQuestion → grilling rounds, TaskCreate → todowrite, evidence → scripts/coupling.mjs, reports → docs/.
+
+Load-bearing rule from their lessons: numbers quoted before judgment, legitimate hubs acquitted in writing. Status: installed and wired, unrun — on probation until the first structural change or the 5-snapshot ritual triggers it.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['modularity', 'review', 'balanced-coupling', 'skills', 'inferential'],
+    links: [
+      { label: 'sensors article — AI modularity review', url: 'https://martinfowler.com/articles/sensors-for-coding-agents.html' },
+      { label: 'modularity repo', url: 'https://github.com/vladikk/modularity' },
+      { label: 'balanced coupling', url: 'https://coupling.dev' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',

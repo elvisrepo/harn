@@ -64,7 +64,16 @@ export function buildSnapshot(): HarnessSnapshot {
       for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
         if (disabled.has(e.name)) continue;
         if (e.isDirectory()) skillNames.add(e.name);
-        else if (e.isSymbolicLink() && fs.statSync(path.join(dir, e.name)).isDirectory()) skillNames.add(e.name);
+        // statSync throws on dangling symlinks — guard per entry, or one
+        // dead link aborts the whole directory scan (found 2026-09-15:
+        // dangling google-* links silently dropped later entries from the count)
+        else if (e.isSymbolicLink()) {
+          try {
+            if (fs.statSync(path.join(dir, e.name)).isDirectory()) skillNames.add(e.name);
+          } catch {
+            /* dangling — skip */
+          }
+        }
       }
     } catch {
       /* dir absent — fine */

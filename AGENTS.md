@@ -149,8 +149,8 @@ src/styles/global.css            design tokens + app styles
 - Design tokens live only in `src/styles/global.css` (dark block + light
   override) — the harness map's C4 diagram reads them at runtime for its
   palette; they are not part of the snapshot record.
-- Skills: all 6 (`grilling`, `grill-me`, `to-spec`, `to-tickets`,
-  `implement`, `browser-qa`) are canonically committed to this repo under `.pi/skills/`
+- Skills: all 7 (`grilling`, `grill-me`, `to-spec`, `to-tickets`,
+  `implement`, `browser-qa`, `modularity`) are canonically committed to this repo under `.pi/skills/`
   (pi discovers project-level skills there). Snapshots count the user-level
   (`~/.pi/agent/skills/`) and project-level (`.pi/skills/`) locations. Web
   search/scrape/crawl is handled by the global `firecrawl`
@@ -161,7 +161,9 @@ src/styles/global.css            design tokens + app styles
   `public/docs/archify/harness-mods.architecture.html` (served at `/docs/archify/…`). grilling is
   trigger-invokable; the pipeline skills are `disable-model-invocation`
   and run via `/skill:`; `browser-qa` is model-invokable (the agent calls
-  it mid-loop like firecrawl/archify). Pipeline artifacts (`docs/specs/`, `docs/tickets/`)
+  it mid-loop like firecrawl/archify); `modularity` is `disable-model-invocation`
+  and adapts the global Balanced-Coupling skills (review/design) to this
+  harness (evidence: `scripts/coupling.mjs`). Pipeline artifacts (`docs/specs/`, `docs/tickets/`)
   are project files, not app data.
 - Context measurement: tokens are an estimate (`chars ÷ 4` — the
   deepseek-v4-flash tokenizer isn't available); the static sample lives in

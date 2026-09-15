@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3) · Pipeline (CI)**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3) · Pipeline (CI) · Modularity skills**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -359,6 +359,14 @@ Decisions (2026-09-09 — reviewed, have with one queued hole):
    `npm run coverage` uses the built-in flag (zero deps); thresholds
    stay off until earned — the uncovered-lines list is feedback for the
    next test session, not a gate.
+9. **Modularity review applied to ourselves (sensors article).** The
+   inferential pass found the agent's own happiest failure live:
+   `test/helpers.mjs` duplicated `qa-flows.mjs`' boot logic verbatim —
+   extracted to `scripts/boot-preview.mjs`, both consumers rewired,
+   both boot paths re-verified. Semantic-duplication read added to the
+   implement checklist ("does this idea already exist under another
+   name?"). Duplicate API route shapes noted, left alone (two instances
+   don't earn an abstraction — third one does, per the codemod rule).
 8. **dep-cruiser adopted (sensors-article technique, explicit call).**
    `.dependency-cruiser.mjs`: 4 rules (lib-no-routes, db-inward-only,
    ops-no-routes, extension-isolation), each message recapping the
@@ -568,3 +576,38 @@ Decisions (2026-09-10 — built, minimal):
    the run fails loudly — fix the workflow, not the app.
 3. **Still parked behind CI existing:** architecture/detailed review,
    mutation testing. The pipeline now exists to host them when earned.
+
+---
+
+## Modularity skills (sensors-article inferential review)
+
+Khononov's Balanced-Coupling skills (review/design), adopted the way
+`firecrawl`/`archify` were: upstream lives globally
+(`~/.agents/skills/modularity`, CC BY-NC-SA 4.0, bodies verbatim +
+LICENSE), two symlinks (`modularity-review`, `modularity-design`) expose
+them to the harness, and a project wrapper (`.pi/skills/modularity/`)
+adapts Claude-isms — AskUserQuestion → grilling rounds, TaskCreate →
+todowrite, LSP nav → grep/read + probe, evidence CLI → our
+`scripts/coupling.mjs`, reports → `docs/`.
+
+Decisions (2026-09-15 — installed, adapted, unrun):
+
+1. **Global, not vendored.** Third-party CC-licensed bodies stay out of
+   this repo (license hygiene + clean updates); the wrapper is ours.
+   Same topology as archify.
+2. **Evidence-first ordering is load-bearing.** The wrapper mandates
+   coupling CLI output quoted before judgment — their lesson that
+   numbers ground confidence and acquittals must be written down, or
+   next run re-indicts the same legitimate hubs.
+3. **Unproven here until first run.** Installed and wired, but no review
+   has executed through it yet — it joins the harness on probation.
+   First suitable trigger: the next structural change (new route, new
+   lib module) or the 5-snapshot ritual, whichever comes first.
+4. **Installing it caught a counter bug (same session).** v19 recorded
+   15 skills, expected 18: one dangling symlink (`statSync` throws)
+   aborted the whole skills-directory scan, silently dropping later
+   entries — so past counts are "whatever accumulated before the dead
+   link," order-dependent. Guarded per entry; v19 stays as the buggy
+   record, honestly labeled. (The dangling `google-*` links themselves
+   are user-global dead weight, disabled and unresolvable — left
+   alone, not ours to prune.)

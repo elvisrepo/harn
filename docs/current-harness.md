@@ -122,6 +122,9 @@ Matt Pocock–style engineering skills, adapted for pi and local tooling:
    grilling protocol.
 6. **`browser-qa`** (project skill, not pipeline) — headless-Playwright
    sensor for the app itself; see the section below.
+7. **`modularity`** (`/skill:modularity`) — adapter for the global
+   Balanced-Coupling skills (review/design): evidence from
+   `scripts/coupling.mjs`, interviews grilling-style, reports to `docs/`.
 
 Globals (installed outside this repo): `firecrawl` family (web
 search/scrape — section above) and `archify` (validated interactive

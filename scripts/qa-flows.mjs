@@ -12,48 +12,19 @@
 //
 // Screenshots land in public/screenshots/ per flow.
 
-import { spawnSync, spawn } from 'node:child_process';
-import http from 'node:http';
+import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ensureServer } from './boot-preview.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const QA = path.join(root, '.pi', 'skills', 'browser-qa', 'scripts', 'qa.mjs');
 let BASE = process.env.APP_URL || 'http://127.0.0.1:4321';
 const SHOT_DIR = path.join(root, 'public', 'screenshots');
 
-function reachable(url, ms = 1000) {
-  return new Promise((resolve) => {
-    const req = http.get(url, (res) => {
-      res.resume();
-      resolve(res.statusCode !== undefined);
-    });
-    req.setTimeout(ms, () => { req.destroy(); resolve(false); });
-    req.on('error', () => resolve(false));
-  });
-}
-
-async function ensureApp() {
-  if (await reachable(BASE)) return null; // reuse the running app (dev/preview)
-  // no server: build artifact was produced by `check` — serve it via astro preview
-  const port = 54321;
-  BASE = `http://127.0.0.1:${port}`;
-  const astro = path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'astro.cmd' : 'astro');
-  const child = spawn(astro, ['preview', '--port', String(port), '--host', '127.0.0.1'], {
-    cwd: root,
-    stdio: 'ignore',
-    detached: false,
-    // local http + matching origin: avoid secure cookies and better-auth origin rejection
-    env: { ...process.env, NODE_ENV: 'development', AUTH_URL: BASE },
-  });
-  const deadline = Date.now() + 20000;
-  while (Date.now() < deadline) {
-    if (await reachable(`${BASE}/`)) return child;
-    await new Promise((r) => setTimeout(r, 400));
-  }
-  child.kill();
-  throw new Error(`app not reachable at ${BASE} (and astro preview failed to boot)`);
-}
+// server boot lives in ./boot-preview.mjs (shared with the thin suite);
+// reuses APP_URL-or-default when reachable, else self-boots preview.
+let serverCleanup = async () => {};
 
 const flows = [
   { name: 'catalog', path: '/', args: ['--assert', 'main', '--text', 'Harness Mods', '--shot', path.join(SHOT_DIR, 'check-catalog.png')] },
@@ -65,9 +36,10 @@ if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
 }
 
 const results = [];
-let previewChild = null;
 try {
-  previewChild = await ensureApp();
+  const srv = await ensureServer({ base: BASE, port: 54321 });
+  BASE = srv.base;
+  serverCleanup = srv.cleanup;
   for (const f of flows) {
     const r = spawnSync(process.execPath, [QA, `${BASE}${f.path}`, ...f.args, '--json'], { encoding: 'utf8' });
     let report = null;
@@ -82,14 +54,7 @@ try {
     });
   }
 } finally {
-  if (previewChild) {
-    previewChild.kill();
-    // astro preview daemonizes — killing the spawner leaves the managed
-    // daemon bound to the port (stale-server evidence: 54321 survived a
-    // check run); `preview stop` reaps it
-    spawnSync(path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'astro.cmd' : 'astro'), ['preview', 'stop'], { stdio: 'ignore' });
-    await new Promise((r) => setTimeout(r, 500));
-  }
+  await serverCleanup();
 }
 
 const useJson = process.argv.includes('--json');
