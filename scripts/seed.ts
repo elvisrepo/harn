@@ -518,6 +518,32 @@ Why no Stryker-style tooling: it would need a second test framework (no node:tes
     ],
   },
   {
+    title: 'Dependency rules (dep-cruiser)',
+    category: 'Tooling',
+    summary: 'Sensors-article cross-file sensor: 4 layer rules (routes→lib→db, ops aside, extension isolated) green in check, plus a generated mermaid graph of the whole import tree.',
+    body: `The sensors article's dependency-rules section: basic linting sees files, this sees across them — routes -> services -> clients + domain there, routes -> lib -> db here. Co-written config the same way (AI absorbs the syntax cost), error messages recap the layering for self-correction.
+
+Rules (.dependency-cruiser.mjs, all error severity, all green day one — 47 modules, 80 deps, 0 violations):
+
+1. **lib-no-routes** — logic stays UI-free (unit-testable, portable).
+2. **db-inward-only** — persistence takes no app dependencies.
+3. **ops-no-routes** — scripts/tests drive lib or HTTP, never pages.
+4. **extension-isolation** — the pi extension imports node + pi API only (kit portability).
+
+Stated blind spot: .astro frontmatter is unparseable, so page-side imports are invisible; the ts/js/mjs graph is fully covered. The generated map (docs/dependency-graph.mmd, 80 edges, validate-first regeneration) makes drift visible on demand.
+
+**Thoughts:** this replaced structure-description prose with an enforced boundary — the kit/instance split finally has its fitness function. Parked trigger pulled early by explicit call; no second violation needed arguing.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['dep-cruiser', 'dependencies', 'layers', 'sensor', 'computational'],
+    links: [
+      { label: 'sensors article — dependency rules', url: 'https://martinfowler.com/articles/sensors-for-coding-agents.html' },
+      { label: 'dependency-cruiser', url: 'https://github.com/sverweij/dependency-cruiser' },
+      { label: 'generated graph', url: 'docs/dependency-graph.mmd' },
+    ],
+  },
+  {
     title: 'Safeguards against AI missteps',
     category: 'Knowledge',
     summary: 'Böckeler’s safeguard list against LLM caprice (individual + team), quoted whole, with each item mapped to our control — the threat model our harness answers.',
