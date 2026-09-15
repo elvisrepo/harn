@@ -575,6 +575,29 @@ Stated blind spot: .astro frontmatter is unparseable, so page-side imports are i
     ],
   },
   {
+    title: 'Coupling data',
+    category: 'Tooling',
+    summary: 'Sensors-article coupling experiment, built thin: TS-compiler fan-in/fan-out + cycles + blast radius via CLI, six-tab static dashboard as app tab — triage use, not judgment.',
+    body: `The article's coupling-data experiment (custom TS-compiler tooling, web viz + agent CLI) rebuilt at our scale: scripts/coupling.mjs extracts per-file import + call edges for the 23 ts/js files.
+
+Two faces, like hers:
+
+1. **CLI for the agent** — hotspots (fan-in/fan-out), impact <files> (transitive blast radius for review triage), cycles, full JSON. Findings: db/client.ts + src/lib/mods.ts lead fan-in (6 each); zero import cycles.
+2. **Dashboard for the human** — six static-SVG tabs (Structure, Coupling, Cohesion, Risk, Functions, Layers) at /docs/coupling/dashboard.html, linked as the Coupling tab in the app nav. Deliberately tables and bars, not DSM/force-graphs — her own verdict was that fancy viz doesn't reduce review load.
+
+Verified against dependency-cruiser (same in-repo edge set). Stated limits: .astro invisible, call-edge resolution thin (the import graph carries the triage use). On demand during review, not a check gate.
+
+**Thoughts:** her best line survives — data in service of attention (where to look hard), not judgment (no good/bad without appropriateness context, which lives outside the graph). The review-checklist impact line is the named next step.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['coupling', 'fan-in', 'triage', 'dashboard', 'sensor'],
+    links: [
+      { label: 'sensors article — coupling data', url: 'https://martinfowler.com/articles/sensors-for-coding-agents.html' },
+      { label: 'live dashboard', url: '/docs/coupling/dashboard.html' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',
