@@ -499,7 +499,6 @@ Related out-of-scope kin: the Logs mod records the same verdict for the batch fo
     body: `The most honest signal for a test suite's fault-detection: coverage tracks line execution, mutation introduces deliberate bugs and requires tests to fail when behavior breaks. An undetected mutation is a validation gap, not a coverage gap. Critical in the AI era, where high coverage can mask logically hollow, perpetually-green tests (missing assertions, decoupled mocks).
 
 Manual probe, run live here (2026-09-10, all mutants reverted immediately):
-
 1. slugify drops lowercase → killed (3 unit failures).
 2. toView flag-flip (predicted survivor) → killed by the flag-mapping test.
 3. Highlight-dimension drop → killed.
@@ -507,7 +506,7 @@ Manual probe, run live here (2026-09-10, all mutants reverted immediately):
 
 Score 4/4 — the 22 tests genuinely validate; no hollow greens found.
 
-Why no Stryker-style tooling: it would need a second test framework (no node:test runner exists — verified), steep price for 22 tests. Triggers to revisit: suite past ~30 tests, a slipped seam, or a survived mutant.`,
+Adopted for real (2026-09-15): the "no node:test runner" objection was wrong — Stryker's default command runner drives any shell command by exit code. stryker.config.mjs scopes runs to src/lib, manual and incremental (never in check — minutes per run). First real run: mods.ts 68.75%, and the regex-trimming survivors immediately earned trimming property tests. reports/ ignored as regenerable residue.`,
     considered: true,
     implemented: false,
     wanted: false,

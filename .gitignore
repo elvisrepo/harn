@@ -12,6 +12,10 @@ node_modules/
 # per-run check screenshots (regenerated noise) — curated qa-* evidence stays tracked
 public/screenshots/check-*.png
 
+# mutation testing residue (regenerable reports + sandbox)
+.stryker-tmp/
+reports/
+
 
 # environment variables
 .env

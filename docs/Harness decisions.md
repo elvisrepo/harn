@@ -343,6 +343,12 @@ Decisions (2026-09-09 — reviewed, have with one queued hole):
    kept as shelfware. Revisit triggers: suite growth past ~30 tests, a
    bug slipping a tested seam, or upstream Astro/Vite coverage support.
    The suite remains the behavioural gate — it proves the seams.
+   Correction (2026-09-15): the "no node:test runner" claim was wrong —
+   Stryker's default `command` runner drives any shell command by exit
+   code. Adopted as a manual sensor (`stryker.config.mjs`, scoped
+   `--mutate`, never in `check`): `mods.ts` scored 68.75%, and the
+   regex-trimming survivors immediately earned trimming property tests.
+   `reports/` ignored as regenerable residue.
    Manual mutation probe (2026-09-10, 4 hand mutants, all reverted):
    slugify-lowercase-drop, toView flag-flip, highlight-dimension-drop,
    bracket-regression-reintroduction — **4/4 killed** (the predicted

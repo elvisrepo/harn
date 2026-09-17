@@ -84,6 +84,11 @@ describe('slugify properties', () => {
   it('idempotent: slugify(slugify(x)) === slugify(x)', () => {
     for (const s of cases) assert.equal(slugify(slugify(s)), slugify(s));
   });
+  it('trims separators (Stryker survivors: regex mutants lived here)', () => {
+    assert.equal(slugify('  hello  '), 'hello');
+    assert.equal(slugify('--a--'), 'a');
+    assert.equal(slugify(' - x - '), 'x');
+  });
 });
 
 describe('c4HlLabels', () => {
