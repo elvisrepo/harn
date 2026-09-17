@@ -15,7 +15,7 @@
     "db:setup": "npm run db:push && npm run db:seed",
     "test": "node --test test/app.test.mjs",
     "coverage": "node --test --experimental-test-coverage test/lib.test.mjs",
-    "mutate": "sensors stop . || true; npx stryker run --mutate 'src/lib/mods.ts,src/lib/c4.ts,src/lib/context.ts' --reporters clear-text,json; sensors start .",
+    "mutate": "sensors stop . || true; rm -rf .stryker-tmp; npx stryker run --mutate 'src/lib/mods.ts,src/lib/c4.ts,src/lib/context.ts' --reporters clear-text,json; rm -rf .stryker-tmp; sensors start .",
     "check": "astro build && astro check && eslint . && semgrep --config .semgrep/rules.yml --error --include='*.ts' --include='*.js' --include='*.mjs' --include='*.cjs' src scripts db .pi && npx depcruise --validate .dependency-cruiser.mjs src db scripts test .pi && node scripts/check-secrets.mjs && npm run test --silent && npm run coverage --silent && node scripts/qa-flows.mjs",
     "versions:export": "node scripts/export-versions.mjs",
     "versions:import": "node scripts/import-versions.mjs"

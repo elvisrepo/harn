@@ -656,6 +656,10 @@ Decisions (2026-09-17 — installed, green on Linux):
    Stryker's sandbox copy (`ENXIO` — sockets aren't files). `npm run
    mutate` stops the sidecar first, runs, restarts it. Sensors that
    watch each other need a pecking order; now it's encoded, not known.
+   Sequel: sandbox *residue* (`.stryker-tmp` after a killed run) broke
+   eslint project-wide (127 phantom errors — the parser saw two
+   tsconfigs). The mutate script now removes the sandbox on both ends;
+   residue is ignored, never tracked.
 4. **Runtime state stays out of git** via the tool's own `.gitignore`
    (sockets, snapshots, history); config + wrapper are tracked. The
    history files are the future failure ledger — tripwire proposal
