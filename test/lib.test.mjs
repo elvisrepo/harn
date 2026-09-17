@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { buildC4Graph, c4HlLabels } from '../src/lib/c4.ts';
 import { slugify, toView } from '../src/lib/mods.ts';
 import { estimateTokens } from '../src/lib/context.ts';
+import { parseMod, parseVersion } from '../src/lib/parse.ts';
 
 describe('slugify', () => {
   const cases = [
@@ -48,6 +49,33 @@ describe('estimateTokens', () => {
     assert.equal(estimateTokens(''), 0);
     assert.equal(estimateTokens('abcd'), 1);
     assert.equal(estimateTokens('abcde'), 2);
+  });
+});
+
+describe('parseMod (boundary parsing, not validation)', () => {
+  it('accepts a full valid body and trims identity fields', () => {
+    const r = parseMod({ title: '  Hi  ', tags: ['a'], links: [{ label: 'l', url: 'u' }], considered: true });
+    assert.equal(r.ok, true);
+    assert.equal(r.value.title, 'Hi');
+    assert.deepEqual(r.value.tags, ['a']);
+  });
+  it('rejects wrong shapes with messages, never throws', () => {
+    for (const bad of [null, [1], 'x', { title: 12345 }, { tags: 'nope' }, { links: [{ label: 1 }] }, { considered: 'yes' }]) {
+      const r = parseMod(bad);
+      assert.equal(r.ok, false, JSON.stringify(bad));
+      assert.ok(r.error.length > 0);
+    }
+  });
+  it('empty title parses (requiredness is the route’s job)', () => {
+    assert.equal(parseMod({ title: '   ' }).value.title, undefined);
+  });
+});
+
+describe('parseVersion', () => {
+  it('rejects non-strings that used to 500 on .trim()', () => {
+    assert.equal(parseVersion({ label: 42 }).ok, false);
+    assert.equal(parseVersion('x').ok, false);
+    assert.equal(parseVersion({ label: 'v', summary: 's' }).ok, true);
   });
 });
 

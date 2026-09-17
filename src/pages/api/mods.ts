@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { auth } from '../../lib/auth.ts';
 import { db, schema } from '../../../db/client.ts';
 import { slugify } from '../../lib/mods.ts';
+import { parseMod } from '../../lib/parse.ts';
 
 function ok(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -13,20 +14,6 @@ function ok(data: unknown, status = 200) {
 
 function fail(message: string, status = 400) {
   return ok({ error: message }, status);
-}
-
-interface ModInput {
-  id?: string;
-  title?: string;
-  slug?: string;
-  category?: string;
-  summary?: string;
-  body?: string;
-  considered?: boolean | number;
-  implemented?: boolean | number;
-  wanted?: boolean | number;
-  tags?: string[];
-  links?: { label: string; url: string }[];
 }
 
 function toInt(v: boolean | number | undefined): number {
@@ -46,8 +33,10 @@ export const GET: APIRoute = async ({ locals }) => {
 
 export const POST: APIRoute = async ({ request }) => {
   if (!(await requireAdmin(request))) return fail('Unauthorized', 401);
-  const input = (await request.json()) as ModInput;
-  const title = (input.title ?? '').trim();
+  const parsed = parseMod(await request.json().catch(() => null));
+  if (!parsed.ok) return fail(parsed.error);
+  const input = parsed.value;
+  const title = input.title;
   if (!title) return fail('title is required');
 
   const now = Date.now();
@@ -78,10 +67,13 @@ export const POST: APIRoute = async ({ request }) => {
 
 export const PUT: APIRoute = async ({ request }) => {
   if (!(await requireAdmin(request))) return fail('Unauthorized', 401);
-  const input = (await request.json()) as ModInput;
+  const parsed = parseMod(await request.json().catch(() => null));
+  if (!parsed.ok) return fail(parsed.error);
+  const input = parsed.value;
   if (!input.id) return fail('id is required');
+  const id = input.id;
 
-  const existing = await db.query.mods.findFirst({ where: (m, { eq }) => eq(m.id, input.id!) });
+  const existing = await db.query.mods.findFirst({ where: (m, { eq }) => eq(m.id, id) });
   if (!existing) return fail('Mod not found', 404);
 
   const title = (input.title ?? existing.title).trim();

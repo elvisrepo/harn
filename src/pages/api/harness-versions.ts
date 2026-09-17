@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { auth } from '../../lib/auth.ts';
 import { db, schema } from '../../../db/client.ts';
 import { createHarnessVersion, listHarnessVersions } from '../../lib/harness.ts';
+import { parseVersion } from '../../lib/parse.ts';
 
 function ok(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -24,8 +25,9 @@ export const GET: APIRoute = async ({ locals }) => {
 
 export const POST: APIRoute = async ({ request }) => {
   if (!(await requireAdmin(request))) return ok({ error: 'Unauthorized' }, 401);
-  const input = (await request.json().catch(() => ({}))) as { label?: string; summary?: string };
-  const result = await createHarnessVersion(input.label ?? '', input.summary ?? '');
+  const parsed = parseVersion(await request.json().catch(() => null));
+  if (!parsed.ok) return ok({ error: parsed.error }, 400);
+  const result = await createHarnessVersion(parsed.value.label ?? '', parsed.value.summary ?? '');
   return ok(result, 201);
 };
 

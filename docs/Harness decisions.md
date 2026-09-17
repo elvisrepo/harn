@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3) · Pipeline (CI) · Modularity skills · Sensors sidecar · Observability**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3) · Pipeline (CI) · Modularity skills · Sensors sidecar · Observability · Boundary parsing**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -688,3 +688,26 @@ Decisions (2026-09-17 — built, live):
    metric families) — 14 HTTP tests now. The "ensure startup under
    800ms" class of prompt stays unaskable (no objectives), but "what
    500'd, what's slow, what did the session hit" is answered.
+
+---
+
+## Boundary parsing (parse, don't validate)
+
+King's rule, applied where we stood in the worst quadrant (neither
+parsing nor validating): `POST/PUT /api/mods` trusted `input.title`
+blind — a numeric title threw `TypeError` → 500 behind auth, and
+misshapen tags/links stored corrupt shapes for later pages to choke
+on (shotgun parsing, live).
+
+Decisions (2026-09-17 — built):
+
+1. **`src/lib/parse.ts`: parse once at the boundary**, return refined
+   types; handlers trust without re-checking. No Zod (new dep for two
+   endpoints — hand parser, ~100 lines). Requiredness stays the
+   route's job (POST needs title, PUT needs id); shape is the parser's.
+2. **The typechecker enforced the proof** — narrowing doesn't cross the
+   drizzle closure, so the fix binds `const id` after the guard. The
+   article's desync story told in one compile error.
+3. **Unit-pinned** (valid/trimmed/invalid/non-throwing cases) + live
+   proof (authed garbage POSTs now 400 across the board). Fuzz probes
+   stay as the regression net.
