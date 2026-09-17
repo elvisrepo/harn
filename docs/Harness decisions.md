@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3) · Pipeline (CI) · Modularity skills**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3) · Pipeline (CI) · Modularity skills · Sensors sidecar**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -623,3 +623,34 @@ Decisions (2026-09-15 — installed, adapted, unrun):
    record, honestly labeled. (The dangling `google-*` links themselves
    are user-global dead weight, disabled and unresolvable — left
    alone, not ours to prune.)
+
+---
+
+## Sensors sidecar (sensors-article appendix)
+
+Her vibe-coded daemon: config-file sensor commands on intervals, one
+orchestrator, per-sensor parsers, human HUD + token-efficient agent
+summary (`sensors check`). Adopted whole: `uv tool install`
+birgitta410/sensors-cli + `.sensors/harn.sensors.yaml` + one generic
+default-parser wrapper.
+
+Decisions (2026-09-17 — installed, green on Linux):
+
+1. **Native parsers where they exist** (eslint/semgrep/depcruise run
+   stock JSON/err-long commands); everything else goes through the
+   generic wrapper (exit code is the verdict). No per-sensor parser
+   code written — her default-schema evolution, applied day one.
+2. **Fast slices only.** typecheck/lint/semgrep/structure/unit/secrets
+   on 60–120s intervals; browser flows, HTTP suite, coverage stay out
+   (server + minutes — `check`/CI territory); Stryker is trigger-mode.
+   The daemon must never become the fan-spin she jokes about.
+3. **Two frictions, both resolved:** Mac-only tooling booted fine on
+   Linux; my first config used `trigger` where the schema wants
+   `triggered` (worker mode surfaces the real error — background mode
+   swallows it). Tool configs stay at root (her skill says move them
+   under `.sensors/` — declined; `check`, CI, and docs reference root
+   paths).
+4. **Runtime state stays out of git** via the tool's own `.gitignore`
+   (sockets, snapshots, history); config + wrapper are tracked. The
+   history files are the future failure ledger — tripwire proposal
+   still open on top of real data now.

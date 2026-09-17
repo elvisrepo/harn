@@ -616,6 +616,29 @@ Load-bearing rule from their lessons: numbers quoted before judgment, legitimate
     ],
   },
   {
+    title: 'Sensors sidecar',
+    category: 'Tooling',
+    summary: 'Her continuous daemon, adopted whole: 6 fast sensors on intervals with native/default parsers, agent summary via sensors check; heavies excluded, Stryker triggered.',
+    body: `The sensors article's appendix made real: birgitta410/sensors-cli (uv-installed) running typecheck/lint/semgrep/structure/unit/secrets on 60–120s intervals, with her human HUD and the token-efficient agent summary (sensors check) as the two faces.
+
+Shape of the adoption:
+
+- **Native parsers where they exist** — eslint/semgrep/depcruise run stock machine-readable commands; everything else through one generic default-parser wrapper (exit code is the verdict). No per-sensor parser code written.
+- **Fast slices only** — browser flows, HTTP suite, and coverage stay out (server + minutes; check/CI territory). Stryker is trigger-mode.
+- **Config + wrapper tracked** (.sensors/harn.sensors.yaml); runtime state ignored by the tool's own .gitignore. Tool configs stay at root (declined her move-under-.sensors convention — check, CI, and docs reference root paths).
+- **Frictions resolved:** Mac-only tool boots on Linux; config mode is triggered not trigger (worker mode shows the real error).
+
+**Thoughts:** check remains the gate (one-shot, authoritative); the sidecar is situational awareness between gates. The history files it accumulates are the future failure ledger — the tripwire proposal finally has real data to stand on.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['sidecar', 'continuous', 'sensors', 'daemon'],
+    links: [
+      { label: 'sensors article — appendix', url: 'https://martinfowler.com/articles/sensors-for-coding-agents.html' },
+      { label: 'sensors-cli', url: 'https://github.com/birgitta410/sensors-cli' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',

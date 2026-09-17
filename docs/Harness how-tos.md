@@ -170,3 +170,35 @@ Exit 0 = pass.
   console counts (noise) — the self-booted preview is clean.
 - Screenshots land in `public/screenshots/check-*.png` (served at
   `/screenshots/…`).
+
+---
+
+## 6. Run the sensors sidecar (continuous awareness between checks)
+
+`npm run check` is the gate (authoritative, one-shot). The sidecar is
+situational awareness between gates: 6 fast sensors on intervals, `sensors
+check` as the failures-first readout. It never replaces `check` (browser
+flows, HTTP suite, and Stryker live outside it — too heavy or manual).
+
+```bash
+sensors start .        # background daemon (reads .sensors/harn.sensors.yaml)
+sensors show .         # read-only HUD (Q detaches, daemon keeps running)
+sensors check .        # agent summary, exit 0 green / 1 failure
+sensors check . --runner lint   # one sensor only
+sensors snapshot .     # persist scores for trend comparison
+sensors status .       # is it running?
+sensors stop .         # end it
+```
+
+Expected receipt: `sensors check .` prints one block per runner
+(SUCCESS/FAILURE + score + command); exit 0 = all green.
+
+*Gotchas:*
+- Daemon running is per-machine, not per-repo-state: restart it after
+  reboot (`sensors status .` tells the truth).
+- Mac-tested upstream — on Linux use `sensors start . --worker` in the
+  foreground to see real errors (background mode swallows them).
+- Config mode is `triggered`, not `trigger` (schema rejects the latter).
+- Runtime state (sockets, snapshots, history) is ignored by the tool's
+  own `.gitignore`; config + `wrap.mjs` are tracked. History files are
+  the future failure ledger — don't delete them idly.

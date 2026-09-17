@@ -1,0 +1,54 @@
+# Sensors sidecar config (her tool, our sensors): fast slices on intervals,
+# heavies excluded or triggered. Browser flows + HTTP suite need a server
+# and minutes — covered by check/CI, not the daemon. Stryker is trigger-only.
+version: 1
+prompt: "Scouting rule: if sensors report issues you didn't cause, fix them anyway when small. Thresholds live in each tool's own config; lower is better unless noted."
+
+runners:
+  - name: typecheck
+    parser: default
+    enabled: true
+    mode: interval
+    command: node .sensors/wrap.mjs typecheck -- npx astro check
+    interval: 120000
+
+  - name: lint
+    parser: eslint
+    enabled: true
+    mode: interval
+    command: npx eslint . --format json
+    interval: 60000
+
+  - name: semgrep
+    parser: semgrep
+    enabled: true
+    mode: interval
+    command: semgrep --config .semgrep/rules.yml --json --include=*.ts --include=*.js --include=*.mjs --include=*.cjs src scripts db .pi
+    interval: 120000
+
+  - name: structure
+    parser: depcruise
+    enabled: true
+    mode: interval
+    command: npx depcruise --validate .dependency-cruiser.mjs --output-type err-long src db scripts test .pi
+    interval: 120000
+
+  - name: unit
+    parser: default
+    enabled: true
+    mode: interval
+    command: node .sensors/wrap.mjs unit -- node --test test/lib.test.mjs
+    interval: 60000
+
+  - name: secrets
+    parser: default
+    enabled: true
+    mode: interval
+    command: node .sensors/wrap.mjs secrets -- node scripts/check-secrets.mjs
+    interval: 120000
+
+  - name: stryker
+    parser: stryker
+    enabled: true
+    mode: triggered
+    command: npx stryker run --mutate src/lib/mods.ts
