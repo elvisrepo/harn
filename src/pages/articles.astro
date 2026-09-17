@@ -60,6 +60,14 @@ const session = Astro.locals.session;
     into harness.
   </p>
 
+  <div class="card">
+    <h2 style="margin-top:0">Preferred mods</h2>
+    <p class="muted small" style="margin:.3rem 0 .8rem">
+      Your shortlist — starred below, kept in this browser only.
+    </p>
+    <p class="small" id="preferred"><span class="muted">No preferred mods yet — star any mod below.</span></p>
+  </div>
+
   {withArticles.map((a) => (
     <div class="card">
       <h2 style="margin-top:0">
@@ -75,7 +83,7 @@ const session = Astro.locals.session;
             <tbody>
               {a.mods.map((m) => (
                 <tr>
-                  <td><a href={`/mods/${m.slug}`}>{m.title}</a></td>
+                  <td><button class="star" data-slug={m.slug} title="Star as preferred" aria-label={`Star ${m.title}`}>☆</button> <a class="prev" data-sum={m.summary} href={`/mods/${m.slug}`}>{m.title}</a></td>
                   <td class="small muted">{m.category}</td>
                   <td class="small">
                     {m.implemented ? '● implemented' : m.wanted ? '○ wanted' : m.considered ? '◐ considered' : '—'}
@@ -100,11 +108,50 @@ const session = Astro.locals.session;
       <summary style="cursor:pointer">Show all {unmapped.length} unmapped mods</summary>
       <p class="small">
         {unmapped.map((m, i) => (
-          <span>{i > 0 && ' · '}<a href={`/mods/${m.slug}`}>{m.title}</a></span>
+          <span>{i > 0 && ' · '}<button class="star" data-slug={m.slug} title="Star as preferred" aria-label={`Star ${m.title}`}>☆</button><a class="prev" data-sum={m.summary} href={`/mods/${m.slug}`}>{m.title}</a></span>
         ))}
       </p>
     </details>
   </div>
+
+  <script type="application/json" id="mod-index" set:html={JSON.stringify(mods.map((m) => ({ slug: m.slug, title: m.title }))).replace(/</g, '\\u003c')}></script>
+  <script>
+    const idx = JSON.parse(document.getElementById('mod-index').textContent || '[]');
+    const bySlug = Object.fromEntries(idx.map((m) => [m.slug, m.title]));
+    const KEY = 'preferred-mods';
+    const load = () => {
+      try {
+        const v = JSON.parse(localStorage.getItem(KEY) || '[]');
+        return Array.isArray(v) ? v.filter((s) => typeof s === 'string' && bySlug[s]) : [];
+      } catch {
+        return [];
+      }
+    };
+    const save = (slugs) => localStorage.setItem(KEY, JSON.stringify(slugs));
+    const paint = () => {
+      const slugs = load();
+      const box = document.getElementById('preferred');
+      box.innerHTML = slugs.length
+        ? slugs.map((s, i) => `${i > 0 ? ' · ' : ''}<a href="/mods/${s}">${bySlug[s]}</a>`).join('')
+        : '<span class="muted">No preferred mods yet — star any mod below.</span>';
+      document.querySelectorAll('button.star').forEach((b) => {
+        const on = slugs.includes(b.dataset.slug);
+        b.textContent = on ? '★' : '☆';
+        b.classList.toggle('on', on);
+      });
+    };
+    document.querySelectorAll('button.star').forEach((b) =>
+      b.addEventListener('click', () => {
+        const slugs = load();
+        const i = slugs.indexOf(b.dataset.slug);
+        if (i >= 0) slugs.splice(i, 1);
+        else slugs.push(b.dataset.slug);
+        save(slugs);
+        paint();
+      }),
+    );
+    paint();
+  </script>
 </Base>
 
 <style>
@@ -116,5 +163,41 @@ const session = Astro.locals.session;
     letter-spacing: normal;
     color: inherit;
     background: transparent;
+  }
+  /* star toggles for the Preferred shortlist (localStorage, this browser) */
+  button.star {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--dim, #5f6670);
+    padding: 0 0.15rem 0 0;
+    font-family: inherit;
+  }
+  button.star.on {
+    color: var(--accent, #a06a15);
+  }
+  /* hover overview card: mod summary without navigation (CSS only) */
+  a.prev {
+    position: relative;
+    text-decoration: underline dotted;
+  }
+  a.prev:hover::after {
+    content: attr(data-sum);
+    position: absolute;
+    left: 0;
+    top: 130%;
+    z-index: 20;
+    width: 320px;
+    white-space: normal;
+    background: var(--surface, #fff);
+    color: var(--text, #1c1e23);
+    border: 1px solid var(--border, #cfc8ba);
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    pointer-events: none;
   }
 </style>
