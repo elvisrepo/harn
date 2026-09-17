@@ -86,7 +86,7 @@ Astro 7 SSR + better-auth + drizzle/SQLite (`data/app.db`); routes →
 lib → db, ops (`scripts/`, `test/`) aside, `.pi` isolated (dep-cruiser
 enforces). Read `architecture.md` before changing any route/table/flow.
 
-**Routes**: `/` catalog · `/mods/<slug>` detail · `/harness` map · `/admin` manage · `/login`
+**Routes**: `/` catalog · `/articles` reading list · `/mods/<slug>` detail · `/harness` map · `/admin` manage · `/login`
 
 ## Domain
 

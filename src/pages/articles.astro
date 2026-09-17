@@ -1,0 +1,114 @@
+---
+import Base from '../layouts/Base.astro';
+import { listMods, type ModView } from '../lib/mods.ts';
+
+interface Article {
+  title: string;
+  url: string;
+  key: string;
+  blurb: string;
+}
+
+const articles: Article[] = [
+  {
+    title: 'Harness engineering for coding agent users',
+    url: 'https://martinfowler.com/articles/harness-engineering.html',
+    key: 'harness-engineering.html',
+    blurb: 'Böckeler’s blueprint: guides/sensors, steering loop, keep-quality-left. This harness is built from its figures — every Fig-2 row and lifecycle tool reviewed 1-by-1.',
+  },
+  {
+    title: 'Maintainability sensors for coding agents',
+    url: 'https://martinfowler.com/articles/sensors-for-coding-agents.html',
+    key: 'sensors-for-coding-agents',
+    blurb: 'Sensor experiments with receipts: linting craft, dependency rules, coupling data, modularity review, mutation testing, the sidecar. Our sensor ring’s field manual.',
+  },
+  {
+    title: 'Harness engineering: leveraging Codex in an agent-first world',
+    url: 'https://openai.com/index/harness-engineering/',
+    key: 'openai.com/index/harness-engineering',
+    blurb: 'Agent-first at scale: legibility, invariants-not-implementations, garbage collection. Our newest lens — observability, direction notes, and boundary parsing trace to it.',
+  },
+];
+
+function linksOf(m: ModView): { label: string; url: string }[] {
+  const raw = m.links as unknown;
+  if (Array.isArray(raw)) return raw as { label: string; url: string }[];
+  try {
+    const parsed: unknown = JSON.parse(String(raw ?? '[]'));
+    return Array.isArray(parsed) ? (parsed as { label: string; url: string }[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+const mods = await listMods();
+const withArticles = articles.map((a) => ({
+  ...a,
+  mods: mods.filter((m) => linksOf(m).some((l) => typeof l?.url === 'string' && l.url.includes(a.key))),
+}));
+const claimed = new Set(withArticles.flatMap((a) => a.mods.map((m) => m.slug)));
+const unmapped = mods.filter((m) => !claimed.has(m.slug));
+const session = Astro.locals.session;
+---
+
+<Base title="Harness Mods — AI articles" session={session}>
+  <p class="kicker">Harness — reading</p>
+  <h1>AI articles we work from</h1>
+  <p class="muted">
+    Three papers, read 1-by-1. Each lists the catalog mods that trace to
+    it (matched on mod links) — the receipts that the reading turned
+    into harness.
+  </p>
+
+  {withArticles.map((a) => (
+    <div class="card">
+      <h2 style="margin-top:0">
+        <a href={a.url} target="_blank" rel="noreferrer">{a.title} ↗</a>
+      </h2>
+      <p class="muted small" style="margin:.3rem 0 .8rem">{a.blurb}</p>
+      {a.mods.length === 0 ? (
+        <p class="muted">No mods link here yet.</p>
+      ) : (
+        <table class="kv">
+          <tbody>
+            {a.mods.map((m) => (
+              <tr>
+                <td><a href={`/mods/${m.slug}`}>{m.title}</a></td>
+                <td class="small muted">{m.category}</td>
+                <td class="small">
+                  {m.implemented ? '● implemented' : m.wanted ? '○ wanted' : m.considered ? '◐ considered' : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  ))}
+
+  <div class="card">
+    <h2 style="margin-top:0">Not yet mapped ({unmapped.length})</h2>
+    <p class="muted small" style="margin:.3rem 0 .8rem">
+      Catalog mods with no article link — older entries from before the
+      reading program, not necessarily uncovered. Map them by adding the
+      article URL to their seed links.
+    </p>
+    <p class="small">
+      {unmapped.map((m, i) => (
+        <span>{i > 0 && ' · '}<a href={`/mods/${m.slug}`}>{m.title}</a></span>
+      ))}
+    </p>
+  </div>
+</Base>
+
+<style>
+  .kv td:first-child {
+    width: auto;
+    font-family: inherit;
+    font-size: inherit;
+    text-transform: none;
+    letter-spacing: normal;
+    color: inherit;
+    background: transparent;
+  }
+</style>

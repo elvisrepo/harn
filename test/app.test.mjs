@@ -38,8 +38,18 @@ describe('catalog', () => {
   });
 });
 
-describe('harness', () => {
-  it('GET /harness renders the map shell', async () => {
+describe('articles', () => {
+  it('GET /articles lists the three papers with linked mods', async () => {
+    const res = await fetch(`${BASE}/articles`);
+    assert.equal(res.status, 200);
+    const html = await res.text();
+    for (const s of ['harness-engineering', 'sensors-for-coding-agents', 'openai.com/index/harness-engineering', 'Not yet mapped']) {
+      assert.match(html, new RegExp(s.replace(/[./]/g, (c) => `\\${c}`)));
+    }
+  });
+});
+
+describe('harness', () => {  it('GET /harness renders the map shell', async () => {
     const res = await fetch(`${BASE}/harness`);
     assert.equal(res.status, 200);
     const html = await res.text();

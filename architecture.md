@@ -15,6 +15,7 @@ Astro 7 SSR (`output: 'server'`, `@astrojs/node` standalone) + better-auth
 | Route | File | Auth | Notes |
 |---|---|---|---|
 | `/` | `src/pages/index.astro` | public | searchable catalog; client-side filter JS in-page |
+| `/articles` | `src/pages/articles.astro` | public | reading list: 3 papers × linked mods (matched on mod links) + unmapped |
 | `/mods/<slug>` | `src/pages/mods/[id].astro` | public | markdown `body` rendered via marked |
 | `/harness` | `src/pages/harness.astro` | public | mermaid map (`C4Diagram.astro`) + snapshot panel + `?v=N` switcher |
 | `/login` | `src/pages/login.astro` | public | `#loginForm` → `auth-client` sign-in, redirects to `/admin` |
