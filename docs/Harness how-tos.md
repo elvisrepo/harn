@@ -202,3 +202,8 @@ Expected receipt: `sensors check .` prints one block per runner
 - Runtime state (sockets, snapshots, history) is ignored by the tool's
   own `.gitignore`; config + `wrap.mjs` are tracked. History files are
   the future failure ledger — don't delete them idly.
+- History timeline: `node scripts/sensor-history.mjs [--runner <name>]`
+  prints per-runner events (initial/steady/improvement/regression/
+  recovery/worsening) from `.sensors/history.jsonl` — her effectiveness
+  figure as text. Meaningless until something fails (all-steady is the
+  suspicious state); snapshots append on `sensors snapshot .`.
