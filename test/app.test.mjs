@@ -160,3 +160,27 @@ describe('fuzz (never 500 on hostile input)', () => {
     assert.ok(res.status < 500, `500 on wrong-typed body (got ${res.status})`);
   });
 });
+
+describe('observability', () => {
+  it('traces requests with IDs and checkpoints', async () => {
+    const res = await fetch(`${BASE}/api/mods`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('x-request-id') ?? '', /^[a-z0-9]+$/);
+    const traces = await (
+      await fetch(`${BASE}/api/traces?limit=5`)
+    ).json();
+    assert.ok(Array.isArray(traces) && traces.length >= 1);
+    const seen = traces.find((t) => t.path === '/api/mods');
+    assert.ok(seen, 'expected a trace for GET /api/mods');
+    assert.ok((seen.checkpoints ?? []).some((c) => c.name === 'db-select-mods'));
+  });
+
+  it('exposes Prometheus metrics', async () => {
+    const res = await fetch(`${BASE}/api/metrics`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type') ?? '', /text\/plain/);
+    const body = await res.text();
+    assert.match(body, /harn_requests_total \d+/);
+    assert.match(body, /harn_request_duration_ms_p50 \d+/);
+  });
+});

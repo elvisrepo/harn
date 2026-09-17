@@ -21,6 +21,8 @@ Astro 7 SSR (`output: 'server'`, `@astrojs/node` standalone) + better-auth
 | `/admin` | `src/pages/admin.astro` | session (middleware redirect) | mod CRUD form + snapshot buttons; embeds mods JSON for the client |
 | `/api/mods` | `src/pages/api/mods.ts` | GET public; mutations session-checked | list / create / update / delete |
 | `/api/harness-versions` | `src/pages/api/harness-versions.ts` | GET public; POST/DELETE session-checked | list / snapshot (auto-bumps version + writes `data/c4/vN.mmd`) / delete |
+| `/api/metrics` | `src/pages/api/metrics.ts` | public | Prometheus text exposition (requests, avg/p50 ms, by-status/path) |
+| `/api/traces` | `src/pages/api/traces.ts` | public | recent request traces, newest first (`?limit`, ring-capped) |
 | `/api/auth/[...all]` | `src/pages/api/auth/[...all].ts` | — | better-auth handler; explicit `GET`/`POST` exports (Astro 7 ignores destructured re-exports) |
 
 Shared shell: `src/layouts/Base.astro` + `src/components/Header.astro`.

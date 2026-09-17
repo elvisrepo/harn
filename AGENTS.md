@@ -90,6 +90,7 @@ src/lib/mods.ts         catalog queries + ModView mapping + slugify
 src/lib/harness.ts      harness snapshot builder + version queries
 src/lib/context.ts      per-turn context token measurement (chars÷4 estimate)
 src/lib/c4.ts           versioned C4 mermaid builder (data/c4/v<N>.mmd artifacts)
+src/lib/observability.ts JSONL access log + Prometheus metrics + trace ring (X-Request-Id)
 data/context-static.txt verbatim static-context sample (base prompt + tool schemas)
 data/c4/v<N>.mmd        committed-able C4 artifact per snapshot (LSP loop since v9)
 data/harness-versions.json portable snapshot history (v1..vN, no auth data)

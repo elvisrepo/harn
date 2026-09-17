@@ -639,6 +639,27 @@ Shape of the adoption:
     ],
   },
   {
+    title: 'Observability',
+    category: 'Tooling',
+    summary: 'Single-process analogue of the per-worktree stack: JSONL access log + Prometheus metrics + trace ring with request IDs — no daemons, queryable today.',
+    body: `Their Victoria logs/metrics/traces + LogQL/PromQL, rebuilt at local scale with zero dependencies (src/lib/observability.ts):
+
+- **LOGS:** JSONL access log (data/access.log, gitignored) — every request with trace id, timing, checkpoints. Grep/jq-able; Vector could tail it later.
+- **METRICS:** Prometheus text at /api/metrics — request counts, avg/p50 durations, by-status and top-path families. Scrapeable if a TSDB ever arrives.
+- **TRACES:** X-Request-Id on every response, checkpoints in list handlers, last-200 ring at /api/traces. Middleware starts/finishes all traces; observability never fails requests.
+
+**Thoughts:** challenged as overkill, built to see — verdict: the JSONL log earns its keep immediately (what 500'd, what did the session hit); metrics/traces are cheap ballast until a latency question or second process arrives. Process-lifetime memories reset on dev reload (stated). Thin tests pin all three seams.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['observability', 'logs', 'metrics', 'traces'],
+    links: [
+      { label: 'OpenAI harness engineering', url: 'https://openai.com/index/harness-engineering/' },
+      { label: 'live metrics', url: '/api/metrics' },
+      { label: 'live traces', url: '/api/traces' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',

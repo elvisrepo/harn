@@ -3,7 +3,7 @@
 Decision record for applying ["Harness engineering for coding agent users"](https://martinfowler.com/articles/harness-engineering.html)
 (Böckeler) to this repo — **one section per element, added as we review the
 article 1 by 1**. Covered so far: **Principles · CfRs · Rules · Ref Docs ·
-How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3) · Pipeline (CI) · Modularity skills · Sensors sidecar**.
+How-tos · Language Servers (batch + interactive, pi-only) · CLIs, scripts · Code mods · Static analysis (sensors I) · Review agents (sensors II) · Logs (sensors III) · Browser (sensors IV) · Architecture doc (fig 3) · How-to-test (fig 3) · MCP knowledge (fig 3) · Pipeline (CI) · Modularity skills · Sensors sidecar · Observability**.
 
 The agent-visible copies live in `AGENTS.md` (read every turn); this doc holds
 the decisions, the reasoning, and the incidents that earned them. Companion
@@ -664,3 +664,27 @@ Decisions (2026-09-17 — installed, green on Linux):
    (sockets, snapshots, history); config + wrapper are tracked. The
    history files are the future failure ledger — tripwire proposal
    still open on top of real data now.
+
+---
+
+## Observability (OpenAI legibility)
+
+Their per-worktree stack (Victoria logs/metrics/traces + LogQL/PromQL)
+rebuilt as a single-process analogue — challenged as overkill, built
+anyway to see it: `src/lib/observability.ts`, zero deps.
+
+Decisions (2026-09-17 — built, live):
+
+1. **Three pillars, no daemons.** JSONL access log (`data/access.log`,
+   gitignored, grep/jq-able) · Prometheus text at `/api/metrics`
+   (requests, avg/p50, by-status/path — scrapeable if a TSDB arrives) ·
+   trace ring (`X-Request-Id` on every response, checkpoints in two
+   list handlers, `/api/traces`). Middleware starts/finishes every
+   trace; observability never fails requests.
+2. **Per-process memories reset on reload** (dev HMR) — counters are
+   process-lifetime, like their ephemeral worktree stacks. Preview/prod
+   hold steady. Stated, not hidden.
+3. **Thin tests pin the seams** (request-ID header, checkpoint names,
+   metric families) — 14 HTTP tests now. The "ensure startup under
+   800ms" class of prompt stays unaskable (no objectives), but "what
+   500'd, what's slow, what did the session hit" is answered.

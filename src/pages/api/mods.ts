@@ -38,8 +38,9 @@ async function requireAdmin(request: Request): Promise<boolean> {
   return !!res?.session;
 }
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ locals }) => {
   const rows = await db.select().from(schema.mods);
+  locals.tracer?.checkpoint('db-select-mods');
   return ok(rows);
 };
 

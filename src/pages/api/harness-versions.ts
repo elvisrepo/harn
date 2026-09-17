@@ -16,7 +16,11 @@ async function requireAdmin(request: Request): Promise<boolean> {
   return !!res?.session;
 }
 
-export const GET: APIRoute = async () => ok(await listHarnessVersions());
+export const GET: APIRoute = async ({ locals }) => {
+  const versions = await listHarnessVersions();
+  locals.tracer?.checkpoint('db-list-versions');
+  return ok(versions);
+};
 
 export const POST: APIRoute = async ({ request }) => {
   if (!(await requireAdmin(request))) return ok({ error: 'Unauthorized' }, 401);
