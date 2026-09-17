@@ -23,6 +23,7 @@ acceptance criteria):
 Reference docs (read on demand; single-source rule — they link to systems of record like
 /harness and the snapshots, they do not copy drifting facts):
 - architecture.md — the app itself (routes, pipeline, data, gotchas); read before changing any route/table/flow
+- docs/direction.md — strategy + working agreements (where this is going, opencode runtime, commit/push rules); correct it when stale
 - docs/current-harness.md — how the harness works (turn flow, context model, skills, browser QA); verified at v7
 - docs/Harness decisions.md — running decision record for the article review (Principles, CfRs, Rules, Ref Docs, How-tos; the incidents that earned them)
 - docs/Harness reuse contract.md — kit vs instance; read before instantiating the harness elsewhere or changing skills/conventions
@@ -73,54 +74,17 @@ versioned snapshots of the harness config + tokens.
 | `npm run versions:export` | export harness snapshot history (v1..vN) to `data/harness-versions.json` (committable, no auth data) |
 | `npm run versions:import` | restore snapshot history from that JSON on a fresh machine (`--force` to overwrite the placeholder v1) |
 | `npm run check` | pre-handoff sensor: build + typecheck (astro check, TS 6) + eslint + semgrep + dep-cruiser + secrets scan + thin suite + unit coverage + browser behaviour flows (self-boots preview if no server is up) |
-| `npm test` | thin HTTP suite: 9 tests mirroring the 4 qa-flows (node:test, zero deps; `APP_URL` or self-booted preview) |
-| `npm run coverage` | 13 unit tests over the pure lib core with per-file report (built-in flag; thresholds off until earned) |
+| `npm test` | thin HTTP suite: 12 tests mirroring the 4 qa-flows (node:test, zero deps; `APP_URL` or self-booted preview) |
+| `npm run coverage` | 15 unit tests over the pure lib core with per-file report (built-in flag; thresholds off until earned) |
 
 Background-mode dev (`astro dev --background`) is available; manage with
 `astro dev stop | status | logs`.
 
-## Architecture
+## Architecture — full map: `architecture.md`
 
-```
-db/schema.ts            drizzle tables: user/session/account/verification, mods, harness_versions
-db/client.ts            better-sqlite3 + drizzle singleton (DATABASE_PATH, default data/app.db)
-src/lib/auth.ts         better-auth instance (drizzle adapter, secret from AUTH_SECRET)
-src/lib/auth-client.ts  browser auth client (sign-in / sign-out)
-src/lib/mods.ts         catalog queries + ModView mapping + slugify
-src/lib/harness.ts      harness snapshot builder + version queries
-src/lib/context.ts      per-turn context token measurement (chars÷4 estimate)
-src/lib/c4.ts           versioned C4 mermaid builder (data/c4/v<N>.mmd artifacts)
-src/lib/observability.ts JSONL access log + Prometheus metrics + trace ring (X-Request-Id)
-data/context-static.txt verbatim static-context sample (base prompt + tool schemas)
-data/c4/v<N>.mmd        committed-able C4 artifact per snapshot (LSP loop since v9)
-data/harness-versions.json portable snapshot history (v1..vN, no auth data)
-src/middleware.ts       session via auth.api.getSession; protects /admin
-                        docs/archify/* artifacts before route negotiation
-.pi/extensions/lsp-diagnostics/ pi-only LSP client (diagnostics receipts on edit/write/bash + diagnostics probe)
-.pi/skills/browser-qa/  headless-Playwright sensor + qa.mjs runner (see below)
-test/helpers.mjs        suite server conventions (APP_URL or self-booted preview)
-test/app.test.mjs       9 HTTP tests mirroring the 4 qa-flows
-test/lib.test.mjs       13 unit tests over the pure lib core
-eslint.config.mjs       flat lint config (recommended minus tsc-covered noise)
-.semgrep/rules.yml      2 earned rules (no absolute-local fetch, no eval)
-.dependency-cruiser.mjs 4 layer rules (routes→lib→db, ops aside, extension isolated)
-scripts/check-secrets.mjs credential-pattern scanner (file:line, never echoes values)
-scripts/qa-flows.mjs    4 browser behaviour flows (self-boots preview, reaps via preview stop)
-scripts/export-versions.mjs / import-versions.mjs portable history round-trip
-src/pages/
-  index.astro                    searchable catalog (client-side filter)
-  mods/[id].astro                detail page (markdown via marked)
-  harness.astro                  mermaid map + snapshot panel + version timeline
-  admin.astro                    mod CRUD + harness snapshot controls (auth-gated)
-  login.astro                    email/password sign-in
-  api/auth/[...all].ts           better-auth handlers (explicit exports — Astro 7
-                                 ignores destructured `export const { GET }`)
-  api/mods.ts                    GET list; POST/PUT/DELETE admin-only
-  api/harness-versions.ts        GET list; POST snapshot; DELETE admin-only
-scripts/seed.ts                  idempotent seed (mods upserted by slug, admin
-                                 bootstrap, harness v1)
-src/styles/global.css            design tokens + app styles
-```
+Astro 7 SSR + better-auth + drizzle/SQLite (`data/app.db`); routes →
+lib → db, ops (`scripts/`, `test/`) aside, `.pi` isolated (dep-cruiser
+enforces). Read `architecture.md` before changing any route/table/flow.
 
 **Routes**: `/` catalog · `/mods/<slug>` detail · `/harness` map · `/admin` manage · `/login`
 

@@ -28,6 +28,40 @@ Astro 7 SSR (`output: 'server'`, `@astrojs/node` standalone) + better-auth
 Shared shell: `src/layouts/Base.astro` + `src/components/Header.astro`.
 `src/components/C4Diagram.astro` renders the versioned graph client-side.
 
+## File map
+
+```
+db/schema.ts            drizzle tables: user/session/account/verification, mods, harness_versions
+db/client.ts            better-sqlite3 + drizzle singleton (DATABASE_PATH, default data/app.db)
+src/lib/auth.ts         better-auth instance (drizzle adapter, secret from AUTH_SECRET)
+src/lib/auth-client.ts  browser auth client (sign-in / sign-out)
+src/lib/mods.ts         catalog queries + ModView mapping + slugify
+src/lib/harness.ts      harness snapshot builder + version queries
+src/lib/context.ts      per-turn context token measurement (chars÷4 estimate)
+src/lib/c4.ts           versioned C4 mermaid builder (data/c4/v<N>.mmd artifacts)
+src/lib/observability.ts JSONL access log + Prometheus metrics + trace ring (X-Request-Id)
+data/context-static.txt verbatim static-context sample (base prompt + tool schemas)
+data/c4/v<N>.mmd        versioned C4 artifact per snapshot (LSP loop since v9)
+data/harness-versions.json portable snapshot history (v1..vN, no auth data)
+src/middleware.ts       session via auth.api.getSession; protects /admin;
+                        starts/finishes observability traces (X-Request-Id)
+.pi/extensions/lsp-diagnostics/ pi-only LSP client (diagnostics receipts on edit/write/bash + diagnostics probe)
+.pi/skills/browser-qa/  headless-Playwright sensor + qa.mjs runner
+test/helpers.mjs        suite server conventions (APP_URL or self-booted preview)
+test/app.test.mjs       HTTP seam tests mirroring the qa-flows
+test/lib.test.mjs       unit tests over the pure lib core
+eslint.config.mjs       flat lint config (recommended minus tsc-covered noise)
+.semgrep/rules.yml      earned rules (no absolute-local fetch, no eval)
+.dependency-cruiser.mjs layer rules (routes→lib→db, ops aside, extension isolated)
+scripts/check-secrets.mjs credential-pattern scanner (file:line, never echoes values)
+scripts/qa-flows.mjs    browser behaviour flows (self-boots preview, reaps via preview stop)
+scripts/boot-preview.mjs shared dev/preview boot (qa-flows + thin suite)
+scripts/coupling.mjs    TS-compiler fan-in/fan-out + cycles + dashboard
+scripts/export-versions.mjs / import-versions.mjs portable history round-trip
+scripts/seed.ts         idempotent seed (mods upserted by slug, admin bootstrap, harness v1)
+src/styles/global.css   design tokens + app styles
+```
+
 ## Request pipeline
 
 `src/middleware.ts` → `Astro.locals.session` via `auth.api.getSession` on
