@@ -624,7 +624,7 @@ Load-bearing rule from their lessons: numbers quoted before judgment, legitimate
 Shape of the adoption:
 
 - **Native parsers where they exist** — eslint/semgrep/depcruise run stock machine-readable commands; everything else through one generic default-parser wrapper (exit code is the verdict). No per-sensor parser code written.
-- **Fast slices only** — browser flows, HTTP suite, and coverage stay out (server + minutes; check/CI territory). Stryker is trigger-mode.
+- **Fast slices only** — browser flows, HTTP suite, and Stryker stay out (server + minutes; check/CI territory). Stryker reads the last report on a 5-minute interval (cheap cat; expensive runs manual via npm run mutate, which stops the sidecar first — its socket breaks Stryker sandboxes).
 - **Config + wrapper tracked** (.sensors/harn.sensors.yaml); runtime state ignored by the tool's own .gitignore. Tool configs stay at root (declined her move-under-.sensors convention — check, CI, and docs reference root paths).
 - **Frictions resolved:** Mac-only tool boots on Linux; config mode is triggered not trigger (worker mode shows the real error).
 

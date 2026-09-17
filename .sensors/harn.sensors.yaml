@@ -50,5 +50,6 @@ runners:
   - name: stryker
     parser: stryker
     enabled: true
-    mode: triggered
-    command: npx stryker run --mutate src/lib/mods.ts
+    mode: interval
+    command: cat reports/mutation/mutation.json
+    interval: 300000

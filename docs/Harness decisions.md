@@ -641,15 +641,21 @@ Decisions (2026-09-17 — installed, green on Linux):
    generic wrapper (exit code is the verdict). No per-sensor parser
    code written — her default-schema evolution, applied day one.
 2. **Fast slices only.** typecheck/lint/semgrep/structure/unit/secrets
-   on 60–120s intervals; browser flows, HTTP suite, coverage stay out
-   (server + minutes — `check`/CI territory); Stryker is trigger-mode.
-   The daemon must never become the fan-spin she jokes about.
+   on 60–120s intervals; browser flows, HTTP suite, and coverage stay out
+   (server + minutes; check/CI territory). Stryker reads the last
+   report on a 5-minute interval (cheap `cat`; the expensive run stays
+   manual via `npm run mutate`) — trigger-mode turned out to mean
+   TUI-keypress reruns, wrong shape for this.
 3. **Two frictions, both resolved:** Mac-only tooling booted fine on
    Linux; my first config used `trigger` where the schema wants
    `triggered` (worker mode surfaces the real error — background mode
    swallows it). Tool configs stay at root (her skill says move them
    under `.sensors/` — declined; `check`, CI, and docs reference root
    paths).
+4. **Tool collision, found live:** the daemon's Unix socket breaks
+   Stryker's sandbox copy (`ENXIO` — sockets aren't files). `npm run
+   mutate` stops the sidecar first, runs, restarts it. Sensors that
+   watch each other need a pecking order; now it's encoded, not known.
 4. **Runtime state stays out of git** via the tool's own `.gitignore`
    (sockets, snapshots, history); config + wrapper are tracked. The
    history files are the future failure ledger — tripwire proposal
