@@ -69,19 +69,22 @@ const session = Astro.locals.session;
       {a.mods.length === 0 ? (
         <p class="muted">No mods link here yet.</p>
       ) : (
-        <table class="kv">
-          <tbody>
-            {a.mods.map((m) => (
-              <tr>
-                <td><a href={`/mods/${m.slug}`}>{m.title}</a></td>
-                <td class="small muted">{m.category}</td>
-                <td class="small">
-                  {m.implemented ? '● implemented' : m.wanted ? '○ wanted' : m.considered ? '◐ considered' : '—'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <details>
+          <summary style="cursor:pointer">Show all {a.mods.length} mods</summary>
+          <table class="kv">
+            <tbody>
+              {a.mods.map((m) => (
+                <tr>
+                  <td><a href={`/mods/${m.slug}`}>{m.title}</a></td>
+                  <td class="small muted">{m.category}</td>
+                  <td class="small">
+                    {m.implemented ? '● implemented' : m.wanted ? '○ wanted' : m.considered ? '◐ considered' : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
       )}
     </div>
   ))}
@@ -93,11 +96,14 @@ const session = Astro.locals.session;
       reading program, not necessarily uncovered. Map them by adding the
       article URL to their seed links.
     </p>
-    <p class="small">
-      {unmapped.map((m, i) => (
-        <span>{i > 0 && ' · '}<a href={`/mods/${m.slug}`}>{m.title}</a></span>
-      ))}
-    </p>
+    <details>
+      <summary style="cursor:pointer">Show all {unmapped.length} unmapped mods</summary>
+      <p class="small">
+        {unmapped.map((m, i) => (
+          <span>{i > 0 && ' · '}<a href={`/mods/${m.slug}`}>{m.title}</a></span>
+        ))}
+      </p>
+    </details>
   </div>
 </Base>
 
