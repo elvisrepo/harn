@@ -61,3 +61,10 @@ export function slugify(title: string): string {
     .replace(/^-+|-+$/g, '')
     .slice(0, 80);
 }
+
+// Blank (missing, empty, or whitespace-only) explicit slugs fall back to the
+// title — the admin form posts slug:'' when the field is left empty, and `??`
+// does not catch ''. One helper so POST and PUT cannot diverge.
+export function resolveSlug(slug: string | undefined, title: string): string {
+  return slug?.trim() ? slugify(slug) : slugify(title);
+}

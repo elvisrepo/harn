@@ -109,6 +109,8 @@ enforces). Read `architecture.md` before changing any route/table/flow.
   names, file paths, or harness-specific mechanisms in title/summary/body.
   Status flags (`considered`/`implemented`/`wanted`) and `links` carry the
   local provenance instead.
+  Mod images (`/admin` upload → `/uploads/<uuid>`, bytes in `data/uploads/`)
+  are local-only — gitignored, not mirrored into the seed.
 - Status semantics: `considered` = we evaluated it; `implemented` = live in the
   current harness; `wanted` = on the shortlist.
 - Snapshot flows: when the harness changes (provider/model/token/design

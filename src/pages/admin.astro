@@ -49,6 +49,11 @@ const editingId = Astro.url.searchParams.get('edit');
         Notes / thoughts (markdown)
         <textarea name="body" rows="8" placeholder="What is it, and what are our thoughts?"></textarea>
       </label>
+      <div class="full" style="display: flex; gap: 0.6rem; align-items: center">
+        <input type="file" id="imgFile" accept="image/png,image/jpeg,image/gif,image/webp" />
+        <button class="btn ghost" type="button" id="imgBtn">Upload & insert image</button>
+        <span id="imgStatus" class="muted small"></span>
+      </div>
       <label class="full">
         Tags (comma separated)
         <input type="text" name="tags" autocomplete="off" />
@@ -218,6 +223,32 @@ const editingId = Astro.url.searchParams.get('edit');
   }
 
   document.getElementById('resetBtn')!.addEventListener('click', resetForm);
+
+  document.getElementById('imgBtn')!.addEventListener('click', async () => {
+    const status = document.getElementById('imgStatus')!;
+    const picker = document.getElementById('imgFile') as HTMLInputElement;
+    const file = picker.files?.[0];
+    if (!file) {
+      status.textContent = 'Pick an image file first';
+      return;
+    }
+    status.textContent = 'Uploading…';
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch('/api/mod-images', { method: 'POST', body: fd });
+    const out = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+    if (!res.ok || !out.url) {
+      status.textContent = `Upload failed: ${out.error ?? res.status}`;
+      return;
+    }
+    const ta = form.elements.namedItem('body') as HTMLTextAreaElement;
+    const tag = `![${file.name}](${out.url})`;
+    const { selectionStart: s = ta.value.length, selectionEnd: e = ta.value.length } = ta;
+    ta.value = `${ta.value.slice(0, s)}${tag}\n${ta.value.slice(e)}`;
+    ta.focus();
+    status.textContent = 'Inserted ✓';
+    setTimeout(() => (status.textContent = ''), 4000);
+  });
 
   document.querySelectorAll<HTMLButtonElement>('[data-edit]').forEach((btn) => {
     btn.addEventListener('click', () => {

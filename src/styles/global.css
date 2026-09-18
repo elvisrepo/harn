@@ -559,6 +559,11 @@ button.btn.danger:hover {
 .prose p {
   margin: 0.6em 0;
 }
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
 .prose pre {
   background: #0f1216;
   border: 1px solid var(--border);

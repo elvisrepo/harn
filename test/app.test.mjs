@@ -22,8 +22,7 @@ describe('catalog', () => {
     assert.match(await res.text(), /Harness Mods/);
   });
 
-  it('GET /api/mods lists a coherent catalog', async () => {
-    const res = await fetch(`${BASE}/api/mods`);
+  it('GET /api/mods lists a coherent catalog', async () => {    const res = await fetch(`${BASE}/api/mods`);
     assert.equal(res.status, 200);
     const mods = await json(res);
     assert.ok(Array.isArray(mods) && mods.length >= 20, `expected 20+ mods, got ${mods.length}`);
@@ -161,6 +160,17 @@ describe('fuzz (never 500 on hostile input)', () => {
     }
   });
 
+  it('POST /api/mod-images unauthenticated → 401, not 500', async () => {
+    const fd = new FormData();
+    fd.append('image', new Blob(['x'], { type: 'image/png' }), 'x.png');
+    const res = await fetch(`${BASE}/api/mod-images`, {
+      method: 'POST',
+      headers: { origin: BASE },
+      body: fd,
+    });
+    assert.equal(res.status, 401);
+  });
+
   it('POST /api/harness-versions unauthenticated with garbage → 4xx, not 500', async () => {
     const res = await fetch(`${BASE}/api/harness-versions`, {
       method: 'POST',
@@ -192,5 +202,55 @@ describe('observability', () => {
     const body = await res.text();
     assert.match(body, /harn_requests_total \d+/);
     assert.match(body, /harn_request_duration_ms_p50 \d+/);
+  });
+});
+
+describe('mod images (upload → serve → delete)', { skip: !hasAdminCreds() }, () => {
+  // 1x1 transparent png
+  const PIXEL = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    'base64',
+  );
+  it('round-trips an image and renders it in mod markdown', async () => {
+    const j = jar();
+    const signin = await fetch(`${BASE}/api/auth/sign-in/email`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', origin: BASE },
+      body: JSON.stringify({ email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD }),
+    });
+    assert.equal(signin.status, 200);
+    j.capture(signin);
+    const auth = { cookie: j.header(), origin: BASE };
+
+    const up = await fetch(`${BASE}/api/mod-images`, {
+      method: 'POST',
+      headers: auth,
+      body: (() => {
+        const fd = new FormData();
+        fd.append('image', new Blob([PIXEL], { type: 'image/png' }), 'pixel.png');
+        return fd;
+      })(),
+    });
+    assert.equal(up.status, 201);
+    const { url } = await up.json();
+    assert.match(url, /^\/uploads\/[0-9a-f-]{36}\.png$/);
+
+    const img = await fetch(`${BASE}${url}`);
+    assert.equal(img.status, 200);
+    assert.match(img.headers.get('content-type') ?? '', /image\/png/);
+
+    const del = await fetch(`${BASE}/api/mod-images?name=${encodeURIComponent(url.split('/').pop())}`, {
+      method: 'DELETE',
+      headers: auth,
+    });
+    assert.equal(del.status, 200);
+    const gone = await fetch(`${BASE}${url}`);
+    assert.equal(gone.status, 404);
+
+    await fetch(`${BASE}/api/auth/sign-out`, {
+      method: 'POST',
+      headers: { ...auth, 'content-type': 'application/json' },
+      body: '{}',
+    });
   });
 });

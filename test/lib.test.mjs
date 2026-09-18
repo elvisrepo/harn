@@ -5,7 +5,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildC4Graph, c4HlLabels } from '../src/lib/c4.ts';
-import { slugify, toView } from '../src/lib/mods.ts';
+import { resolveSlug, slugify, toView } from '../src/lib/mods.ts';
 import { estimateTokens } from '../src/lib/context.ts';
 import { parseMod, parseVersion } from '../src/lib/parse.ts';
 
@@ -20,6 +20,17 @@ describe('slugify', () => {
   for (const [title, want] of cases) {
     it(JSON.stringify(title).slice(0, 40), () => assert.equal(slugify(title), want));
   }
+});
+
+describe('resolveSlug', () => {
+  it('blank explicit slug falls back to the title (admin posts slug:"")', () => {
+    assert.equal(resolveSlug('', 'Repo - Single Source of Truth'), 'repo-single-source-of-truth');
+    assert.equal(resolveSlug('   ', 'Some Title'), 'some-title');
+    assert.equal(resolveSlug(undefined, 'Some Title'), 'some-title');
+  });
+  it('explicit slug wins when present', () => {
+    assert.equal(resolveSlug('custom-slug', 'Some Title'), 'custom-slug');
+  });
 });
 
 describe('toView', () => {

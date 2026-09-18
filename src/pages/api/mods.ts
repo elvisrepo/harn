@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { eq } from 'drizzle-orm';
 import { auth } from '../../lib/auth.ts';
 import { db, schema } from '../../../db/client.ts';
-import { slugify } from '../../lib/mods.ts';
+import { resolveSlug } from '../../lib/mods.ts';
 import { parseMod } from '../../lib/parse.ts';
 
 function ok(data: unknown, status = 200) {
@@ -40,7 +40,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (!title) return fail('title is required');
 
   const now = Date.now();
-  const slug = slugify(input.slug ?? title);
+  const slug = resolveSlug(input.slug, title);
   const existing = await db.query.mods.findFirst({ where: (m, { eq }) => eq(m.slug, slug) });
   if (existing) {
     return fail(`A mod with slug "${slug}" already exists (edit it instead)`, 409);
@@ -77,7 +77,7 @@ export const PUT: APIRoute = async ({ request }) => {
   if (!existing) return fail('Mod not found', 404);
 
   const title = (input.title ?? existing.title).trim();
-  const slug = slugify(input.slug ?? title);
+  const slug = resolveSlug(input.slug, title);
   const dup = await db.query.mods.findFirst({
     where: (m, { eq, and, ne }) => and(eq(m.slug, slug), ne(m.id, existing.id)),
   });
