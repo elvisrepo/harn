@@ -169,7 +169,7 @@ const session = Astro.locals.session;
           lab.className = 'plab';
           if (it.t === 'div') {
             li.classList.add('divider');
-            lab.textContent = '- - - - - - -';
+            lab.remove();
           } else if (it.t === 'slug') {
             const a = document.createElement('a');
             a.href = `/mods/${it.id}`;
@@ -187,21 +187,18 @@ const session = Astro.locals.session;
             }
           }
           li.appendChild(lab);
-          const mk = (glyph, title, fn, disabled) => {
+          const mk = (glyph, title, fn) => {
             const b = document.createElement('button');
             b.className = 'mini';
             b.textContent = glyph;
             b.title = title;
             b.setAttribute('aria-label', title);
-            if (disabled) b.setAttribute('disabled', '');
-            else b.addEventListener('click', fn);
+            b.addEventListener('click', fn);
             return b;
           };
           const ctl = document.createElement('span');
           ctl.className = 'pctl';
-          ctl.appendChild(mk('∧', 'Move up', () => move(pos, -1), pos === 0));
-          ctl.appendChild(mk('∨', 'Move down', () => move(pos, 1), pos === items.length - 1));
-          ctl.appendChild(mk('✕', 'Remove', () => removeAt(pos), false));
+          ctl.appendChild(mk('✕', 'Remove', () => removeAt(pos)));
           li.appendChild(ctl);
           li.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', String(pos));
@@ -235,14 +232,6 @@ const session = Astro.locals.session;
         b.textContent = on ? '★' : '☆';
         b.classList.toggle('on', on);
       });
-    };
-    const move = (pos, dir) => {
-      const items = loadAll();
-      const j = pos + dir;
-      if (j < 0 || j >= items.length) return;
-      [items[pos], items[j]] = [items[j], items[pos]];
-      saveAll(items);
-      paint();
     };
     const removeAt = (pos) => {
       const items = loadAll();
