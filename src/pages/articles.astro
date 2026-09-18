@@ -63,9 +63,14 @@ const session = Astro.locals.session;
   <div class="card">
     <h2 style="margin-top:0">Preferred mods</h2>
     <p class="muted small" style="margin:.3rem 0 .8rem">
-      Your shortlist — starred below, kept in this browser only.
+      Your shortlist — starred below, or your own entries. Kept in this browser only.
     </p>
     <p class="small" id="preferred"><span class="muted">No preferred mods yet — star any mod below.</span></p>
+    <form id="custom-pref" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem">
+      <input id="cp-name" type="text" placeholder="Mod name (e.g. Definition of Done)" maxlength="80" style="flex:2;min-width:180px" />
+      <input id="cp-note" type="text" placeholder="Description…" maxlength="280" style="flex:3;min-width:220px" />
+      <button type="submit">Add</button>
+    </form>
   </div>
 
   {withArticles.map((a) => (
@@ -119,6 +124,7 @@ const session = Astro.locals.session;
     const idx = JSON.parse(document.getElementById('mod-index').textContent || '[]');
     const bySlug = Object.fromEntries(idx.map((m) => [m.slug, m.title]));
     const KEY = 'preferred-mods';
+    const CKEY = 'preferred-custom';
     const load = () => {
       try {
         const v = JSON.parse(localStorage.getItem(KEY) || '[]');
@@ -127,20 +133,62 @@ const session = Astro.locals.session;
         return [];
       }
     };
-    const save = (slugs) => localStorage.setItem(KEY, JSON.stringify(slugs));
+    const loadCustom = () => {
+      try {
+        const v = JSON.parse(localStorage.getItem(CKEY) || '[]');
+        return Array.isArray(v)
+          ? v.filter((e) => e && typeof e.name === 'string' && e.name.trim()).slice(0, 50)
+          : [];
+      } catch {
+        return [];
+      }
+    };
+    const saveCustom = (list) => localStorage.setItem(CKEY, JSON.stringify(list));
+    const escHtml = (s) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const paint = () => {
       const slugs = load();
+      const customs = loadCustom();
+      const parts = slugs.map((s) => `<a href="/mods/${s}">${bySlug[s]}</a>`);
+      customs.forEach((e, i) => {
+        parts.push(
+          `<span title="${escHtml(e.note || '')}"><strong>${escHtml(e.name)}</strong>` +
+            (e.note ? ` — <span class="muted">${escHtml(e.note)}</span>` : '') +
+            ` <button class="star on" data-custom="${i}" title="Remove" aria-label="Remove ${escHtml(e.name)}">★</button></span>`,
+        );
+      });
       const box = document.getElementById('preferred');
-      box.innerHTML = slugs.length
-        ? slugs.map((s, i) => `${i > 0 ? ' · ' : ''}<a href="/mods/${s}">${bySlug[s]}</a>`).join('')
+      box.innerHTML = parts.length
+        ? parts.join(' · ')
         : '<span class="muted">No preferred mods yet — star any mod below.</span>';
-      document.querySelectorAll('button.star').forEach((b) => {
+      document.querySelectorAll('#preferred button.star').forEach((b) =>
+        b.addEventListener('click', () => {
+          const list = loadCustom();
+          list.splice(Number(b.dataset.custom), 1);
+          saveCustom(list);
+          paint();
+        }),
+      );
+      document.querySelectorAll('button.star[data-slug]').forEach((b) => {
         const on = slugs.includes(b.dataset.slug);
         b.textContent = on ? '★' : '☆';
         b.classList.toggle('on', on);
       });
     };
-    document.querySelectorAll('button.star').forEach((b) =>
+    document.querySelector('form#custom-pref').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('cp-name').value.trim();
+      const note = document.getElementById('cp-note').value.trim();
+      if (!name) return;
+      const list = loadCustom();
+      list.push({ name: name.slice(0, 80), note: note.slice(0, 280) });
+      saveCustom(list);
+      document.getElementById('cp-name').value = '';
+      document.getElementById('cp-note').value = '';
+      paint();
+    });
+    const save = (slugs) => localStorage.setItem(KEY, JSON.stringify(slugs));
+    document.querySelectorAll('button.star[data-slug]').forEach((b) =>
       b.addEventListener('click', () => {
         const slugs = load();
         const i = slugs.indexOf(b.dataset.slug);
