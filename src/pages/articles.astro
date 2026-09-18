@@ -70,6 +70,7 @@ const session = Astro.locals.session;
       <input id="cp-name" type="text" placeholder="Mod name (e.g. Definition of Done)" maxlength="80" style="flex:2;min-width:180px" />
       <input id="cp-note" type="text" placeholder="Description…" maxlength="280" style="flex:3;min-width:220px" />
       <button type="submit">Add</button>
+      <button type="button" id="cp-div" title="Add a separator line (must-mods above, strong consideration below)">+ divider</button>
     </form>
   </div>
 
@@ -125,78 +126,153 @@ const session = Astro.locals.session;
     const bySlug = Object.fromEntries(idx.map((m) => [m.slug, m.title]));
     const KEY = 'preferred-mods';
     const CKEY = 'preferred-custom';
-    const load = () => {
+    const UKEY = 'preferred-order';
+    // Unified ordered store (v2). Migrates the old two-key shape once.
+    const loadAll = () => {
+      try {
+        const v = JSON.parse(localStorage.getItem(UKEY) || 'null');
+        if (Array.isArray(v))
+          return v.filter(
+            (it) => it && (it.t === 'div' || (it.t === 'slug' ? bySlug[it.id] : typeof it.name === 'string')),
+          );
+      } catch {
+        /* fall through to migration */
+      }
+      let slugs = [];
+      let customs = [];
       try {
         const v = JSON.parse(localStorage.getItem(KEY) || '[]');
-        return Array.isArray(v) ? v.filter((s) => typeof s === 'string' && bySlug[s]) : [];
-      } catch {
-        return [];
-      }
-    };
-    const loadCustom = () => {
+        if (Array.isArray(v)) slugs = v.filter((s) => typeof s === 'string' && bySlug[s]);
+      } catch { /* ignore */ }
       try {
         const v = JSON.parse(localStorage.getItem(CKEY) || '[]');
-        return Array.isArray(v)
-          ? v.filter((e) => e && typeof e.name === 'string' && e.name.trim()).slice(0, 50)
-          : [];
-      } catch {
-        return [];
-      }
+        if (Array.isArray(v))
+          customs = v.filter((e) => e && typeof e.name === 'string').map((e) => ({ t: 'custom', name: e.name.slice(0, 80), note: (e.note || '').slice(0, 280) }));
+      } catch { /* ignore */ }
+      return [...slugs.map((id) => ({ t: 'slug', id })), ...customs];
     };
-    const saveCustom = (list) => localStorage.setItem(CKEY, JSON.stringify(list));
-    const escHtml = (s) =>
-      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const saveAll = (items) => localStorage.setItem(UKEY, JSON.stringify(items.slice(0, 100)));
     const paint = () => {
-      const slugs = load();
-      const customs = loadCustom();
-      const parts = slugs.map((s) => `<a href="/mods/${s}">${bySlug[s]}</a>`);
-      customs.forEach((e, i) => {
-        parts.push(
-          `<span title="${escHtml(e.note || '')}"><strong>${escHtml(e.name)}</strong>` +
-            (e.note ? ` — <span class="muted">${escHtml(e.note)}</span>` : '') +
-            ` <button class="star on" data-custom="${i}" title="Remove" aria-label="Remove ${escHtml(e.name)}">★</button></span>`,
-        );
-      });
+      const items = loadAll();
+      const slugs = items.filter((it) => it.t === 'slug').map((it) => it.id);
       const box = document.getElementById('preferred');
-      box.innerHTML = parts.length
-        ? parts.join(' · ')
-        : '<span class="muted">No preferred mods yet — star any mod below.</span>';
-      document.querySelectorAll('#preferred button.star').forEach((b) =>
-        b.addEventListener('click', () => {
-          const list = loadCustom();
-          list.splice(Number(b.dataset.custom), 1);
-          saveCustom(list);
-          paint();
-        }),
-      );
+      if (!items.length) {
+        box.innerHTML = '<span class="muted">No preferred mods yet — star any mod below.</span>';
+      } else {
+        const ol = document.createElement('ol');
+        ol.className = 'preflist';
+        items.forEach((it, pos) => {
+          const li = document.createElement('li');
+          li.setAttribute('draggable', 'true');
+          li.dataset.pos = String(pos);
+          if (it.t === 'div') {
+            li.className = 'divider';
+            li.appendChild(document.createTextNode('- - - - - - -'));
+          } else if (it.t === 'slug') {
+            const a = document.createElement('a');
+            a.href = `/mods/${it.id}`;
+            a.textContent = bySlug[it.id];
+            li.appendChild(a);
+          } else {
+            const strong = document.createElement('strong');
+            strong.textContent = it.name;
+            li.appendChild(strong);
+            if (it.note) {
+              const span = document.createElement('span');
+              span.className = 'muted';
+              span.textContent = ` — ${it.note}`;
+              li.appendChild(span);
+            }
+          }
+          const mk = (glyph, title, fn, disabled) => {
+            const b = document.createElement('button');
+            b.className = 'mini';
+            b.textContent = glyph;
+            b.title = title;
+            b.setAttribute('aria-label', title);
+            if (disabled) b.setAttribute('disabled', '');
+            else b.addEventListener('click', fn);
+            return b;
+          };
+          li.appendChild(document.createTextNode(' '));
+          li.appendChild(mk('∧', 'Move up', () => move(pos, -1), pos === 0));
+          li.appendChild(mk('∨', 'Move down', () => move(pos, 1), pos === items.length - 1));
+          li.appendChild(mk('✕', 'Remove', () => removeAt(pos), false));
+          li.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', String(pos));
+            e.dataTransfer.effectAllowed = 'move';
+            li.classList.add('dragging');
+          });
+          li.addEventListener('dragend', () => li.classList.remove('dragging'));
+          li.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            li.classList.add('dragover');
+          });
+          li.addEventListener('dragleave', () => li.classList.remove('dragover'));
+          li.addEventListener('drop', (e) => {
+            e.preventDefault();
+            li.classList.remove('dragover');
+            const from = Number(e.dataTransfer.getData('text/plain'));
+            if (Number.isNaN(from) || from === pos) return;
+            const list = loadAll();
+            const [moved] = list.splice(from, 1);
+            list.splice(pos, 0, moved);
+            saveAll(list);
+            paint();
+          });
+          ol.appendChild(li);
+        });
+        box.replaceChildren(ol);
+      }
       document.querySelectorAll('button.star[data-slug]').forEach((b) => {
         const on = slugs.includes(b.dataset.slug);
         b.textContent = on ? '★' : '☆';
         b.classList.toggle('on', on);
       });
     };
+    const move = (pos, dir) => {
+      const items = loadAll();
+      const j = pos + dir;
+      if (j < 0 || j >= items.length) return;
+      [items[pos], items[j]] = [items[j], items[pos]];
+      saveAll(items);
+      paint();
+    };
+    const removeAt = (pos) => {
+      const items = loadAll();
+      items.splice(pos, 1);
+      saveAll(items);
+      paint();
+    };
+    const toggleSlug = (slug) => {
+      const items = loadAll();
+      const i = items.findIndex((it) => it.t === 'slug' && it.id === slug);
+      if (i >= 0) items.splice(i, 1);
+      else items.push({ t: 'slug', id: slug });
+      saveAll(items);
+      paint();
+    };
     document.querySelector('form#custom-pref').addEventListener('submit', (e) => {
       e.preventDefault();
       const name = document.getElementById('cp-name').value.trim();
       const note = document.getElementById('cp-note').value.trim();
       if (!name) return;
-      const list = loadCustom();
-      list.push({ name: name.slice(0, 80), note: note.slice(0, 280) });
-      saveCustom(list);
+      const items = loadAll();
+      items.push({ t: 'custom', name: name.slice(0, 80), note: note.slice(0, 280) });
+      saveAll(items);
       document.getElementById('cp-name').value = '';
       document.getElementById('cp-note').value = '';
       paint();
     });
-    const save = (slugs) => localStorage.setItem(KEY, JSON.stringify(slugs));
+    document.getElementById('cp-div').addEventListener('click', () => {
+      const items = loadAll();
+      items.push({ t: 'div' });
+      saveAll(items);
+      paint();
+    });
     document.querySelectorAll('button.star[data-slug]').forEach((b) =>
-      b.addEventListener('click', () => {
-        const slugs = load();
-        const i = slugs.indexOf(b.dataset.slug);
-        if (i >= 0) slugs.splice(i, 1);
-        else slugs.push(b.dataset.slug);
-        save(slugs);
-        paint();
-      }),
+      b.addEventListener('click', () => toggleSlug(b.dataset.slug)),
     );
     paint();
   </script>
@@ -298,6 +374,52 @@ const session = Astro.locals.session;
   }
   button.star.on {
     color: var(--accent, #a06a15);
+  }
+  /* preferred shortlist: one per row, reorderable */
+  ol.preflist {
+    margin: 0.4rem 0 0;
+    padding-left: 1.4rem;
+  }
+  ol.preflist li {
+    margin: 0.25rem 0;
+  }
+  ol.preflist li.divider {
+    list-style: none;
+    text-align: center;
+    color: var(--dim, #5f6670);
+    letter-spacing: 0.3em;
+    border-top: 1px dashed var(--border, #cfc8ba);
+    padding-top: 0.3rem;
+    cursor: grab;
+  }
+  ol.preflist li[draggable="true"] {
+    cursor: grab;
+  }
+  ol.preflist li.dragging {
+    opacity: 0.4;
+  }
+  ol.preflist li.dragover {
+    outline: 2px solid var(--accent, #a06a15);
+    outline-offset: 2px;
+  }
+  button.mini {
+    background: none;
+    border: 1px solid var(--border, #cfc8ba);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--dim, #5f6670);
+    padding: 0 0.35rem;
+    margin-left: 0.25rem;
+    font-family: inherit;
+  }
+  button.mini:hover {
+    color: var(--text, #1c1e23);
+    border-color: var(--accent, #a06a15);
+  }
+  button.mini[disabled] {
+    opacity: 0.3;
+    cursor: default;
   }
   /* row-width reading overlay (fetched on hover, cached) */
   #modreader {
