@@ -28,6 +28,12 @@ const articles: Article[] = [
     key: 'openai.com/index/harness-engineering',
     blurb: 'Agent-first at scale: legibility, invariants-not-implementations, garbage collection. Our newest lens — observability, direction notes, and boundary parsing trace to it.',
   },
+  {
+    title: 'Lecture 01. Strong Models Don’t Mean Reliable Execution',
+    url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/',
+    key: 'lecture-01-why-capable-agents-still-fail',
+    blurb: 'WalkingLabs harness course: capability ≠ reliability, five failure layers, Definition of Done per task, fix-the-harness-first. Gave us DoD, verification-gap, and context-anxiety mods.',
+  },
 ];
 
 function linksOf(m: ModView): { label: string; url: string }[] {
@@ -120,8 +126,8 @@ const session = Astro.locals.session;
     </details>
   </div>
 
-  <script type="application/json" id="mod-index" set:html={JSON.stringify(mods.map((m) => ({ slug: m.slug, title: m.title }))).replace(/</g, '\\u003c')}></script>
-  <script>
+  <script is:inline type="application/json" id="mod-index" set:html={JSON.stringify(mods.map((m) => ({ slug: m.slug, title: m.title }))).replace(/</g, '\\u003c')}></script>
+  <script is:inline>
     const idx = JSON.parse(document.getElementById('mod-index').textContent || '[]');
     const bySlug = Object.fromEntries(idx.map((m) => [m.slug, m.title]));
     const KEY = 'preferred-mods';
@@ -277,7 +283,7 @@ const session = Astro.locals.session;
     </div>
     <div id="mr-body" class="prose"></div>
   </div>
-  <script>
+  <script is:inline>
     // Full-body reader: hover a mod link → fetch its page once, show the
     // rendered prose in a fixed panel. Cached per slug; CSS tooltip above
     // covers the instant summary while loading.

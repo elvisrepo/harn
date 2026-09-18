@@ -616,6 +616,60 @@ Load-bearing rule from their lessons: numbers quoted before judgment, legitimate
     ],
   },
   {
+    title: 'Definition of Done',
+    category: 'Workflow',
+    summary: 'Lecture-01 rule: every task ships with completion criteria a command can verify — no vibes-based done.',
+    body: `Without an explicit Definition of Done, the agent invents its own ("looks fine") — the verification gap, the most common failure mode. Standing gates (CI, lint, typecheck) are not enough; each task needs its own completion criteria, verifiable by command where possible.
+
+The form: state Done-means before starting, declare done only when a command confirms it. Canonical example — spell it out, don't say "add a search feature":
+
+> Completion criteria:
+> - New endpoint GET /api/search?q=xxx
+> - Supports pagination, default 20 items
+> - Results include highlighted snippets
+> - All new code passes pytest
+> - Type checking passes (mypy --strict)
+
+Each line names something a command can confirm. Translate the runners to your stack — whatever test runner, typechecker, and contract assertions you use. The form is the point, not the tools.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['definition-of-done', 'completion', 'verification', 'workflow'],
+    links: [
+      { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
+    ],
+  },
+  {
+    title: 'Verification gap log',
+    category: 'Tooling',
+    summary: 'Lecture-01 exercise as instrument: sample tasks, record claimed-done vs actually-done — the one metric for whether verification works.',
+    body: `After each task, record whether the agent claimed completion, then verify independently. The proportion of false-dones is your verification gap — the single number that says whether the verification layer functions.
+
+Start manual: one log line per task (claimed-done + independent verdict), gap ratio over a window, beginning with any task where "done" felt cheap. Instrument later: append results automatically from your checks, review the ratio on a cadence, and treat a widening gap as the signal to strengthen verification. This sensor reports on the sensors themselves — build it the day a false-done slips through green.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['verification-gap', 'metrics', 'validation'],
+    links: [
+      { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
+    ],
+  },
+  {
+    title: 'Context-anxiety discipline',
+    category: 'Knowledge',
+    summary: 'Lecture-01 failure mode: agents rush and skip verification when context runs low — watch the tokens, restart fresh, never economize on checks.',
+    body: `When agents sense context running low, they rush to finish — skipping verification, choosing simple over optimal. Name context anxiety as a failure mode rather than suffering it as bad luck.
+
+Discipline: track context usage per turn so the pressure is visible; prefer a fresh session over pushing a long one; treat compaction summaries as lossy by design — re-verify, don't trust; verification steps are never the thing to cut to "save" context. Optionally automate the nudge: warn when a session's context passes a threshold and suggest a restart.`,
+    considered: true,
+    implemented: true,
+    wanted: false,
+    tags: ['context', 'sessions', 'verification', 'discipline'],
+    links: [
+      { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
+    ],
+  },
+  {
     title: 'Sensors sidecar',
     category: 'Tooling',
     summary: 'Her continuous daemon, adopted whole: 6 fast sensors on intervals with native/default parsers, agent summary via sensors check; heavies excluded, Stryker triggered.',
@@ -855,13 +909,16 @@ Explicitly out of scope: continuous log-anomaly judges — no runtime users, no 
 
 Gap: the loop is human-triggered — recurrence is noticed by a person, then encoded. Nothing counts repetitions, so the "second occurrence" (lint) and "third occurrence" (codemod) triggers assume someone is counting.
 
-Proposed mechanism (wanted, ~1 hour, zero deps): a failure ledger — check appends each sensor failure as one JSONL line (date, step, class, file) to data/failures.jsonl — plus a warn-only scripts/steering-review.mjs that counts classes in a window and prints rule candidates ("login flow failed 3rd time in 14 days — encode the bar?"). Thresholds mirror the existing rules (2 for lint-class, 3 for mechanical edits). Warn-only until the signal proves itself; a tripwire that cries wolf trains disregard, same as a noisy sensor.`,
+Proposed mechanism (wanted, ~1 hour, zero deps): a failure ledger — check appends each sensor failure as one JSONL line (date, step, class, file) to data/failures.jsonl — plus a warn-only scripts/steering-review.mjs that counts classes in a window and prints rule candidates ("login flow failed 3rd time in 14 days — encode the bar?"). Thresholds mirror the existing rules (2 for lint-class, 3 for mechanical edits). Warn-only until the signal proves itself; a tripwire that cries wolf trains disregard, same as a noisy sensor.
+
+Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Work through the five layers systematically — task not clearly defined, insufficient context, misconfigured environment, missing verification, loss of state between sessions. Attribution first, fix second: each layer points at a different control (spec, context budget, env parity, check gates, session discipline), and guessing the layer is how fixes land in the wrong place.`,
     considered: true,
     implemented: true,
     wanted: true,
     tags: ['steering-loop', 'meta', 'repetition', 'tripwire'],
     links: [
       { label: 'article — steering loop', url: 'https://martinfowler.com/articles/harness-engineering.html' },
+      { label: 'lecture 01 — five layers', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
       { label: 'decisions journal', url: 'docs/Harness decisions.md' },
     ],
   },

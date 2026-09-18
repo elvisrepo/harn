@@ -105,6 +105,10 @@ enforces). Read `architecture.md` before changing any route/table/flow.
   list in `scripts/seed.ts`. Slug must be unique — auto-generated from title.
   **Catalog is code**: any mod edit made through the `/admin` UI must be
   mirrored into `scripts/seed.ts`, or the next `db:seed` reverts it.
+  **Mods are portable**: describe the practice, not this project — no stack
+  names, file paths, or harness-specific mechanisms in title/summary/body.
+  Status flags (`considered`/`implemented`/`wanted`) and `links` carry the
+  local provenance instead.
 - Status semantics: `considered` = we evaluated it; `implemented` = live in the
   current harness; `wanted` = on the shortlist.
 - Snapshot flows: when the harness changes (provider/model/token/design

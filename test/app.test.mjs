@@ -39,11 +39,11 @@ describe('catalog', () => {
 });
 
 describe('articles', () => {
-  it('GET /articles lists the three papers with linked mods', async () => {
+  it('GET /articles lists the papers with linked mods', async () => {
     const res = await fetch(`${BASE}/articles`);
     assert.equal(res.status, 200);
     const html = await res.text();
-    for (const s of ['harness-engineering', 'sensors-for-coding-agents', 'openai.com/index/harness-engineering', 'Not yet mapped']) {
+    for (const s of ['harness-engineering', 'sensors-for-coding-agents', 'openai.com/index/harness-engineering', 'lecture-01-why-capable-agents-still-fail', 'Not yet mapped']) {
       assert.match(html, new RegExp(s.replace(/[./]/g, (c) => `\\${c}`)));
     }
   });
