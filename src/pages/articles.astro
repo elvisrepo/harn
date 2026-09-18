@@ -165,25 +165,28 @@ const session = Astro.locals.session;
           const li = document.createElement('li');
           li.setAttribute('draggable', 'true');
           li.dataset.pos = String(pos);
+          const lab = document.createElement('span');
+          lab.className = 'plab';
           if (it.t === 'div') {
-            li.className = 'divider';
-            li.appendChild(document.createTextNode('- - - - - - -'));
+            li.classList.add('divider');
+            lab.textContent = '- - - - - - -';
           } else if (it.t === 'slug') {
             const a = document.createElement('a');
             a.href = `/mods/${it.id}`;
             a.textContent = bySlug[it.id];
-            li.appendChild(a);
+            lab.appendChild(a);
           } else {
             const strong = document.createElement('strong');
             strong.textContent = it.name;
-            li.appendChild(strong);
+            lab.appendChild(strong);
             if (it.note) {
               const span = document.createElement('span');
               span.className = 'muted';
               span.textContent = ` — ${it.note}`;
-              li.appendChild(span);
+              lab.appendChild(span);
             }
           }
+          li.appendChild(lab);
           const mk = (glyph, title, fn, disabled) => {
             const b = document.createElement('button');
             b.className = 'mini';
@@ -194,10 +197,12 @@ const session = Astro.locals.session;
             else b.addEventListener('click', fn);
             return b;
           };
-          li.appendChild(document.createTextNode(' '));
-          li.appendChild(mk('∧', 'Move up', () => move(pos, -1), pos === 0));
-          li.appendChild(mk('∨', 'Move down', () => move(pos, 1), pos === items.length - 1));
-          li.appendChild(mk('✕', 'Remove', () => removeAt(pos), false));
+          const ctl = document.createElement('span');
+          ctl.className = 'pctl';
+          ctl.appendChild(mk('∧', 'Move up', () => move(pos, -1), pos === 0));
+          ctl.appendChild(mk('∨', 'Move down', () => move(pos, 1), pos === items.length - 1));
+          ctl.appendChild(mk('✕', 'Remove', () => removeAt(pos), false));
+          li.appendChild(ctl);
           li.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', String(pos));
             e.dataTransfer.effectAllowed = 'move';
@@ -380,44 +385,70 @@ const session = Astro.locals.session;
     margin: 0.4rem 0 0;
     padding-left: 1.4rem;
   }
-  ol.preflist li {
+  /* preferred shortlist: one per row, reorderable.
+     :global — rows are JS-created at runtime, so Astro's scoped
+     attributes never reach them; these selectors must stay global. */
+  :global(ol.preflist li) {
     margin: 0.25rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
-  ol.preflist li.divider {
+  :global(ol.preflist .plab) {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  :global(ol.preflist .pctl) {
+    flex: none;
+    display: inline-flex;
+    gap: 0.25rem;
+  }
+  :global(ol.preflist li.divider) {
     list-style: none;
-    text-align: center;
     color: var(--dim, #5f6670);
     letter-spacing: 0.3em;
     border-top: 1px dashed var(--border, #cfc8ba);
     padding-top: 0.3rem;
     cursor: grab;
   }
-  ol.preflist li[draggable="true"] {
+  :global(ol.preflist li.divider .plab) {
+    text-align: center;
+  }
+  :global(ol.preflist li[draggable="true"]) {
     cursor: grab;
   }
-  ol.preflist li.dragging {
+  :global(ol.preflist li.dragging) {
     opacity: 0.4;
   }
-  ol.preflist li.dragover {
+  :global(ol.preflist li.dragover) {
     outline: 2px solid var(--accent, #a06a15);
     outline-offset: 2px;
   }
-  button.mini {
-    background: none;
+  :global(button.mini) {
+    background: var(--surface, #fff);
     border: 1px solid var(--border, #cfc8ba);
-    border-radius: 6px;
+    border-radius: 999px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    line-height: 1;
     color: var(--dim, #5f6670);
-    padding: 0 0.35rem;
-    margin-left: 0.25rem;
+    width: 1.7rem;
+    height: 1.7rem;
+    padding: 0;
     font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  button.mini:hover {
-    color: var(--text, #1c1e23);
+  :global(button.mini:hover) {
+    color: var(--accent, #a06a15);
     border-color: var(--accent, #a06a15);
+    background: color-mix(in srgb, var(--accent, #a06a15) 10%, transparent);
   }
-  button.mini[disabled] {
+  :global(button.mini[disabled]) {
     opacity: 0.3;
     cursor: default;
   }

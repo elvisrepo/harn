@@ -98,7 +98,11 @@ shapes are pinned by tests.
 
 ## Client-side JS
 
-In-page scripts (catalog filter, mermaid render, admin form). Design tokens
+In-page scripts (catalog filter, mermaid render, admin form). **Astro
+`<style>` blocks are scoped to compile-time markup: DOM nodes created at
+runtime by page scripts never get the scope attribute, so their CSS must
+use `:global(...)` selectors** (earned: the Preferred list rendered
+unstyled until its rules went global). Design tokens
 live only in `src/styles/global.css` (dark block + light override) — the C4
 diagram reads them at runtime; they are not snapshot data.
 
