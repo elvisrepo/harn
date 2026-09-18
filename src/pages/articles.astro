@@ -152,6 +152,80 @@ const session = Astro.locals.session;
     );
     paint();
   </script>
+  <div id="modreader" hidden>
+    <div class="mr-head">
+      <strong id="mr-title"></strong>
+      <span><a id="mr-open" href="#">open ↗</a> <button class="mr-close" id="mr-close" aria-label="Close">✕</button></span>
+    </div>
+    <div id="mr-body" class="prose"></div>
+  </div>
+  <script>
+    // Full-body reader: hover a mod link → fetch its page once, show the
+    // rendered prose in a fixed panel. Cached per slug; CSS tooltip above
+    // covers the instant summary while loading.
+    const reader = document.getElementById('modreader');
+    const mrTitle = document.getElementById('mr-title');
+    const mrBody = document.getElementById('mr-body');
+    const mrOpen = document.getElementById('mr-open');
+    const cache = {};
+    let timer = null;
+    let hideTimer = null;
+    const hideReader = () => {
+      reader.setAttribute('hidden', '');
+    };
+    document.getElementById('mr-close').addEventListener('click', hideReader);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') hideReader();
+    });
+    document.addEventListener('scroll', hideReader, { passive: true });
+    reader.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+    reader.addEventListener('mouseleave', hideReader);
+    const showReader = async (a) => {
+      const href = a.getAttribute('href');
+      mrTitle.textContent = a.textContent || '';
+      mrOpen.setAttribute('href', href);
+      // full content-column width, just under the hovered row
+      const card = a.closest('.card');
+      const row = a.getBoundingClientRect();
+      if (card) {
+        const box = card.getBoundingClientRect();
+        reader.style.left = `${Math.round(box.left)}px`;
+        reader.style.width = `${Math.round(box.width)}px`;
+      } else {
+        reader.style.left = '1rem';
+        reader.style.width = 'min(900px, 94vw)';
+      }
+      reader.style.top = `${Math.round(row.bottom) + 8}px`;
+      reader.removeAttribute('hidden');
+      if (cache[href]) {
+        mrBody.innerHTML = cache[href];
+        return;
+      }
+      mrBody.innerHTML = '<p class="muted">Loading…</p>';
+      try {
+        const res = await fetch(href);
+        const html = await res.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const prose = doc.querySelector('.card.prose');
+        cache[href] = prose ? prose.innerHTML : '<p class="muted">No preview available.</p>';
+      } catch {
+        cache[href] = '<p class="muted">Preview failed to load.</p>';
+      }
+      mrBody.innerHTML = cache[href];
+    };
+    document.querySelectorAll('a.prev').forEach((a) => {
+      a.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimer);
+        clearTimeout(timer);
+        timer = setTimeout(() => showReader(a), 350);
+      });
+      a.addEventListener('mouseleave', () => {
+        clearTimeout(timer);
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(hideReader, 400);
+      });
+    });
+  </script>
 </Base>
 
 <style>
@@ -177,27 +251,40 @@ const session = Astro.locals.session;
   button.star.on {
     color: var(--accent, #a06a15);
   }
-  /* hover overview card: mod summary without navigation (CSS only) */
-  a.prev {
-    position: relative;
-    text-decoration: underline dotted;
-  }
-  a.prev:hover::after {
-    content: attr(data-sum);
-    position: absolute;
-    left: 0;
-    top: 130%;
-    z-index: 20;
-    width: 320px;
-    white-space: normal;
+  /* row-width reading overlay (fetched on hover, cached) */
+  #modreader {
+    position: fixed;
+    z-index: 50;
+    overflow: auto;
+    max-height: 70vh;
     background: var(--surface, #fff);
     color: var(--text, #1c1e23);
     border: 1px solid var(--border, #cfc8ba);
-    border-radius: 8px;
-    padding: 0.55rem 0.7rem;
-    font-size: 0.82rem;
-    line-height: 1.45;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-    pointer-events: none;
+    border-radius: 10px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+    padding: 1rem 1.2rem;
+  }
+  #modreader[hidden] {
+    display: none;
+  }
+  #modreader .mr-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border, #cfc8ba);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.6rem;
+  }
+  #modreader .mr-head,
+  #modreader #mr-body {
+    max-width: none;
+  }
+  #modreader .mr-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--dim, #5f6670);
   }
 </style>
