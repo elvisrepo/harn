@@ -2,11 +2,19 @@
 import Base from '../layouts/Base.astro';
 import { listMods, type ModView } from '../lib/mods.ts';
 
+interface ArticleChild {
+  title: string;
+  url: string;
+  key: string;
+  blurb: string;
+}
+
 interface Article {
   title: string;
   url: string;
   key: string;
   blurb: string;
+  children?: ArticleChild[];
 }
 
 const articles: Article[] = [
@@ -29,10 +37,24 @@ const articles: Article[] = [
     blurb: 'Agent-first at scale: legibility, invariants-not-implementations, garbage collection. Our newest lens — observability, direction notes, and boundary parsing trace to it.',
   },
   {
-    title: 'Lecture 01. Strong Models Don’t Mean Reliable Execution',
-    url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/',
-    key: 'lecture-01-why-capable-agents-still-fail',
-    blurb: 'WalkingLabs harness course: capability ≠ reliability, five failure layers, Definition of Done per task, fix-the-harness-first. Gave us DoD, verification-gap, and context-anxiety mods.',
+    title: 'Learn Harness Engineering — WalkingLabs course',
+    url: 'https://walkinglabs.github.io/learn-harness-engineering/en/',
+    key: 'learn-harness-engineering/en',
+    blurb: 'A full course, read lecture-by-lecture. Each lecture below lists the catalog mods it produced — the course is the parent, lectures are the units.',
+    children: [
+      {
+        title: 'Lecture 01. Strong Models Don’t Mean Reliable Execution',
+        url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/',
+        key: 'lecture-01-why-capable-agents-still-fail',
+        blurb: 'Capability ≠ reliability, five failure layers, Definition of Done per task, fix-the-harness-first. Gave us DoD, verification-gap, and context-anxiety mods.',
+      },
+      {
+        title: 'Lecture 02. What a Harness Actually Is',
+        url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/',
+        key: 'lecture-02-what-a-harness-actually-is',
+        blurb: 'Five subsystems (instructions/tools/environment/state/feedback), ablation tests, harness rots like code. Gave us progress-file, subsystem-audit, and ablation mods.',
+      },
+    ],
   },
 ];
 
@@ -48,11 +70,21 @@ function linksOf(m: ModView): { label: string; url: string }[] {
 }
 
 const mods = await listMods();
-const withArticles = articles.map((a) => ({
-  ...a,
-  mods: mods.filter((m) => linksOf(m).some((l) => typeof l?.url === 'string' && l.url.includes(a.key))),
-}));
-const claimed = new Set(withArticles.flatMap((a) => a.mods.map((m) => m.slug)));
+const matchKey = (m: ModView, key: string) =>
+  linksOf(m).some((l) => typeof l?.url === 'string' && l.url.includes(key));
+const withArticles = articles.map((a) => {
+  const childKeys = (a.children ?? []).map((c) => c.key);
+  return {
+    ...a,
+    // Direct matches only: mods pointing at the parent but at no child.
+    mods: mods.filter((m) => matchKey(m, a.key) && !childKeys.some((k) => matchKey(m, k))),
+    children: (a.children ?? []).map((c) => ({
+      ...c,
+      mods: mods.filter((m) => matchKey(m, c.key)),
+    })),
+  };
+});
+const claimed = new Set(withArticles.flatMap((a) => [...a.mods, ...a.children.flatMap((c) => c.mods)].map((m) => m.slug)));
 const unmapped = mods.filter((m) => !claimed.has(m.slug));
 const session = Astro.locals.session;
 ---
@@ -61,7 +93,7 @@ const session = Astro.locals.session;
   <p class="kicker">Harness — reading</p>
   <h1>AI articles we work from</h1>
   <p class="muted">
-    Three papers, read 1-by-1. Each lists the catalog mods that trace to
+    Three papers plus one course, read 1-by-1. Each lists the catalog mods that trace to
     it (matched on mod links) — the receipts that the reading turned
     into harness.
   </p>
@@ -86,9 +118,10 @@ const session = Astro.locals.session;
         <a href={a.url} target="_blank" rel="noreferrer">{a.title} ↗</a>
       </h2>
       <p class="muted small" style="margin:.3rem 0 .8rem">{a.blurb}</p>
-      {a.mods.length === 0 ? (
+      {a.mods.length === 0 && !a.children.length && (
         <p class="muted">No mods link here yet.</p>
-      ) : (
+      )}
+      {(a.mods.length > 0 || !a.children.length) && (
         <details>
           <summary style="cursor:pointer">Show all {a.mods.length} mods</summary>
           <table class="kv">
@@ -106,6 +139,34 @@ const session = Astro.locals.session;
           </table>
         </details>
       )}
+      {a.children.map((c) => (
+        <div style="margin-top:1rem;border-top:1px dashed var(--border);padding-top:.8rem">
+          <h3 style="margin:0 0 .2rem;font-size:1rem">
+            <a href={c.url} target="_blank" rel="noreferrer">{c.title} ↗</a>
+          </h3>
+          <p class="muted small" style="margin:.2rem 0 .6rem">{c.blurb}</p>
+          {c.mods.length === 0 ? (
+            <p class="muted">No mods link here yet.</p>
+          ) : (
+            <details>
+              <summary style="cursor:pointer">Show all {c.mods.length} mods</summary>
+              <table class="kv">
+                <tbody>
+                  {c.mods.map((m) => (
+                    <tr>
+                      <td><button class="star" data-slug={m.slug} title="Star as preferred" aria-label={`Star ${m.title}`}>☆</button> <a class="prev" data-sum={m.summary} href={`/mods/${m.slug}`}>{m.title}</a></td>
+                      <td class="small muted">{m.category}</td>
+                      <td class="small">
+                        {m.implemented ? '● implemented' : m.wanted ? '○ wanted' : m.considered ? '◐ considered' : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          )}
+        </div>
+      ))}
     </div>
   ))}
 

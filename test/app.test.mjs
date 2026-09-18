@@ -42,7 +42,7 @@ describe('articles', () => {
     const res = await fetch(`${BASE}/articles`);
     assert.equal(res.status, 200);
     const html = await res.text();
-    for (const s of ['harness-engineering', 'sensors-for-coding-agents', 'openai.com/index/harness-engineering', 'lecture-01-why-capable-agents-still-fail', 'Not yet mapped']) {
+    for (const s of ['harness-engineering', 'sensors-for-coding-agents', 'openai.com/index/harness-engineering', 'learn-harness-engineering/en', 'lecture-01-why-capable-agents-still-fail', 'lecture-02-what-a-harness-actually-is', 'Not yet mapped']) {
       assert.match(html, new RegExp(s.replace(/[./]/g, (c) => `\\${c}`)));
     }
   });

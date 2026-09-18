@@ -922,6 +922,51 @@ Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Wo
       { label: 'decisions journal', url: 'docs/Harness decisions.md' },
     ],
   },
+  {
+    title: 'Progress file',
+    category: 'Workflow',
+    summary: 'Lecture-02 state subsystem: done / in-progress / blocked in one small file — the handoff each session writes to the next.',
+    body: `Long tasks die between sessions: the next session inherits files but not intent. Keep one small progress file at a fixed path: what is done, what is in progress, what is blocked. Update it before each session ends; read it when the next one starts.
+
+Fixed shape, tiny, always current — the handoff the agent writes to itself. Complements session hygiene (fresh restarts, distrusted summaries): hygiene keeps sessions cheap, the progress file keeps the work continuous.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['progress', 'state', 'sessions', 'continuity'],
+    links: [
+      { label: 'lecture 02', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/' },
+    ],
+  },
+  {
+    title: 'Five-subsystem audit',
+    category: 'Workflow',
+    summary: 'Lecture-02 ritual: score instructions/tools/environment/state/feedback 1–5, fix the lowest — harnesses rot like code.',
+    body: `Score the five harness subsystems — instructions, tools, environment, state, feedback — 1 to 5. Fix the lowest first; thirty focused minutes beats another round of model-swapping.
+
+Repeat on a cadence, because harnesses rot like code: instructions drift from reality, checks bit-rot, state files go stale. Treat the gap list as harness debt and pay it down like tech debt — the scheduled counterpart to fixing whatever just recurred.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['audit', 'harness-debt', 'review'],
+    links: [
+      { label: 'lecture 02', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/' },
+    ],
+  },
+  {
+    title: 'Harness ablation test',
+    category: 'Tooling',
+    summary: 'Lecture-02 experiment: remove one component at a time, measure the drop — ranks value, but only attribution finds bottlenecks.',
+    body: `To rank what actually matters, remove one harness component at a time — instructions, feedback, state — and measure the performance drop on a fixed task with a fixed model. Biggest drop wins your attention next.
+
+Caveat that makes it honest: ablation ranks marginal value, it does not locate bottlenecks. Pair every removal with failure attribution (unclear task? thin context? broken env? missing verification? lost state?) — only the attribution says where the bottleneck lives.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['ablation', 'experiment', 'attribution', 'metrics'],
+    links: [
+      { label: 'lecture 02', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/' },
+    ],
+  },
 ];
 
 async function upsertMods() {
