@@ -146,11 +146,12 @@ const session = Astro.locals.session;
         </details>
       )}
       {a.children.map((c) => (
-        <div style="margin-top:1rem;border-top:1px dashed var(--border);padding-top:.8rem">
-          <h3 style="margin:0 0 .2rem;font-size:1rem">
+        <details style="margin-top:1rem;border-top:1px dashed var(--border);padding-top:.8rem">
+          <summary style="cursor:pointer;font-size:1rem;font-weight:bold">
             <a href={c.url} target="_blank" rel="noreferrer">{c.title} ↗</a>
-          </h3>
-          <p class="muted small" style="margin:.2rem 0 .6rem">{c.blurb}</p>
+            <span class="muted small" style="font-weight:normal"> ({c.mods.length} mods)</span>
+          </summary>
+          <p class="muted small" style="margin:.4rem 0 .6rem">{c.blurb}</p>
           {c.mods.length === 0 ? (
             <p class="muted">No mods link here yet.</p>
           ) : (
@@ -171,7 +172,7 @@ const session = Astro.locals.session;
               </table>
             </details>
           )}
-        </div>
+        </details>
       ))}
     </div>
   ))}
