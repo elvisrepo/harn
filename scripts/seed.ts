@@ -967,6 +967,49 @@ Caveat that makes it honest: ablation ranks marginal value, it does not locate b
       { label: 'lecture 02', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/' },
     ],
   },
+  {
+    title: 'Fresh session test',
+    category: 'Workflow',
+    summary: 'Lecture-03 ritual: new session, repo only, five questions — every blank is a missing piece of the map.',
+    body: `Open a brand-new agent session with no verbal context — only the repository contents — and ask five questions: What is this system? How is it organized? How do I run it? How do I verify it? What is the current progress? How many it answers is how complete your map is.
+
+Where the map is blank, the agent guesses; wrong guesses become bugs, and every new session guesses all over again. Count the blanks as your knowledge visibility gap (share of project decisions living outside the repo) and drive it down — the cost of guessing always exceeds the cost of drawing the map.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['fresh-session', 'visibility-gap', 'onboarding', 'test'],
+    links: [
+      { label: 'lecture 03', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-03-why-the-repository-must-become-the-system-of-record/' },
+    ],
+  },
+  {
+    title: 'Knowledge next to code',
+    category: 'Knowledge',
+    summary: 'Lecture-03 placement rule: constraint docs live beside the code they govern — proximity beats length, and updates ride with code.',
+    body: `A rule about API authentication belongs next to the API code, not in a giant global document. Each module directory carries a short doc of its responsibilities, interfaces, and hard constraints — the directory itself is the index, no searching required. A 50-line file beside the code beats a 500-page wiki nobody maintains.
+
+Two riders: minimal-but-complete (every entry earns its place by changing a decision; every fresh-session question still has an answer) and update-with-code (docs beside the code get noticed when the code changes; stale docs are worse than none — they send the agent the wrong way while it feels right).`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['knowledge', 'proximity', 'decay', 'docs'],
+    links: [
+      { label: 'lecture 03', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-03-why-the-repository-must-become-the-system-of-record/' },
+    ],
+  },
+  {
+    title: 'ACID agent state',
+    category: 'Workflow',
+    summary: 'Lecture-03 frame: atomic ops, consistency predicates, isolation between agents, durable git-tracked knowledge.',
+    body: `Run agent state like database transactions. Atomicity: a logical operation ships whole once verified, or is discarded — never half-merged. Consistency: define verifiable predicates (tests pass, lint clean) and check them after each operation; inconsistent states don't get committed. Isolation: concurrent agents get their own progress files or branches — shared mutable state is where toes get stepped on. Durability: anything that must survive the session goes in git-tracked files; what lives only in session memory doesn't count.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['acid', 'state', 'consistency', 'isolation'],
+    links: [
+      { label: 'lecture 03', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-03-why-the-repository-must-become-the-system-of-record/' },
+    ],
+  },
 ];
 
 async function upsertMods() {
