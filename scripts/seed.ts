@@ -687,13 +687,16 @@ Start manual: one log line per task (claimed-done + independent verdict), gap ra
     summary: 'Lecture-01 failure mode: agents rush and skip verification when context runs low — watch the tokens, restart fresh, never economize on checks.',
     body: `When agents sense context running low, they rush to finish — skipping verification, choosing simple over optimal. Name context anxiety as a failure mode rather than suffering it as bad luck.
 
-Discipline: track context usage per turn so the pressure is visible; prefer a fresh session over pushing a long one; treat compaction summaries as lossy by design — re-verify, don't trust; verification steps are never the thing to cut to "save" context. Optionally automate the nudge: warn when a session's context passes a threshold and suggest a restart.`,
+Discipline: track context usage per turn so the pressure is visible; prefer a fresh session over pushing a long one; treat compaction summaries as lossy by design — re-verify, don't trust; verification steps are never the thing to cut to "save" context. Optionally automate the nudge: warn when a session's context passes a threshold and suggest a restart.
+
+On /compact: built-in compaction is the within-session half, and it keeps the what while dropping the why — the reasons behind decisions, skipped alternatives, verification state. A clean reset from complete artifacts beats a compacted session carrying invisible anxiety. Know your model, too: sensitivity to context pressure differs across models, so the compact-vs-reset balance is tuned per target, not templated once. Files are compaction's complement, not its rival.`,
     considered: true,
     implemented: true,
     wanted: false,
     tags: ['context', 'sessions', 'verification', 'discipline'],
     links: [
       { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
+      { label: 'lecture 05 — compact vs reset', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-05-why-long-running-tasks-lose-continuity/' },
     ],
   },
   {
@@ -955,13 +958,37 @@ Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Wo
     summary: 'Lecture-02 state subsystem: done / in-progress / blocked in one small file — the handoff each session writes to the next.',
     body: `Long tasks die between sessions: the next session inherits files but not intent. Keep one small progress file at a fixed path: what is done, what is in progress, what is blocked. Update it before each session ends; read it when the next one starts.
 
-Fixed shape, tiny, always current — the handoff the agent writes to itself. Complements session hygiene (fresh restarts, distrusted summaries): hygiene keeps sessions cheap, the progress file keeps the work continuous.`,
+Fixed shape, tiny, always current — the handoff the agent writes to itself. Complements session hygiene (fresh restarts, distrusted summaries): hygiene keeps sessions cheap, the progress file keeps the work continuous. Canonical shape:
+
+\`\`\`markdown
+# Project Progress
+
+## Current State
+- Latest commit: abc1234 (feat: add user preferences endpoint)
+- Test status: 42/43 passing (test_pagination_edge_case failing)
+- Lint: passing
+
+## Completed
+- [x] User model and database migration
+- [x] Basic CRUD endpoints
+
+## In Progress
+- [ ] Pagination feature (90% - edge case test failing)
+
+## Known Issues
+- test_pagination_edge_case returns 500 on empty result sets
+
+## Next Steps
+1. Fix pagination edge case bug
+2. Update API documentation
+\`\`\``,
     considered: true,
     implemented: false,
     wanted: true,
     tags: ['progress', 'state', 'sessions', 'continuity'],
     links: [
       { label: 'lecture 02', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/' },
+      { label: 'lecture 05 — template', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-05-why-long-running-tasks-lose-continuity/' },
     ],
   },
   {
@@ -1051,6 +1078,45 @@ Two riders: minimal-but-complete (every entry earns its place by changing a deci
     tags: ['acid', 'state', 'consistency', 'isolation'],
     links: [
       { label: 'lecture 03', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-03-why-the-repository-must-become-the-system-of-record/' },
+    ],
+  },
+  {
+    title: 'Decision log',
+    category: 'Knowledge',
+    summary: 'Lecture-05 why-preserver: what was decided, why, rejected alternative, when — the reasoning compaction destroys.',
+    body: `Code records the what; nothing records the why — why option B beat option A, why a library was rejected, why an optimization was skipped. Compaction summaries drop exactly this, and the next session re-decides from incomplete information or "optimizes" away a deliberate choice. Keep a decision log alongside the code: one entry per significant decision with reason, rejected alternative, and date.
+
+No design documents — a few lines each. Git commits checkpoint the what and when for free; the log exists for the reasoning commits can't carry. Canonical shape:
+
+\`\`\`markdown
+# Design Decisions
+
+## 2024-01-15: Use Redis for user preferences caching
+- Reason: High read frequency (every API call), small data size
+- Rejected alternative: PostgreSQL materialized view (high change frequency makes maintenance cost not worthwhile)
+- Constraint: Cache TTL of 5 minutes, active invalidation on write
+\`\`\``,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['decisions', 'rationale', 'state', 'continuity'],
+    links: [
+      { label: 'lecture 05', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-05-why-long-running-tasks-lose-continuity/' },
+    ],
+  },
+  {
+    title: 'Session handoff routine',
+    category: 'Workflow',
+    summary: 'Lecture-05 ritual: clock-in / clock-out around /compact — rebuild cost is the metric, drift is the enemy.',
+    body: `Treat the agent like an engineer whose short-term memory wipes every session. Clock in: read the progress file, read the decision log, run verification to confirm a consistent state, continue from next steps. Clock out: update the progress file, re-verify, commit completed work. The routine is what makes reset-from-artifacts work — and what /compact hands off to.
+
+Rebuild cost is the metric: minutes for a fresh session to reach an executable state, target single digits. Mixed strategy: short tasks stay in-session; once a task needs most of the window, prepare the handoff instead of pushing through. Without the routine, each boundary adds drift — small misunderstandings compounding session after session until the work no longer resembles the intent.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['handoff', 'sessions', 'rebuild-cost', 'drift'],
+    links: [
+      { label: 'lecture 05', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-05-why-long-running-tasks-lose-continuity/' },
     ],
   },
 ];
