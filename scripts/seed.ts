@@ -218,15 +218,42 @@ const seedMods: SeedMod[] = [
   {
     title: 'AGENTS.md',
     category: 'Knowledge',
-    summary: 'Repo context file agents read automatically (project overview, commands, conventions).',
-    body: `AGENTS.md is a standard Markdown file at repo root that coding agents parse automatically. No required fields — anything you'd tell a new teammate. Nested AGENTS.md files allow per-subproject instructions; nearest file wins.
+    summary: 'Entry file agents read automatically — a router (overview, commands, hard constraints, topic links), not an encyclopedia.',
+    body: `AGENTS.md is a standard Markdown file at repo root that coding agents parse automatically. Its job is routing, not containing: 50–200 lines with a project overview, first-run commands, no more than ~15 non-negotiable hard constraints, and links to topic documents — each link with a one-line applicability condition ("required when…"). Nested files allow per-subproject instructions; nearest wins.
 
-**Thoughts:** highest ROI of all entries — we just created one for this repo. Keep it alive: update it whenever the project's commands or conventions change, and let it be the canonical "how to work here" doc.`,
+Anything that must stay in the entry goes at the top or bottom, never the middle — models use the extremes of long texts far better than the center. Everything else moves to topic documents, read on demand. Canonical shape:
+
+\`\`\`markdown
+# AGENTS.md
+
+## Project Overview
+Python 3.11 FastAPI backend, PostgreSQL 15 database.
+
+## Quick Start
+- Install: \`make setup\`
+- Test: \`make test\`
+- Full verification: \`make check\`
+
+## Hard Constraints
+- All APIs must use OAuth 2.0 authentication
+- All database queries must use SQLAlchemy 2.0 syntax
+- All PRs must pass pytest + mypy --strict + ruff check
+
+## Topic Docs
+- API Design Patterns (\`docs/api-patterns.md\`) — Required reading when adding endpoints
+- Database Rules (\`docs/database-rules.md\`) — Required when modifying database operations
+- Testing Standards (\`docs/testing-standards.md\`) — Reference when writing tests
+\`\`\`
+
+Keep it alive: update it whenever commands or conventions change, and prune it like a dependency list — unused entries slow the whole system down.`,
     considered: true,
     implemented: true,
     wanted: false,
-    tags: ['context', 'docs'],
-    links: [{ label: 'agents.md spec', url: AGS }],
+    tags: ['context', 'docs', 'router', 'entry-file'],
+    links: [
+      { label: 'agents.md spec', url: AGS },
+      { label: 'lecture 04', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-04-why-one-giant-instruction-file-fails/' },
+    ],
   },
   {
     title: 'Principles',
@@ -968,6 +995,21 @@ Caveat that makes it honest: ablation ranks marginal value, it does not locate b
     ],
   },
   {
+    title: 'Instruction SNR audit',
+    category: 'Knowledge',
+    summary: 'Lecture-04 method: matrix entries × task types, relocate noise to topic docs — "add a rule" is relief today, poison tomorrow.',
+    body: `Every mistake tempts one more rule in the entry file, and each addition feels free — until 600 lines eat the context budget, bury hard constraints where models never look, and contradict each other. Audit instead: list every instruction entry, score its relevance across a few common task types, and move whatever is noise for most tasks into topic documents.
+
+Every surviving rule documents its source (why added), applicability (when needed), and expiry (when removable) — audit on cadence and delete. Historical incident notes don't belong in instructions at all: convert them to test cases or delete them. Signal-to-noise is the metric; the entry file is a router, and routers stay thin.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['snr', 'audit', 'instructions', 'bloat'],
+    links: [
+      { label: 'lecture 04', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-04-why-one-giant-instruction-file-fails/' },
+    ],
+  },
+  {
     title: 'Fresh session test',
     category: 'Workflow',
     summary: 'Lecture-03 ritual: new session, repo only, five questions — every blank is a missing piece of the map.',
@@ -995,6 +1037,7 @@ Two riders: minimal-but-complete (every entry earns its place by changing a deci
     tags: ['knowledge', 'proximity', 'decay', 'docs'],
     links: [
       { label: 'lecture 03', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-03-why-the-repository-must-become-the-system-of-record/' },
+      { label: 'lecture 04 — topic docs', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-04-why-one-giant-instruction-file-fails/' },
     ],
   },
   {
