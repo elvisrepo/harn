@@ -665,6 +665,7 @@ Each line names something a command can confirm. Translate the runners to your s
     links: [
       { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
       { label: 'lecture 07 — completion evidence', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-07-why-agents-overreach-and-under-finish/' },
+      { label: 'lecture 08 — primitives', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-08-why-feature-lists-are-harness-primitives/' },
     ],
   },
   {
@@ -1142,7 +1143,35 @@ Rebuild cost is the metric: minutes for a fresh session to reach an executable s
 - Acceptance: pytest tests/test_profile.py all passing
 \`\`\`
 
-Committed early, updated as understanding grows. On a persistent-local setup the environment half of initialization is already done — this list is the half that remains: always ready to hand off, no verbal explanation needed.`,
+Committed early, updated as understanding grows. On a persistent-local setup the environment half of initialization is already done — this list is the half that remains: always ready to hand off, no verbal explanation needed.
+
+The hardening (Lecture 08): a breakdown the agent merely reads is a document; a breakdown the harness executes is a primitive — scheduler, verifier, handoff, and progress tracking all consuming the same file, unbypassable like a database constraint rather than an application check. The full method:
+
+**1. Define a minimal feature list format.** No complex system needed — structured Markdown or JSON works. Every entry carries the triple (behavior, verification, state) plus an evidence pointer:
+
+\`\`\`json
+{
+  "id": "F03",
+  "behavior": "POST /cart/items with {product_id, quantity} returns 201",
+  "verification": "curl -X POST http://localhost:3000/api/cart/items -H 'Content-Type: application/json' -d '{\"product_id\":1,\"quantity\":2}' | jq .status == 201",
+  "state": "passing",
+  "evidence": "commit abc123, test output log"
+}
+\`\`\`
+
+**2. Let the harness control state transitions.** The agent never marks its own work passing — it submits a verification request, the harness runs the command and flips the state. Pass-state gating. (Autonomous end-state: in supervised use the human is the verifier, and a transition-owning script is machinery without a problem. Record the direction; build it when the loop runs unattended.)
+
+**3. Write the rules in the entry file.**
+
+\`\`\`markdown
+## Feature List Rules
+- Feature list file: /docs/features.md
+- Only one feature active at a time
+- Verification command must pass before marking as passing
+- Don't modify feature list states yourself — the verification script updates them automatically
+\`\`\`
+
+**4. Calibrate granularity.** One item per session: "user can add items to cart" is right; "implement the shopping cart" won't finish; "create the name field on the Cart model" drowns in overhead.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -1150,6 +1179,7 @@ Committed early, updated as understanding grows. On a persistent-local setup the
     links: [
       { label: 'lecture 06', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-06-why-initialization-needs-its-own-phase/' },
       { label: 'lecture 07 — scope surface', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-07-why-agents-overreach-and-under-finish/' },
+      { label: 'lecture 08 — primitives', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-08-why-feature-lists-are-harness-primitives/' },
     ],
   },
   {
@@ -1186,6 +1216,7 @@ F01: User Registration
     tags: ['wip', 'scope', 'focus', 'completion-rate'],
     links: [
       { label: 'lecture 07', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-07-why-agents-overreach-and-under-finish/' },
+      { label: 'lecture 08 — primitives', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-08-why-feature-lists-are-harness-primitives/' },
     ],
   },
 ];
