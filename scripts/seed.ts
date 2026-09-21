@@ -1171,7 +1171,15 @@ The hardening (Lecture 08): a breakdown the agent merely reads is a document; a 
 - Don't modify feature list states yourself — the verification script updates them automatically
 \`\`\`
 
-**4. Calibrate granularity.** One item per session: "user can add items to cart" is right; "implement the shopping cart" won't finish; "create the name field on the Cart model" drowns in overhead.`,
+**4. Calibrate granularity.** One item per session: "user can add items to cart" is right; "implement the shopping cart" won't finish; "create the name field on the Cart model" drowns in overhead.
+
+## Feature State Machine
+
+The triple and the lifecycle, as the lecture draws them — one feature row is behavior plus verification plus state, and every item flows pick → work → verify → pass (with evidence) / fail (stay active) / dependency issue (blocked):
+
+![Feature row triple: behavior, verification command, state](/uploads/21e3cc6f-9684-4191-b001-52b2458e8994.png)
+
+![Feature lifecycle: pick next not_started, work, verify, mark passing/active/blocked](/uploads/ee5e6db8-2198-4014-9265-02131abc0935.png)`,
     considered: true,
     implemented: false,
     wanted: true,
