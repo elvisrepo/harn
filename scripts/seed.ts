@@ -657,13 +657,14 @@ The form: state Done-means before starting, declare done only when a command con
 > - All new code passes pytest
 > - Type checking passes (mypy --strict)
 
-Each line names something a command can confirm. Translate the runners to your stack — whatever test runner, typechecker, and contract assertions you use. The form is the point, not the tools.`,
+Each line names something a command can confirm. Translate the runners to your stack — whatever test runner, typechecker, and contract assertions you use. The form is the point, not the tools. Done is behavior verified, never code that looks fine.`,
     considered: true,
     implemented: true,
     wanted: false,
     tags: ['definition-of-done', 'completion', 'verification', 'workflow'],
     links: [
       { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
+      { label: 'lecture 07 — completion evidence', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-07-why-agents-overreach-and-under-finish/' },
     ],
   },
   {
@@ -1049,6 +1050,7 @@ Where the map is blank, the agent guesses; wrong guesses become bugs, and every 
     tags: ['fresh-session', 'visibility-gap', 'onboarding', 'test'],
     links: [
       { label: 'lecture 03', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-03-why-the-repository-must-become-the-system-of-record/' },
+      { label: 'lecture 06 — readiness', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-06-why-initialization-needs-its-own-phase/' },
     ],
   },
   {
@@ -1117,6 +1119,73 @@ Rebuild cost is the metric: minutes for a fresh session to reach an executable s
     tags: ['handoff', 'sessions', 'rebuild-cost', 'drift'],
     links: [
       { label: 'lecture 05', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-05-why-long-running-tasks-lose-continuity/' },
+      { label: 'lecture 06 — readiness', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-06-why-initialization-needs-its-own-phase/' },
+    ],
+  },
+  {
+    title: 'Task breakdown',
+    category: 'Workflow',
+    summary: 'Lecture-06 list: the whole job as ordered tasks, each with its acceptance command — what session 2 works down.',
+    body: `A Definition of Done defines the format of done; the breakdown is the ordered list itself: every task in sequence, each carrying its acceptance criteria in command form. Session 2 doesn't decide what to do next — it reads the list. Canonical shape:
+
+\`\`\`markdown
+# Task Breakdown
+
+## Task 1: User Authentication Basics
+- Implement JWT auth middleware
+- Add login/register endpoints
+- Acceptance: pytest tests/test_auth.py all passing
+
+## Task 2: User Profile Page
+- Implement user profile CRUD
+- Add profile edit form
+- Acceptance: pytest tests/test_profile.py all passing
+\`\`\`
+
+Committed early, updated as understanding grows. On a persistent-local setup the environment half of initialization is already done — this list is the half that remains: always ready to hand off, no verbal explanation needed.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['breakdown', 'planning', 'acceptance', 'continuity'],
+    links: [
+      { label: 'lecture 06', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-06-why-initialization-needs-its-own-phase/' },
+      { label: 'lecture 07 — scope surface', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-07-why-agents-overreach-and-under-finish/' },
+    ],
+  },
+  {
+    title: 'WIP=1',
+    category: 'Workflow',
+    summary: 'Lecture-07 rule: one task active at a time, next starts only on green — plus the verified-completion gauge.',
+    body: `Agents don't finish one thing first — they start five things at once, dilute attention across all of them, and finish none. Enforce WIP=1: exactly one task active at any time, the next starts only after the current passes end-to-end verification, and no drive-by refactors of feature B while implementing feature A. Overreach and under-finish are one cycle, not two problems: diluted attention leaves half-done code, half-done code raises complexity, complexity invites more overreach.
+
+Hold the line with the gauge: verified-completion rate (verified tasks ÷ activated tasks), new work blocked while it sits below 1.0. Lines written correlate negatively with features finished — do less, but finish. The lecture's four methods, in full:
+
+**1. Enforce WIP=1.** The most direct method: tell the agent explicitly that only one task may be active at any time.
+
+\`\`\`markdown
+## Work Rules
+- Work on one feature at a time
+- Only start the next feature after the current one passes end-to-end verification
+- Don't "also refactor" feature B while implementing feature A
+\`\`\`
+
+**2. Define explicit completion evidence for every task.** Done is not "code is written" — it's "behavior verification passes." Every entry in the feature list carries its verification command:
+
+\`\`\`
+F01: User Registration
+  Verification: curl -X POST /api/register -d '{"email":"test@example.com","password":"123456"}' | jq .status == 201
+  State: passing
+\`\`\`
+
+**3. Externalize the scope surface.** A machine-readable file (JSON or Markdown) records every task's state — any new session reads it and knows immediately: which task is active, what behavior counts as done, what verifications passed.
+
+**4. Monitor verified completion rate.** Track VCR = verified tasks ÷ activated tasks continuously, and block new task activations while VCR sits below 1.0.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['wip', 'scope', 'focus', 'completion-rate'],
+    links: [
+      { label: 'lecture 07', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-07-why-agents-overreach-and-under-finish/' },
     ],
   },
 ];

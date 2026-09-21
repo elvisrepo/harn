@@ -42,7 +42,7 @@ describe('articles', () => {
     const res = await fetch(`${BASE}/articles`);
     assert.equal(res.status, 200);
     const html = await res.text();
-    for (const s of ['harness-engineering', 'sensors-for-coding-agents', 'openai.com/index/harness-engineering', 'learn-harness-engineering/en', 'lecture-01-why-capable-agents-still-fail', 'lecture-02-what-a-harness-actually-is', 'lecture-03-why-the-repository-must-become-the-system-of-record', 'lecture-04-why-one-giant-instruction-file-fails', 'lecture-05-why-long-running-tasks-lose-continuity', 'Not yet mapped']) {
+    for (const s of ['harness-engineering', 'sensors-for-coding-agents', 'openai.com/index/harness-engineering', 'learn-harness-engineering/en', 'lecture-01-why-capable-agents-still-fail', 'lecture-02-what-a-harness-actually-is', 'lecture-03-why-the-repository-must-become-the-system-of-record', 'lecture-04-why-one-giant-instruction-file-fails', 'lecture-05-why-long-running-tasks-lose-continuity', 'lecture-06-why-initialization-needs-its-own-phase', 'lecture-07-why-agents-overreach-and-under-finish', 'Not yet mapped']) {
       assert.match(html, new RegExp(s.replace(/[./]/g, (c) => `\\${c}`)));
     }
   });
