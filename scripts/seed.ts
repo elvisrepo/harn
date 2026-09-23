@@ -492,7 +492,16 @@ Manual probe pattern first: plant a handful of deliberate bugs (dropped normaliz
 
 Typical rules: logic stays UI-free (unit-testable, portable); persistence takes no app dependencies; ops scripts drive libraries or HTTP, never pages; extensions import only the runtime API (portability). State blind spots outright (template frontmatter, dynamic imports); a generated import graph makes drift visible on demand.
 
-Adoption note: this replaces structure-description prose with an enforced boundary — and it can graduate early on explicit call, no second violation needed.`,
+Adoption note: this replaces structure-description prose with an enforced boundary — and it can graduate early on explicit call, no second violation needed.
+
+Boundaries before tests (Lecture 10): e2e on a tangled architecture only proves the whole mess runs. Establish architectural constraints on day one — agents copy existing patterns, inconsistencies included, so every session without constraints adds drift. The reference shape is a layered domain: fixed layers per domain (Types → Config → Repo → Service → Runtime → UI), dependencies strictly forward, cross-domain concerns through explicit provider interfaces, everything else forbidden and mechanically enforced. Key principle: enforce invariants, don't micromanage implementation — require "data is parsed at the boundary" without prescribing the library.
+
+Every constraint gets its executable check, down to one-liners:
+
+\`\`\`bash
+# Check whether the renderer process directly calls Node.js APIs
+grep -r "require('fs')" src/renderer/ && exit 1 || echo "OK: no direct fs access in renderer"
+\`\`\``,
     considered: true,
     implemented: true,
     wanted: false,
@@ -680,7 +689,11 @@ Resolve frictions in favor of truthful errors: silent modes and swallowed failur
 - **METRICS:** Prometheus text at a metrics endpoint — request counts, average/p50 durations, by-status and top-path families. Scrapeable if a TSDB ever arrives.
 - **TRACES:** a request id on every response, checkpoints in list handlers, a last-N ring endpoint. Middleware starts and finishes all traces; observability never fails requests.
 
-Expect the log to earn its keep first (what errored, what the session hit); metrics and traces are cheap ballast until a latency question or a second process arrives. Process-lifetime memories reset on reload — state that. Thin tests pin all three seams.`,
+Expect the log to earn its keep first (what errored, what the session hit); metrics and traces are cheap ballast until a latency question or a second process arrives. Process-lifetime memories reset on reload — state that. Thin tests pin all three seams.
+
+Collect signals in the harness, not from the agent (Lecture 11): agents don't log what they don't know they need, formats drift across sessions, and contracts/rubrics aren't loggable at all. The checklist — application lifecycle phases (startup, ready, running, shutdown); feature-path execution with entry points, checkpoints, and exits; data flow between components; resource utilization anomalies; full error context, never just the message.
+
+Standardize toward OpenTelemetry shape: one trace per session, one span per task, sub-spans per verification step, standard attributes on each — so the data can integrate with standard toolchains later. Wanted horizon at single-user scale: the hierarchy first (session → task → verification), the collector second, Jaeger last if ever.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -689,6 +702,7 @@ Expect the log to earn its keep first (what errored, what the session hit); metr
       { label: 'OpenAI harness engineering', url: 'https://openai.com/index/harness-engineering/' },
       { label: 'live metrics', url: '/api/metrics' },
       { label: 'live traces', url: '/api/traces' },
+      { label: 'lecture 11 — runtime layer', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
     ],
   },
   {
@@ -819,7 +833,19 @@ Explicitly parked: mutation testing (trigger: suite size where rot outruns eyeba
 
 Unritualized self-review ("read it as a reviewer would") is insufficient — same model, same window, no checklist; the evidence is semantic slips sailing through to be caught by computational sensors instead. Formalize, don't expand: the implement step becomes a short read-back — minimalism · scope · quality bars · receipts — same cost, actual teeth.
 
-Deferred with triggers: second-model spot review on risky diffs (auth, migrations, maps) after the next semantic slip past the checklist; janitor/GC agents only where something drifts at scale. Worker/checker separation (an independent nitpicky evaluator) is the autonomous end-state.`,
+Deferred with triggers: second-model spot review on risky diffs (auth, migrations, maps) after the next semantic slip past the checklist; janitor/GC agents only where something drifts at scale. Worker/checker separation (an independent nitpicky evaluator) is the autonomous end-state.
+
+Judge against a rubric, not vibes (Lecture 11): quality dimensions with graded evidence levels turn evaluation from subjective judgment into reproducible scoring, so different reviewers reach similar verdicts on the same output:
+
+\`\`\`markdown
+# Scoring Rubric
+
+| Dimension | A | B | C | D |
+|-----------|---|---|---|---|
+| Code correctness | All tests pass | Main flow passes | Partial pass | Build fails |
+| Architecture compliance | Fully compliant | Minor deviations | Obvious deviations | Serious violations |
+| Test coverage | Main + edge cases | Main flow only | Only skeleton | No tests |
+\`\`\``,
     considered: true,
     implemented: true,
     wanted: false,
@@ -828,6 +854,7 @@ Deferred with triggers: second-model spot review on risky diffs (auth, migration
       { label: 'article — sensors', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'implement skill', url: '.pi/skills/implement/SKILL.md' },
       { label: 'lecture 09 — worker/checker split', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
+      { label: 'lecture 11 — evaluator rubric', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
     ],
   },
   {
@@ -871,6 +898,7 @@ Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Wo
       { label: 'article — steering loop', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'lecture 01 — five layers', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
       { label: 'lecture 10 — review promotion', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
+      { label: 'lecture 11 — evaluator calibration', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
       { label: 'decisions journal', url: 'docs/Harness decisions.md' },
     ],
   },
@@ -1108,6 +1136,39 @@ The triple and the lifecycle, as the lecture draws them — one feature row is b
       { label: 'lecture 06', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-06-why-initialization-needs-its-own-phase/' },
       { label: 'lecture 07 — scope surface', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-07-why-agents-overreach-and-under-finish/' },
       { label: 'lecture 08 — primitives', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-08-why-feature-lists-are-harness-primitives/' },
+    ],
+  },
+  {
+    title: 'Sprint contract',
+    category: 'Workflow',
+    summary: 'Lecture-11 before-work agreement: scope + verification standards + exclusions — what done looks like, negotiated up front.',
+    body: `Before implementation starts, the builder and the checker agree in writing what will be built and what done looks like: task scope, verification standards per item, and exclusions — what is explicitly out. The contract front-loads alignment so the builder never finishes something the checker rejects for foreseeable reasons. Canonical shape:
+
+\`\`\`markdown
+# Sprint Contract: Dark Mode Support
+
+## Scope
+- Modify the theme toggle component
+- Update global CSS variables
+- Add dark mode tests
+
+## Verification Standards
+- Visual regression tests pass for each component
+- Main flow end-to-end tests pass
+- No flash of unstyled content (FOUC)
+
+## Exclusions
+- Not handling print styles
+- Not handling third-party component dark mode
+\`\`\`
+
+Read at clock-in alongside the progress file; evaluated against at handoff. Exclusions are the load-bearing field — every out-of-scope item named up front is a misunderstanding that never happens.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['contract', 'scope', 'exclusions', 'alignment'],
+    links: [
+      { label: 'lecture 11', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
     ],
   },
   {
