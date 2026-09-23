@@ -42,9 +42,9 @@ const seedMods: SeedMod[] = [
     title: 'Skills',
     category: 'Knowledge',
     summary: 'Self-contained capability packages (SKILL.md + assets) loaded on demand.',
-    body: `Skills follow the Agent Skills standard: a directory with a SKILL.md, discovered from global (~/.pi/agent/skills) and project (.pi/skills) locations. Descriptions are injected into the system prompt; full instructions load on demand.
+    body: `Skills follow the Agent Skills standard: a directory with a SKILL.md, discovered from global and project-level locations. Descriptions are injected into the system prompt; full instructions load on demand.
 
-**Thoughts:** we previously had three global skills (domain-modeling, grilling, grill-with-docs) and uninstalled them. The mechanism works well — worth keeping a smaller curated set or moving skills into the repo so they version with the project.`,
+Keep the set small and curated, and prefer project-level skills so they version with the project. Global skills suit personal workflows; anything the project depends on lives in the repo.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -59,17 +59,15 @@ const seedMods: SeedMod[] = [
     category: 'Tooling',
     summary:
       'Agent skill turning codebases/descriptions into polished interactive HTML system maps (typed JSON IR + 9-gate showcase validation).',
-    body: `Installed globally at ~/.agents/skills/archify (pi discovers it). The agent authors typed JSON IR against the architecture / workflow / sequence / dataflow / lifecycle schemas; Archify validates 9 showcase gates (crossings, corridors, label clearance, desktop readability) and returns machine-readable repair receipts, then delivers one self-contained HTML (+ PNG/SVG/WebM/share cards).
+    body: `An agent skill that turns codebases or plain-language descriptions into polished, interactive HTML architecture maps: the agent authors a typed JSON IR (architecture / workflow / sequence / dataflow / lifecycle schemas), the tool validates it against presentation gates (edge crossings, label clearance, readability) and returns machine-readable repair receipts, then delivers one self-contained HTML artifact plus export formats.
 
-**Dogfooded:** mapped this repo → docs/harness-mods.architecture.html (6 components, primary Browse → API → SQLite path, better-auth + pi boundaries, 2 views, 3 cards). The delta/compare receipt discipline (added / removed / changed / moved per snapshot, inferred nothing) is worth borrowing for the /harness snapshot diffs.`,
+The discipline worth borrowing: delta/compare receipts (added / removed / changed / moved per revision, nothing inferred) — the same receipt shape versioned snapshots want.`,
     considered: true,
     implemented: true,
     wanted: false,
     tags: ['architecture', 'diagrams', 'skills', 'validation'],
     links: [
       { label: 'repo · tt-a1i/archify', url: 'https://github.com/tt-a1i/archify' },
-      { label: 'architecture · open in app', url: '/docs/archify/harness-mods.architecture.html' },
-      { label: 'better-auth flow · open in app', url: '/docs/archify/better-auth-flow.sequence.html' },
     ],
   },
   {
@@ -102,9 +100,9 @@ const seedMods: SeedMod[] = [
     title: 'Prompt templates',
     category: 'Knowledge',
     summary: 'Custom reusable prompt templates injected into conversations.',
-    body: `Prompt templates give the model recurring instructions (project conventions, review checklists) beyond the system prompt. docs/prompt-templates.md.
+    body: `Prompt templates give the model recurring instructions beyond the system prompt and entry file — repeatable non-project workflows (release notes, changelog entries, review passes).
 
-**Thoughts:** AGENTS.md already covers a lot of this ground for this repo. Templates are useful for repeatable non-project workflows (e.g. "write a changelog entry"). Could be worth one or two templates; over-engineering risk is high.`,
+The entry file already covers project ground; templates cover workflows. Keep one or two; over-engineering risk is high.`,
     considered: false,
     implemented: false,
     wanted: false,
@@ -154,9 +152,9 @@ const seedMods: SeedMod[] = [
     title: 'Custom provider',
     category: 'Providers',
     summary: 'Point the harness at a custom model provider (docs/custom-provider.md).',
-    body: `Currently configured with provider \`opencode-go\` (default in ~/.pi/agent/settings.json), with credentials stored in auth.json.
+    body: `Point the harness at a custom model provider through configuration — switching providers is config-only, no code changes.
 
-**Thoughts:** switching providers is config-only. Worth experimenting with a second provider for cost comparison once there's a clear workload. Implemented today via opencode-go.`,
+Credentials belong in the environment or a secret store, never in the repo. Worth a second provider once there is a clear workload, for cost comparison and fallback.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -167,9 +165,7 @@ const seedMods: SeedMod[] = [
     title: 'Model management',
     category: 'Providers',
     summary: 'Curating which models are available/selected (models-store.json).',
-    body: `~/.pi/agent/models-store.json holds the provider registry; current model is deepseek-v4-flash via opencode-go. docs/models.md covers adding models.
-
-**Thoughts:** model choice is the highest-leverage lever on UX. Track result quality per model in this catalog once we have a few candidate models to compare.`,
+    body: `The harness keeps a registry of available providers and models with one selected default. Model choice is the highest-leverage lever on output quality — track result quality per model when comparing candidates, and change the default deliberately, not by drift.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -193,9 +189,9 @@ const seedMods: SeedMod[] = [
     title: 'Environment variables',
     category: 'Configuration',
     summary: 'PI_* env vars that tune runtime behavior (docs/environment-variables.md).',
-    body: `The harness reads PI_* environment variables for current model/session context and runtime settings.
+    body: `The harness reads environment variables for model/session context and runtime settings — invisible but everywhere.
 
-**Thoughts:** invisible but everywhere — worth a documented list in this repo's AGENTS.md once we depend on specific ones. Mostly used for observability today.`,
+Document every variable the project actually depends on in the entry file. Undocumented env dependence is implicit knowledge, and implicit knowledge is what agents trip over.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -206,9 +202,7 @@ const seedMods: SeedMod[] = [
     title: 'Settings.json',
     category: 'Configuration',
     summary: 'Core config file: default provider, model, and harness options.',
-    body: `~/.pi/agent/settings.json currently sets defaultProvider: opencode-go and defaultModel: deepseek-v4-flash, plus lastChangelogVersion.
-
-**Thoughts:** the canonical place to manage defaults. settings.json = the single source of truth for which model the harness uses; keep it minimal and reviewed.`,
+    body: `The core config file holds defaults — provider, model, harness options. It is the single source of truth for which model the harness uses: keep it minimal, reviewed, and under version control where possible.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -259,21 +253,9 @@ Keep it alive: update it whenever commands or conventions change, and prune it l
     title: 'Principles',
     category: 'Knowledge',
     summary: 'Durable value statements the agent applies with judgment — the top inferential feedforward guide (they outrank other guidance on conflict).',
-    body: `Principles are the top layer of the Guides stack (see docs/Harness review — feedforward guides.md): short, durable value statements the agent must **interpret**, not mechanically follow — that's why they're inferential. Distinct from Rules (checkable constraints), Ref Docs (facts), and How-tos (procedures); principles are the tiebreaker when rules conflict or a situation is ambiguous.
+    body: `Principles are the top layer of the Guides stack: short, durable value statements the agent must **interpret**, not mechanically follow — that's why they're inferential. Distinct from Rules (checkable constraints), Ref Docs (facts), and How-tos (procedures); principles are the tiebreaker when rules conflict or a situation is ambiguous.
 
-Ours (extracted into AGENTS.md, 2026-09):
-
-1. **Minimalism** — only the code the immediate problem needs; no speculative features, abstractions, or predictive configs.
-2. **Surgical edits** — touch only the lines the task requires; leave adjacent code untouched.
-3. **Goal-driven** — steps with explicit success criteria; verify before claiming done.
-4. **Clarify, don't guess** — state assumptions; halt on ambiguity.
-5. **Receipts over prose** — sensors/checks report stable, machine-readable facts.
-6. **Sensors before handoff** — run \`npm run check\` (build + behaviour flows) before declaring work done.
-7. **Snapshots are point-in-time truth** — diffs must never mislead; no silent history rewrites.
-8. **Secrets only via env** — never logged, echoed, or committed.
-9. **Fix the kit first** — recurring issues get fixed in skills/conventions/checks, not just the instance.
-
-**Thoughts:** these existed implicitly inside AGENTS.md's instruction paragraph, unlabeled and mixed with mundane rules. Extracting them as a labeled block makes the steering explicit — the agent reads them every turn and uses them as tiebreakers (earned lessons like "snapshots are point-in-time truth" came from real incidents: the v5/v6 context-drop confusion).`,
+Shape: a labeled block in the entry file, read every turn — e.g. minimalism (only the code the problem needs), surgical edits (touch only what the task requires), verify-before-done, secrets-via-env. Extract them from unlabeled instruction prose; implicit values don't steer.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -291,18 +273,9 @@ Ours (extracted into AGENTS.md, 2026-09):
 
 Disambiguation (researched 2026-09): CfR is also used for Change Failure Rate (a DORA metric — that is a *sensor*, not a guide) and 21 CFR Part 11 (FDA compliance) — neither is the Guides meaning.
 
-Handling (the article-endorsed move): translate CfRs into architectural building blocks or **testable acceptance criteria** — the bridge to the Architecture-fitness harness: CfRs as guides (feedforward) + fitness-function tests as sensors (feedback). Some CfRs graduate to computational sensors — ours already are: the check suite (build + behaviour flows) and browser-qa verify build/usability on every run.
+Handling (the article-endorsed move): translate CfRs into architectural building blocks or **testable acceptance criteria** — guides (feedforward) plus fitness-function tests (feedback). Some CfRs graduate to computational sensors that run on every check. Shape: a short labeled list in the entry file — e.g. security (secrets via env, origin checks), data integrity (idempotent migrations, no silent rewrites), environment portability (verify in real conditions, not just dev), real-browser usability (served URLs work in browsers, not just scripted clients).
 
-Ours (added to AGENTS.md, 2026-09):
-
-1. **Security** — secrets only via env; httpOnly session cookies; origin checks enforced.
-2. **Data integrity** — snapshots are point-in-time truth; idempotent seeding/migrations.
-3. **Environment portability** — identical behaviour across dev / preview / production (AUTH_URL, NODE_ENV-dependent cookie flags); verify in real conditions, not just dev.
-4. **Real-browser usability** — served URLs must work in actual browsers (content negotiation, cookies), not only via curl (earned: the /docs/archify Accept-header 404).
-5. **Maintainability** — typed artifacts, machine-readable receipts, kit-vs-instance separation.
-6. **Performance/scalability** — explicitly loose: local single-user tool; do not over-engineer.
-
-**Thoughts:** same story as Principles — the earned lessons were de-facto CfRs (environment portability and real-browser usability came from the preview 403 and the static-serving 404 incidents) but existed only as incident fixes. Stating them as requirements means the agent sees the quality bars when starting feature work, and to-spec captures the per-feature subset as testable criteria.`,
+State them outright: de-facto quality bars learned from incidents stay invisible until written down, and the agent only considers what is fed forward.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -324,14 +297,7 @@ Two failure modes define quality:
 1. **Stale doc** — worse than no doc: the agent trusts it. (The article's coherence worry: guides must not contradict each other.)
 2. **Invisible doc** — exists but nobody knows when to read it.
 
-Ours (added 2026-09):
-
-1. **Doc index in AGENTS.md** — five docs with when-to-read purpose; the agent sees the index every turn.
-2. **Refreshed docs/current-harness.md to v12** — was written at v3-era ("5 skills", ≈40k context) while AGENTS.md said 15 — two ref docs disagreeing is exactly the incoherence failure; refreshed again at v12 (15 skills, ≈3.8k context, LSP section, opencode-era framing). Now stamped "Verified at snapshot v12" and restructured to defer to /harness + snapshots for live values.
-3. **Single-source rule** — ref docs link to systems of record (/harness, snapshots); they do not copy drifting facts. Stated in AGENTS.md + the glossary.
-4. **Glossary** — in the reuse contract: Kit/Instance, Guide, Sensor, CfR, Receipt, Steering loop, check, Snapshot/C4 artifact, Mod, Single-source rule.
-
-**Thoughts:** earned lessons drove this — current-harness.md sat stale from v3 through v5 while facts drifted elsewhere, and the /docs/archify serving incident proved "discoverable + current" is the whole game. A stale ref doc actively misleads the agent; an invisible one never helps.`,    considered: true,
+Practices that hold: an index in the entry file (each doc with its when-to-read purpose, visible every turn); the single-source rule (ref docs link to systems of record, never copy drifting facts); verification stamps (mark when a doc was last confirmed current). A stale ref doc actively misleads; an invisible one never helps.`,    considered: true,
     implemented: true,
     wanted: false,
     tags: ['ref-docs', 'docs', 'feedforward', 'guides', 'index'],
@@ -344,15 +310,9 @@ Ours (added 2026-09):
     title: 'Architecture doc (architecture.md)',
     category: 'Knowledge',
     summary: 'The Fig-3 feedforward guide for the app itself: routes, pipeline, data, earned gotchas — the buddy the agent reads before changing any route/table/flow.',
-    body: `The article's change-lifecycle figure feeds architecture.md into initial generation: a curated map of the system under work, distinct from the harness around the agent (that's docs/current-harness.md). Ours lives at the repo root, indexed first in the AGENTS.md ref-docs list:
+    body: `A curated map of the system under work — routes/endpoints with handlers and auth levels, the request pipeline (middleware, gates, header discipline), the data model and its rules, earned gotchas marked do-not-regress, and where each area's behaviour is proven. Distinct from harness docs (how the agent setup works); this one describes the app itself.
 
-- **Routes table** — every page + API with handler file, auth level, and notes (incl. the Astro-7 destructured-exports gotcha).
-- **Request pipeline** — middleware session handling, page gate vs API re-check, Origin + JSON content-type discipline.
-- **Data** — schema summary, catalog-is-code rule, snapshot/C4 flow.
-- **Static-serving gotcha** — marked do-not-regress, pinned by tests.
-- **Where behaviour is proven** — suite / unit / browser mapping per area.
-
-**Thoughts:** the audit that earned it found the AGENTS.md arch map missing 10 entries and current-harness.md stamped v7 in a v12 world — the article's coherence failure, live. One buddy doc, single-sourced, indexed where the agent looks every turn.`,
+The agent reads it before changing any route, table, or flow. Shape over content: tables beat prose for endpoints, pipelines read top-to-bottom, gotchas are pinned by tests so they can't silently rot. An entry-file architecture sketch that misses half the routes is the coherence failure live — one buddy doc, single-sourced, indexed where the agent looks every turn.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -366,15 +326,15 @@ Ours (added 2026-09):
     title: 'How-to-test',
     category: 'Knowledge',
     summary: 'The Fig-3 feedforward testing guide: how-tos §5 plus the executable suite — doc, tests, and norm agreeing on what green looks like.',
-    body: `The testing counterpart of the bootstrap skill: instructions telling the agent how this repo tests before it writes — seams, commands, green, failure reading.
+    body: `Instructions telling the agent how the project tests, before it writes — seams, commands, what green looks like, how to read failures.
 
-Complete in three layers (2026-09):
+Complete in three layers that agree with each other:
 
-1. **Doc** — docs/Harness how-tos.md §5: exact commands, expected receipts, per-step failure table (incl. a test-failure row, so a failing seam sends the reader somewhere).
-2. **Executable** — test/ (9 HTTP seam tests) + test/lib.test.mjs (13 unit tests), both inside npm run check.
-3. **Norm** — AGENTS.md Testing section plus implement's TDD steps (with the exact mid-loop and full commands spelled out) and the review checklist's receipts line.
+1. **Doc** — exact commands, expected receipts, per-step failure table (so a failing seam sends the reader somewhere, not nowhere).
+2. **Executable** — HTTP seam tests plus unit tests over the pure core, both inside the project's check command.
+3. **Norm** — the entry file's testing section plus TDD steps in the implement workflow, with mid-loop and full commands spelled out.
 
-**Thoughts:** doc, executable, and norm agreeing is rare enough to state outright — most repos have two of three, and the missing one is usually the doc. Fixed in the same pass: implement step 4 now names npm run check instead of "the full test suite".`,
+Doc, executable, and norm agreeing is rare enough to state outright — most repos have two of three, and the missing one is usually the doc.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -388,13 +348,9 @@ Complete in three layers (2026-09):
     title: 'MCP knowledge',
     category: 'Tooling',
     summary: 'The Fig-3 knowledge-protocol entry: the knowledge exists (docs, journal, catalog, snapshots) but no MCP server exposes it — files win on context cost; remote docs are the trigger.',
-    body: `The figure's knowledge-management entry: the agent querying team knowledge at generation time through a protocol instead of relying on what is in context.
+    body: `The change-lifecycle figure's knowledge-management entry: the agent querying team knowledge at generation time through a protocol instead of relying on what is in context.
 
-Status (2026-09): gap that mostly isn't. pi has no MCP client; opencode does (opencode.json → mcp, verified in its docs) but this repo has no opencode.json — zero servers configured. The knowledge itself is complete: indexed docs, decision journal, 29-mod catalog, 14 snapshots.
-
-Why files win: opencode's own MCP page warns servers add to context every turn. Files + grep + progressive disclosure give the same knowledge at zero cost until needed.
-
-Split: in-repo knowledge → files, no MCP warranted. Off-repo (library API docs) → firecrawl skills cover it via CLI today; a Context7-style remote is the convenience upgrade. Trigger: repeated off-repo lookups firecrawl handles clumsily, or multi-repo knowledge.`,
+Decision rule: in-repo knowledge goes in files — indexed docs, decision journal, catalog, snapshots — because files plus search plus progressive disclosure cost zero tokens until needed, while protocol servers tax every turn with context. A remote knowledge server earns its place only for off-repo knowledge (library API docs) looked up often enough that CLI scraping turns clumsy. Trigger for revisiting: repeated multi-repo or off-repo lookups.`,
     considered: true,
     implemented: false,
     wanted: false,
@@ -407,16 +363,16 @@ Split: in-repo knowledge → files, no MCP warranted. Off-repo (library API docs
   {
     title: 'Self-correction loop',
     category: 'Workflow',
-    summary: 'The Fig-3 first feedback ring, run pre-handoff inside npm run check: review checklist + eslint + semgrep + coverage, with dep-cruiser parked on trigger.',
-    body: `The figure's self-correction loop: the agent's first feedback pass before human eyes — fast controls, every change, fix before handoff. Ours runs pre-handoff inside npm run check:
+    summary: 'The first feedback ring, run pre-handoff: self-review checklist + lint + domain rules + coverage core — fast controls, every change.',
+    body: `The change-lifecycle figure's self-correction loop: the agent's first feedback pass before human eyes — fast controls, every change, fix before handoff:
 
-1. **/code-review** → implement step-6 read-back checklist (minimalism · scope · CfRs · catalog mirror · receipts). Same model, ritualized; second-model review waits on a semantic slip.
-2. **eslint** → flat config (recommended minus tsc-covered noise), green in check.
-3. **semgrep** → 2 earned rules (no absolute-local fetch, no eval), 0 findings in check.
-4. **coverage** → unit-tested lib core with real per-file lines (thresholds off until earned); black-box HTTP coverage proven unmeasurable on this server, suite proves the seams instead.
-5. **dep-cruiser** → adopted 2026-09-10 (trigger pulled early by explicit call): 4 layer rules in check, green day one (46 modules, 79 deps, 0 violations). Blind spot stated: .astro frontmatter invisible.
+1. **Self-review checklist** — minimalism · scope · quality bars · receipts. Same model, ritualized; second-model review waits on a semantic slip.
+2. **Lint** — flat config, recommended set minus typechecker-covered noise.
+3. **Domain rules** — a couple of earned static rules for the project's failure classes (e.g. no raw eval, no absolute-local fetch in browser code).
+4. **Coverage core** — unit-tested pure logic with real per-file lines, thresholds off until earned; a thin HTTP suite proves the seams instead of chasing unmeasurable black-box coverage.
+5. **Dependency rules** — layer boundaries at error severity once the tree earns them.
 
-**Thoughts:** the pipeline re-run half of the figure doesn't exist here (no CI) — the same command serves both halves. The loop closed fully 2026-09-10 when dep-cruiser's parked trigger was pulled early by explicit call.`,
+The pipeline re-run half (CI) is optional at small scale — one command can serve both halves until it can't.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -429,15 +385,10 @@ Split: in-repo knowledge → files, no MCP warranted. Off-repo (library API docs
   {
     title: 'Dead code detection',
     category: 'Tooling',
-    summary: 'Fig-4 continuous drift sensor (/find-dead-code): no watcher at our size — a one-shot manual pass plus the Minimalism principle instead.',
-    body: `The figure's /find-dead-code: a continuous sensor watching for code nobody calls, so rot accumulates visibly instead of silently.
+    summary: 'Continuous drift sensor for dead code: a real watcher past a size trigger — below it, a one-shot pass plus the Minimalism norm.',
+    body: `A continuous sensor watching for code nobody calls, so rot accumulates visibly instead of silently.
 
-Status (2026-09): no watcher, by decision — a 30-file repo is cheaper to eyeball than to configure knip for. What exists instead:
-
-1. **One-shot pass, done 2026-09-10:** a references grep over the tree. Found exactly one corpse — measure.mjs, a one-off Playwright measuring helper from the archify-visual-check session, zero references, no doc mentions — deleted on the spot.
-2. **The standing norm:** Minimalism (only the code the immediate problem needs) plus review-checklist read-backs keep new dead code out.
-
-Revisit trigger: the tree past ~100 source files, or a second corpse found by hand — whichever first earns a real watcher.`,
+Below the size where a watcher earns its keep, substitute: one manual references pass (delete corpses on the spot), plus the standing norm — Minimalism plus review read-backs keep new dead code out. Revisit trigger: source tree past ~100 files, or a second corpse found by hand — whichever first earns a real watcher.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -449,12 +400,10 @@ Revisit trigger: the tree past ~100 source files, or a second corpse found by ha
   {
     title: 'Dependabot',
     category: 'Tooling',
-    summary: 'Fig-4 continuous drift sensor for the npm tree: weekly vulnerability PRs (max 3 open); the one figure element that was a genuine gap.',
-    body: `The figure's dependabot: someone else's vulnerabilities arrive on their schedule, not ours — 30+ npm deps here including Astro, better-auth, and drizzle. This was the one Fig-4 element that was a genuine gap rather than a scoped-out luxury.
+    summary: 'Continuous drift sensor for the dependency tree: scheduled vulnerability PRs, capped open — each one just another change in the pipeline.',
+    body: `Someone else's vulnerabilities arrive on their schedule, not yours — a scheduled dependency service (weekly, max a few open PRs) turns them into routine changes: the check suite runs on each, review reads it, a human merges.
 
-Implemented (2026-09-10): .github/dependabot.yml — npm, weekly, max 3 open PRs. Each PR is just another change walking into the pipeline: check runs on it, the review checklist reads it, the human merges.
-
-Deliberately excluded: pip/semgrep rides untracked (pip install, no requirements file) — pin it only if its version ever matters. Same for the weekly cadence: faster than our ability to review would just stack PRs.`,
+Scope deliberately: cap open PRs below review bandwidth, or they just stack. Pin only what matters (a version that actually affects behavior); leave the rest floating until it does.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -525,15 +474,7 @@ Related out-of-scope kin: the Logs mod records the same verdict for the batch fo
     summary: 'The honest signal for suite strength (bugs planted, tests must fail): probed manually 4/4 killed; full tooling parked — no node:test runner exists and no mutant has survived.',
     body: `The most honest signal for a test suite's fault-detection: coverage tracks line execution, mutation introduces deliberate bugs and requires tests to fail when behavior breaks. An undetected mutation is a validation gap, not a coverage gap. Critical in the AI era, where high coverage can mask logically hollow, perpetually-green tests (missing assertions, decoupled mocks).
 
-Manual probe, run live here (2026-09-10, all mutants reverted immediately):
-1. slugify drops lowercase → killed (3 unit failures).
-2. toView flag-flip (predicted survivor) → killed by the flag-mapping test.
-3. Highlight-dimension drop → killed.
-4. [LSP] bracket reintroduction → killed by the regression test.
-
-Score 4/4 — the 22 tests genuinely validate; no hollow greens found.
-
-Adopted for real (2026-09-15): the "no node:test runner" objection was wrong — Stryker's default command runner drives any shell command by exit code. stryker.config.mjs scopes runs to src/lib, manual and incremental (never in check — minutes per run). First real run: mods.ts 68.75%, and the regex-trimming survivors immediately earned trimming property tests. reports/ ignored as regenerable residue.`,
+Manual probe pattern first: plant a handful of deliberate bugs (dropped normalization, flag flips, reverted regression fixes), confirm the suite kills each, revert immediately. A surviving mutant is a validation gap, not a coverage gap. Full mutation tooling earns its place past a size trigger or after the first slipped seam — command-runner based tools drive any test command by exit code, and reports stay untracked residue.`,
     considered: true,
     implemented: false,
     wanted: false,
@@ -546,19 +487,12 @@ Adopted for real (2026-09-15): the "no node:test runner" objection was wrong —
   {
     title: 'Dependency rules (dep-cruiser)',
     category: 'Tooling',
-    summary: 'Sensors-article cross-file sensor: 4 layer rules (routes→lib→db, ops aside, extension isolated) green in check, plus a generated mermaid graph of the whole import tree.',
-    body: `The sensors article's dependency-rules section: basic linting sees files, this sees across them — routes -> services -> clients + domain there, routes -> lib -> db here. Co-written config the same way (AI absorbs the syntax cost), error messages recap the layering for self-correction.
+    summary: 'Cross-file sensor: layer rules (routes→logic→persistence, ops aside, extensions isolated) green in check, plus a generated import graph.',
+    body: `Basic linting sees files; dependency rules see across them — which layers may import which, enforced at error severity inside the check command. Co-write the config with the agent (it absorbs the syntax cost), and word violations as layering recaps so they self-correct.
 
-Rules (.dependency-cruiser.mjs, all error severity, all green day one — 47 modules, 80 deps, 0 violations):
+Typical rules: logic stays UI-free (unit-testable, portable); persistence takes no app dependencies; ops scripts drive libraries or HTTP, never pages; extensions import only the runtime API (portability). State blind spots outright (template frontmatter, dynamic imports); a generated import graph makes drift visible on demand.
 
-1. **lib-no-routes** — logic stays UI-free (unit-testable, portable).
-2. **db-inward-only** — persistence takes no app dependencies.
-3. **ops-no-routes** — scripts/tests drive lib or HTTP, never pages.
-4. **extension-isolation** — the pi extension imports node + pi API only (kit portability).
-
-Stated blind spot: .astro frontmatter is unparseable, so page-side imports are invisible; the ts/js/mjs graph is fully covered. The generated map (docs/dependency-graph.mmd, 80 edges, validate-first regeneration) makes drift visible on demand.
-
-**Thoughts:** this replaced structure-description prose with an enforced boundary — the kit/instance split finally has its fitness function. Parked trigger pulled early by explicit call; no second violation needed arguing.`,
+Adoption note: this replaces structure-description prose with an enforced boundary — and it can graduate early on explicit call, no second violation needed.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -567,30 +501,31 @@ Stated blind spot: .astro frontmatter is unparseable, so page-side imports are i
       { label: 'sensors article — dependency rules', url: 'https://martinfowler.com/articles/sensors-for-coding-agents.html' },
       { label: 'dependency-cruiser', url: 'https://github.com/sverweij/dependency-cruiser' },
       { label: 'generated graph', url: 'docs/dependency-graph.mmd' },
+      { label: 'lecture 10 — arch rules executable', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
     ],
   },
   {
     title: 'Safeguards against AI missteps',
     category: 'Knowledge',
-    summary: 'Böckeler’s safeguard list against LLM caprice (individual + team), quoted whole, with each item mapped to our control — the threat model our harness answers.',
-    body: `From "The role of developer skills in agentic coding" (the failure-modes catalog the harness article maps its sensors against) — quoted whole, then mapped:
+    summary: 'The safeguard list against LLM caprice (individual + team), quoted whole, each item mapped to a control class.',
+    body: `From "The role of developer skills in agentic coding" (the failure-modes catalog the harness article maps its sensors against) — quoted whole, then mapped to control classes:
 
 ## Individual coder
 
-- **Always carefully review AI-generated code.** It is very rare that I do NOT find something to fix or improve. → *Ours: implement step-6 read-back checklist; human-review ring stays, no autonomous merging.*
-- **Stop AI coding sessions when you feel overwhelmed.** Revise the prompt and start fresh, or fall back to manual implementation ("artisanal coding"). → *Ours: Clarify-don't-guess principle; short sessions (the context caveat rewards fresh branches).*
-- **Stay cautious of "good enough" solutions** created miraculously fast but carrying maintenance cost. → *Ours: Minimalism + review-checklist over-engineering read.*
-- **Practice pair programming.** Four eyes catch more than two. → *Ours: the agent loop under human eyes is the pair; second-model review waits on trigger.*
+- **Always carefully review AI-generated code.** It is very rare that I do NOT find something to fix or improve. → *read-back checklist before handoff; human-review ring stays, no autonomous merging.*
+- **Stop AI coding sessions when you feel overwhelmed.** Revise the prompt and start fresh, or fall back to manual implementation. → *clarify-don't-guess; short sessions, fresh branches when context degrades.*
+- **Stay cautious of "good enough" solutions** created miraculously fast but carrying maintenance cost. → *minimalism plus an over-engineering read in review.*
+- **Practice pair programming.** Four eyes catch more than two. → *the agent loop under human eyes is the pair; second-model review waits on a trigger.*
 
 ## Team and organization
 
-- **Good ol' code quality monitoring** (SonarQube/CodeScene; watch duplication harder now). → *Ours: the computational ring (typecheck, lint, semgrep, tests); duplication watched by review, no dedicated tool yet.*
-- **Pre-commit hooks and IDE-integrated review — shift left.** → *Ours: npm run check pre-handoff + CI on push; the pipeline half now exists.*
-- **Revisit practices; keep a "Go-wrong" log**, reflected on weekly. → *Ours: the decisions journal IS the log; the failure-ledger tripwire is the wanted automation.*
-- **Make use of custom rules** (sent with every prompt — obeyed only probabilistically, worse in long sessions). → *Ours: AGENTS.md + skill rules, with the same caveat recorded; rules that can graduate become sensors.*
-- **Culture of trust and open communication** — pressure to deliver "because AI" is itself a quality risk. → *Ours: single-human scale, but the warning stands against self-pressure to merge green-but-unread diffs.*
+- **Good ol' code quality monitoring** (watch duplication harder now). → *the computational ring (typecheck, lint, domain rules, tests).*
+- **Pre-commit hooks and IDE-integrated review — shift left.** → *a pre-handoff gate plus CI on push.*
+- **Revisit practices; keep a "Go-wrong" log**, reflected on weekly. → *a decisions journal as the log; a repetition tripwire as the wanted automation.*
+- **Make use of custom rules** (sent with every prompt — obeyed only probabilistically, worse in long sessions). → *entry-file plus skill rules, with the caveat recorded; rules that can graduate become sensors.*
+- **Culture of trust and open communication** — pressure to deliver "because AI" is itself a quality risk. → *stands even at single-human scale, against merging green-but-unread diffs.*
 
-**Thoughts:** this list is the threat model; nearly every mod in this catalog is one of its answers. New safeguards should arrive the same way these did — quoted, then mapped, then built.`,
+New safeguards should arrive the same way these did — quoted, then mapped, then built.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -603,17 +538,13 @@ Stated blind spot: .astro frontmatter is unparseable, so page-side imports are i
   {
     title: 'Coupling data',
     category: 'Tooling',
-    summary: 'Sensors-article coupling experiment, built thin: TS-compiler fan-in/fan-out + cycles + blast radius via CLI, six-tab static dashboard as app tab — triage use, not judgment.',
-    body: `The article's coupling-data experiment (custom TS-compiler tooling, web viz + agent CLI) rebuilt at our scale: scripts/coupling.mjs extracts per-file import + call edges for the 23 ts/js files.
+    summary: 'Compiler-extracted coupling data, built thin: fan-in/fan-out + cycles + blast radius via CLI, static dashboard as app tab — triage use, not judgment.',
+    body: `Custom compiler tooling extracting per-file import plus call edges, in two faces:
 
-Two faces, like hers:
+1. **CLI for the agent** — hotspots (fan-in/fan-out), transitive blast radius for review triage, cycle detection, full JSON output.
+2. **Dashboard for the human** — static tabs (structure, coupling, cohesion, risk, functions, layers) served as an app page. Deliberately tables and bars — fancy visualizations don't reduce review load.
 
-1. **CLI for the agent** — hotspots (fan-in/fan-out), impact <files> (transitive blast radius for review triage), cycles, full JSON. Findings: db/client.ts + src/lib/mods.ts lead fan-in (6 each); zero import cycles.
-2. **Dashboard for the human** — six static-SVG tabs (Structure, Coupling, Cohesion, Risk, Functions, Layers) at /docs/coupling/dashboard.html, linked as the Coupling tab in the app nav. Deliberately tables and bars, not DSM/force-graphs — her own verdict was that fancy viz doesn't reduce review load.
-
-Verified against dependency-cruiser (same in-repo edge set). Stated limits: .astro invisible, call-edge resolution thin (the import graph carries the triage use). On demand during review, not a check gate.
-
-**Thoughts:** her best line survives — data in service of attention (where to look hard), not judgment (no good/bad without appropriateness context, which lives outside the graph). The review-checklist impact line is the named next step.`,
+Verify against the dependency-rule engine (same edge set, two readers). State limits outright (template files invisible, call-edge resolution thin — the import graph carries the triage use). On demand during review, not a check gate. Load-bearing rule: data in service of attention (where to look hard), not judgment — good/bad needs appropriateness context that lives outside the graph.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -626,12 +557,10 @@ Verified against dependency-cruiser (same in-repo edge set). Stated limits: .ast
   {
     title: 'Modularity review (Balanced Coupling)',
     category: 'Workflow',
-    summary: 'Khononov’s review/design skills adopted globally with a pi adapter: evidence-first (coupling CLI quoted before judgment), grilling-style interviews, reports to docs/.',
-    body: `The sensors article's inferential payoff: AI modularity review with strong prompts (Balanced Coupling model — strength, distance, volatility + balance rule) found what coupling data alone could not, and run-twice surfaced different issues.
+    summary: 'Balanced-Coupling review/design skills: evidence-first (numbers quoted before judgment), interview-style scoping, reports to docs.',
+    body: `AI modularity review with strong prompts (Balanced Coupling model — integration strength, distance, volatility plus the balance rule) finds what coupling data alone cannot, and running twice surfaces different issues.
 
-Adopted the way firecrawl/archify were (2026-09-15): upstream bodies live globally (~/.agents/skills/modularity, CC BY-NC-SA 4.0 verbatim + LICENSE), modularity-review + modularity-design symlinked into the harness, and .pi/skills/modularity/ adapts Claude-isms — AskUserQuestion → grilling rounds, TaskCreate → todowrite, evidence → scripts/coupling.mjs, reports → docs/.
-
-Load-bearing rule from their lessons: numbers quoted before judgment, legitimate hubs acquitted in writing. Status: installed and wired, unrun — on probation until the first structural change or the 5-snapshot ritual triggers it.`,
+Adoption shape: upstream skill bodies kept verbatim with license, plus a project adapter (vendor interview protocol → local questioning rounds, vendor task tracking → local todos, evidence → the coupling CLI, reports → docs). Load-bearing rule from the model's lessons: numbers quoted before judgment, legitimate hubs acquitted in writing. New capability stays on probation until the first structural change (or a snapshot ritual) triggers a real run.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -657,7 +586,22 @@ The form: state Done-means before starting, declare done only when a command con
 > - All new code passes pytest
 > - Type checking passes (mypy --strict)
 
-Each line names something a command can confirm. Translate the runners to your stack — whatever test runner, typechecker, and contract assertions you use. The form is the point, not the tools. Done is behavior verified, never code that looks fine.`,
+Each line names something a command can confirm. Translate the runners to your stack — whatever test runner, typechecker, and contract assertions you use. The form is the point, not the tools. Done is behavior verified, never code that looks fine.
+
+Hardened form — leveled termination, no skipping (Lecture 09). The agent's confidence is systematically miscalibrated, so completion judgment belongs to the harness, executed layer by layer on runtime signals, not feelings:
+
+\`\`\`markdown
+## Definition of Done
+- Feature complete = end-to-end verification passed, not "code is written"
+- Required verification levels:
+  1. Unit tests pass
+  2. Integration tests pass
+  3. End-to-end flow verification passes
+- Do not proceed to level 2 if level 1 fails
+- Do not proceed to level 3 if level 2 fails
+\`\`\`
+
+Layer 1 (syntax/static) is the bare minimum — spell correctly before reading further. Layer 2 (runtime behavior: tests, startup, critical paths) is the core evidence — not just written, but runnable. Layer 3 (system: e2e, integration, user scenarios) is the last line — not just runnable, but correct.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -666,6 +610,8 @@ Each line names something a command can confirm. Translate the runners to your s
       { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
       { label: 'lecture 07 — completion evidence', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-07-why-agents-overreach-and-under-finish/' },
       { label: 'lecture 08 — primitives', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-08-why-feature-lists-are-harness-primitives/' },
+      { label: 'lecture 09 — leveled termination', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
+      { label: 'lecture 10 — e2e layer', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
     ],
   },
   {
@@ -681,6 +627,7 @@ Start manual: one log line per task (claimed-done + independent verdict), gap ra
     tags: ['verification-gap', 'metrics', 'validation'],
     links: [
       { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
+      { label: 'lecture 09 — calibration bias', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
     ],
   },
   {
@@ -704,17 +651,16 @@ On /compact: built-in compaction is the within-session half, and it keeps the wh
   {
     title: 'Sensors sidecar',
     category: 'Tooling',
-    summary: 'Her continuous daemon, adopted whole: 6 fast sensors on intervals with native/default parsers, agent summary via sensors check; heavies excluded, Stryker triggered.',
-    body: `The sensors article's appendix made real: birgitta410/sensors-cli (uv-installed) running typecheck/lint/semgrep/structure/unit/secrets on 60–120s intervals, with her human HUD and the token-efficient agent summary (sensors check) as the two faces.
+    summary: 'The continuous daemon complement to the gate: fast sensors on intervals with an agent summary face; heavies stay in check/CI.',
+    body: `A sensor daemon running fast checks on 60–120s intervals, with two faces: a human HUD and a token-efficient agent summary. The check command remains the gate (one-shot, authoritative); the sidecar is situational awareness between gates — and the history it accumulates becomes the failure ledger a repetition tripwire stands on.
 
 Shape of the adoption:
 
-- **Native parsers where they exist** — eslint/semgrep/depcruise run stock machine-readable commands; everything else through one generic default-parser wrapper (exit code is the verdict). No per-sensor parser code written.
-- **Fast slices only** — browser flows, HTTP suite, and Stryker stay out (server + minutes; check/CI territory). Stryker reads the last report on a 5-minute interval (cheap cat; expensive runs manual via npm run mutate, which stops the sidecar first — its socket breaks Stryker sandboxes).
-- **Config + wrapper tracked** (.sensors/harn.sensors.yaml); runtime state ignored by the tool's own .gitignore. Tool configs stay at root (declined her move-under-.sensors convention — check, CI, and docs reference root paths).
-- **Frictions resolved:** Mac-only tool boots on Linux; config mode is triggered not trigger (worker mode shows the real error).
+- **Native parsers where they exist** — stock machine-readable commands for lint and domain rules; everything else through one generic wrapper where the exit code is the verdict. No per-sensor parser code.
+- **Fast slices only** — browser flows, HTTP suite, and mutation runs stay out (server plus minutes is check/CI territory); expensive tools are read from their last report on interval, run manually.
+- **Config tracked, runtime ignored** — sensor config versioned; runtime state excluded by the tool's own ignore rules.
 
-**Thoughts:** check remains the gate (one-shot, authoritative); the sidecar is situational awareness between gates. The history files it accumulates are the future failure ledger — the tripwire proposal finally has real data to stand on.`,
+Resolve frictions in favor of truthful errors: silent modes and swallowed failures are sensor bugs, not features.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -727,14 +673,14 @@ Shape of the adoption:
   {
     title: 'Observability',
     category: 'Tooling',
-    summary: 'Single-process analogue of the per-worktree stack: JSONL access log + Prometheus metrics + trace ring with request IDs — no daemons, queryable today.',
-    body: `Their Victoria logs/metrics/traces + LogQL/PromQL, rebuilt at local scale with zero dependencies (src/lib/observability.ts):
+    summary: 'Single-process analogue of the per-worktree stack: access log + metrics endpoint + trace ring with request IDs — no daemons, queryable today.',
+    body: `Logs/metrics/traces rebuilt at local scale with zero dependencies:
 
-- **LOGS:** JSONL access log (data/access.log, gitignored) — every request with trace id, timing, checkpoints. Grep/jq-able; Vector could tail it later.
-- **METRICS:** Prometheus text at /api/metrics — request counts, avg/p50 durations, by-status and top-path families. Scrapeable if a TSDB ever arrives.
-- **TRACES:** X-Request-Id on every response, checkpoints in list handlers, last-200 ring at /api/traces. Middleware starts/finishes all traces; observability never fails requests.
+- **LOGS:** a JSONL access log — every request with trace id, timing, checkpoints. Grep-able; a log shipper can tail it later.
+- **METRICS:** Prometheus text at a metrics endpoint — request counts, average/p50 durations, by-status and top-path families. Scrapeable if a TSDB ever arrives.
+- **TRACES:** a request id on every response, checkpoints in list handlers, a last-N ring endpoint. Middleware starts and finishes all traces; observability never fails requests.
 
-**Thoughts:** challenged as overkill, built to see — verdict: the JSONL log earns its keep immediately (what 500'd, what did the session hit); metrics/traces are cheap ballast until a latency question or second process arrives. Process-lifetime memories reset on dev reload (stated). Thin tests pin all three seams.`,
+Expect the log to earn its keep first (what errored, what the session hit); metrics and traces are cheap ballast until a latency question or a second process arrives. Process-lifetime memories reset on reload — state that. Thin tests pin all three seams.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -748,24 +694,14 @@ Shape of the adoption:
   {
     title: 'Browser QA',
     category: 'Tooling',
-    summary: 'Headless browser sensor (Playwright + system Chrome): console/DOM/error checks, --eval full DOM API, sign-in flow, screenshots — the app\'s behaviour harness.',
-    body: `Project skill (.pi/skills/browser-qa + playwright-core devDependency): a scriptable headless-Chrome sensor for the harness app — the behaviour side of the article's regulation model (it catches what typecheck/build cannot: the page actually rendering, the auth flow actually working, the browser actually accepting our responses).
+    summary: 'Headless-browser behaviour sensor: console/DOM/error capture, full DOM eval, login flow, screenshots — catches what build cannot.',
+    body: `A scriptable headless-browser sensor — the behaviour side of the regulation model. It catches what typecheck and build cannot: the page actually rendering, the auth flow actually working, the browser actually accepting responses (content negotiation, cookies — the whole class of things scripted HTTP clients lie about).
 
-What it does (node .pi/skills/browser-qa/scripts/qa.mjs <url> [flags]):
+Capabilities: per-run capture of console errors/warnings, uncaught page errors, and failed requests; DOM assertions (selector present/absent, text presence, waits); full DOM API evaluation for structural checks (does the diagram render, how many version pills); scripted sign-in flow with env-supplied credentials, never hardcoded; full-page screenshots, with per-run noise untracked and curated evidence committed.
 
-1. **Error capture** — console errors/warnings, uncaught page errors, failed requests, per run.
-2. **DOM assertions** — --assert / --reject selectors, --text presence, --wait.
-3. **--eval <js>** — the full browser DOM API via page.evaluate: e.g. on /harness → {"svg":1,"pills":6,"snap":6,"iframes":2} (mermaid rendered, 6 version pills, 2 archify iframes).
-4. **--login** — fills #loginForm, submits, waits for the /admin redirect (creds via ADMIN_EMAIL/ADMIN_PASSWORD env — never hardcoded).
-5. **--shot** — full-page PNGs to public/screenshots/ (served at /screenshots/…).
+Wired into the suite as behaviour flows gated after the build — green means zero console errors, zero page errors, zero failed requests on the production build. Expect-error-free is meaningful against prod, not dev (dev toolbars and optimizer noise pollute headless runs).
 
-Wired into the suite: scripts/qa-flows.mjs runs 4 flows (catalog, harness, archify, login) and npm run check gates them after a build. All 4 green: 0 console errors / 0 page errors / 0 failed requests on the preview build.
-
-**Earned lessons (this sensor already paid rent):** it caught the /docs/archify serving failure (curl got 200 with Accept */*, real browsers got 404 — Accept: text/html) and the preview login 403 (better-auth origin vs AUTH_URL mismatch + Secure cookies over http). Both were invisible to curl and build checks.
-
-Dev-mode caveat: npm run dev emits Vite dev-toolbar 504s in headless runs — expect-error-free is meaningful against the prod build (npm run preview), which check self-serves.
-
-Sensor record (2026-09, Fig 2 Browser row): this is the backstop of the Real-browser-usability CfR, which exists because scripted clients lie. Hygiene: per-run check-*.png screenshots are untracked noise (ignored); curated qa-* evidence stays committed. The --help usage line now lists every flag. Opencode-era upgrade, free: with a vision-capable model the agent can actually look at the screenshots — same sensor, strictly stronger reader.`,
+With a vision-capable model the agent can look at the screenshots itself — same sensor, strictly stronger reader.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -774,21 +710,18 @@ Sensor record (2026-09, Fig 2 Browser row): this is the backstop of the Real-bro
       { label: 'playwright-core', url: 'https://playwright.dev' },
       { label: 'check flows (runner)', url: 'scripts/qa-flows.mjs' },
       { label: 'screenshots', url: '/screenshots/qa-harness-map.png' },
+      { label: 'lecture 10 — e2e layer', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
     ],
   },
   {
-    title: 'Language servers (astro check)',
+    title: 'Language servers (batch typecheck)',
     category: 'Tooling',
-    summary: 'Deterministic code intelligence as a batch sensor: astro check type-checks the whole repo in npm run check — the control astro build pretended to be.',
-    body: `The article's Language Servers guide (computational): ground-truth code intelligence — types, signatures, definitions, references, diagnostics — steering the agent before it writes. The same engine run after a change is a sensor; placement decides the role.
+    summary: 'Deterministic code intelligence as a batch sensor: full-repo typecheck in the check command — the control the build pretends to be.',
+    body: `Ground-truth code intelligence — types, signatures, definitions, references, diagnostics — steering the agent before it writes. The same engine run after a change is a sensor; placement decides the role.
 
-**The audit finding that earned this mod:** npm run check ran astro build… which does NOT type-check TypeScript (esbuild strips types without checking). The typecheck sensor we thought we had did not exist — a type error in src/lib sailed through build and check.
+The audit finding that earns this mod: bundler builds strip types without checking them, so a "check" that runs build-only has no typecheck sensor at all — a type error sails through green. Chain the language engine in CLI mode into the check command (build → typecheck → secrets scan → behaviour flows). Interactive form (editor/extension diagnostics on edit, silent when clean) is the true guide placement; the batch sensor is its portable cover under runtimes without extension APIs. Watch the failure mode where a crashed probe is byte-identical to "clean" — failures need a distinct note.
 
-Decision (2026-09): astro check (the TS/Astro language engine in CLI mode) chained into npm run check (build → typecheck → secrets scan → behaviour flows). DevDeps: @astrojs/check + typescript@6. First run: 1 real error (unknown catch binding in C4Diagram.astro) — fixed; now 0 errors / 0 warnings.
-
-*Gotcha:* TypeScript 7 (the new native compiler) does not expose the programmatic API astro check needs — pin typescript@6.x until Astro supports it (docs.astro.build, withastro/roadmap#1321).
-
-**Interactive form landed (2026-09, pi-only):** \`.pi/extensions/lsp-diagnostics/\` speaks LSP over stdio to \`typescript-language-server\` and appends \`[LSP]\` receipts to edit/write/bash tool results (silent when clean) + a \`diagnostics\` on-demand probe — the true guide placement. It needs pi's ExtensionAPI, so under opencode it does not execute; the batch sensor above is the portable cover. Protocol review: docs/LSP — review and integration.md. Open hardening: a hook crash is byte-identical to "clean" (needs a distinct failure note).`,
+Version gotchas are real: compilers change programmatic APIs across majors, so pin the toolchain the checker needs until support lands, and record the pin with its upstream reference.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -801,16 +734,15 @@ Decision (2026-09): astro check (the TS/Astro language engine in CLI mode) chain
   {
     title: 'Workflow pipeline (grill → spec → tickets → slices)',
     category: 'Workflow',
-    summary: 'Matt Pocock–style engineering skills, pi-adapted: grilling, to-spec, to-tickets, implement (+ grill-me wrapper).',
-    body: `Five skills in ~/.pi/agent/skills/ that give the harness a deliberate plan→build pipeline:
+    summary: 'Deliberate plan→build pipeline skills: interview, spec, tickets, implement — vertical slices, one at a time, never auto-invoked.',
+    body: `A deliberate plan-to-build pipeline in four skills:
 
-1. **grilling** (trigger-invokable) — the design interview: maps the topic into a *design tree*, asks it in *rounds* (whole frontier at once, numbered questions each with a recommended answer), and finds all *facts* itself via the firecrawl search skills + read/bash. Ends when the frontier is empty and the user confirms shared understanding. Greenfield fullstack project: seeds from a 14-area coverage list (requirements → architecture → risks/compliance → integrations → data lifecycle → dev env → backend → frontend → testing → infra/DevOps → deployment → monitoring → release → post-launch). New features: only the applicable subset.
-2. **to-spec** (/skill:to-spec, deliberate) — no-interview synthesis of the settled tree → docs/specs/<slug>.md (Problem/Solution/User Stories/Implementation Decisions/single highest Test Seam/Open Questions).
-3. **to-tickets** (/skill:to-tickets) — tracer-bullet *vertical slice* tickets at docs/tickets/NN-<slug>.md with \`blocks:\` edges (full path schema→API→UI→tests, demoable alone, one fresh context window; wide refactors handled via expand–contract). Quizzes the user on the breakdown.
-4. **implement** (/skill:implement) — one unblocked ticket at a time, TDD at the spec's seam, typecheck + targeted tests regularly, full suite at the end, self-review, commit \`ticket N: …\`.
-5. **grill-me** (/skill:grill-me) — explicit entry point running the grilling protocol.
+1. **Interview** (trigger-invokable) — the design interview: map the topic into a design tree, ask it in rounds (whole frontier at once, numbered questions each with a recommended answer), find all facts via web search plus repo reads. Greenfield seeds from a coverage list (requirements → architecture → risks → integrations → data → environments → backend → frontend → testing → infra → deployment → monitoring → release); new features take only the applicable subset. Ends when the frontier is empty and shared understanding is confirmed.
+2. **Spec synthesis** — no-interview write-up of the settled tree (problem / solution / user stories / implementation decisions / highest test seam / open questions).
+3. **Tickets** — tracer-bullet vertical-slice tickets with dependency edges (full path schema→API→UI→tests, demoable alone, one fresh context window; wide refactors via expand–contract). Quiz the breakdown.
+4. **Implement** — one unblocked ticket at a time, TDD at the spec's seam, typecheck plus targeted tests regularly, full suite at the end, self-review, commit per ticket.
 
-**Thoughts:** adaptations vs. the upstream repo: facts go through our firecrawl search skills instead of a sub-agent; the tracker is local markdown (docs/specs, docs/tickets) instead of an issue tracker; the deliberate steps are disable-model-invocation so the pipeline never runs accidentally. The correctness of each spec depends on grilling actually settling the tree — keep specs honest about Open Questions.`,
+Adaptations that matter: facts through search skills instead of sub-agents; the tracker is local markdown instead of an issue tracker; deliberate steps never model-invoked, so the pipeline never runs accidentally. A spec is only as honest as its open questions.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -823,19 +755,10 @@ Decision (2026-09): astro check (the TS/Astro language engine in CLI mode) chain
   {
     title: 'CLIs + scripts',
     category: 'Tooling',
-    summary: 'Deterministic commands behind skill wrappers — the portable computational guides: same bash in pi and opencode.',
-    body: `The article's CLIs/scripts guide (computational feedforward): deterministic tooling the agent invokes before/during generation instead of guessing. Its endorsed shape is the hybrid — "skill with instructions and a bootstrap script", rated Both computational and inferential — which is exactly our inventory:
+    summary: 'Deterministic commands behind skill wrappers — the portable computational guides: same shell in any harness.',
+    body: `Deterministic tooling the agent invokes before and during generation instead of guessing. The endorsed shape is the hybrid — a skill with instructions plus a bootstrap script — rated both computational and inferential. Typical inventory: web research CLI (search/scrape behind skills, with cost guards and outputs kept out of the context window), diagram CLI (typed input in, validated artifact out, repair receipt back), browser-evidence CLI (assert/eval/login/shot flags), plus project scripts for the pre-handoff gate and one-shot ops with exact commands and expected receipts.
 
-1. **firecrawl CLI** (web facts) — search/scrape/crawl behind the skill family, with cost guards (--limit caps, top hits only, outputs to .firecrawl/ not the context window).
-2. **archify CLI** (diagrams) — typed JSON in, validate → deliver, 9-gate receipt out.
-3. **browser-qa qa.mjs** (behaviour evidence) — --json / --assert / --eval / --login / --shot.
-4. **npm scripts + scripts/*.mjs** — the pre-handoff gate (npm run check) and harness-ops one-shots (seed, export/import, secrets scan).
-
-Three placements: mid-loop via bash (facts, diagrams, browser evidence), check as the left-shifted gate, one-shot harness ops with exact commands + expected receipts (docs/Harness how-tos.md).
-
-**Portability rule (earned in the pi → opencode move):** CLIs run through bash, which both harnesses have — they are the one guide category that survives the switch unchanged, unlike pi-only extensions. New controls ship as skill + script first.
-
-**Named gaps:** qa.mjs --help omits real flags (--eval, --login); no structural linters (eslint/semgrep ring — deferred at this size); Firecrawl budget has no sensor (proposal: warn-only --status line).`,
+Three placements: mid-loop via shell (facts, diagrams, browser evidence), the gate left-shifted into check, one-shot ops documented with commands and receipts. Portability rule: CLIs run through the shell every harness has — they are the one guide category that survives a harness switch unchanged, unlike runtime-specific extensions. New controls ship as skill plus script first.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -866,22 +789,19 @@ Three placements: mid-loop via bash (facts, diagrams, browser evidence), check a
   {
     title: 'Static analysis',
     category: 'Tooling',
-    summary: 'Deterministic checks on every change (Fig 2 first sensor row): build + strict typecheck + secrets scanner + eslint/semgrep, with a thin HTTP suite and unit-covered lib core as the behavioural backstop.',
-    body: `Fig 2's first sensor row (computational feedback): deterministic, millisecond-to-second checks on every change so the agent self-corrects before human eyes — with signals optimised for LLM consumption ("positive prompt injection").
+    summary: 'Deterministic checks on every change: build + strict typecheck + secrets scan + lint/domain rules, with a thin HTTP suite and unit-covered core as backstop.',
+    body: `Deterministic, seconds-fast checks on every change so the agent self-corrects before human eyes — with signals optimised for LLM consumption.
 
-Layers, all in npm run check:
+Layers, all in one check command:
 
-1. **astro build** — compile gate (esbuild strips types; checks nothing semantic).
-2. **astro check** — strict typecheck (astro/tsconfigs/strict); 0 errors / 0 warnings.
-3. **check-secrets.mjs** — the exemplar: 6 credential patterns over git-tracked files, file:line + fix, value never printed. Caught a live .env push on its first run.
-4. **eslint** (flat config, recommended minus tsc-covered noise) + **semgrep** (2 earned rules: no absolute-local fetch, no eval).
+1. **Build** — compile gate (bundlers strip types; a build checks nothing semantic — know this).
+2. **Strict typecheck** — the language engine in CLI mode; zero errors, zero warnings.
+3. **Secrets scan** — credential patterns over tracked files, file:line plus fix, values never printed. Must catch a live secret push on its first run to earn the name.
+4. **Lint plus domain rules** — general lint config minus typechecker-covered noise, plus a couple of earned static rules for the project's failure classes.
 
-Behavioural backstop (the Fig 3 coverage ring, honestly scoped):
+Behavioural backstop (honestly scoped): a thin suite (zero-dep HTTP tests mirroring the browser flows, including content-negotiation and origin lessons, plus fuzz probes where hostile input never 500s; env-gated login paths sign out after) and unit coverage of the pure core with real per-file lines (regression and property cases included; black-box HTTP coverage stays unmeasurable on most servers — thresholds off until earned).
 
-- **Thin suite** (test/, 12 tests, zero deps) — node:test + fetch mirror the 4 browser flows computationally, incl. the Accept-header and Origin-header lessons, plus fuzz probes (hostile input never 500s). Env-gated login paths sign out after.
-- **Unit coverage** (test/lib.test.mjs, 15 tests) — pure core (c4/mods/context) with real per-file lines, incl. the bracket regression and seeded slugify property cases; black-box HTTP coverage proven unmeasurable on this server (V8 data exists but Astro's bundles don't attribute), thresholds off until earned.
-
-Explicitly parked: **mutation testing** (trigger: ~30 tests or a slipped seam). dep-cruiser graduated 2026-09-10 (trigger pulled early): 4 layer rules green in check.`,
+Explicitly parked: mutation testing (trigger: suite size where rot outruns eyeballs, or a slipped seam). Dependency rules graduate on explicit call.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -894,14 +814,12 @@ Explicitly parked: **mutation testing** (trigger: ~30 tests or a slipped seam). 
   {
     title: 'Review agents',
     category: 'Tooling',
-    summary: 'Semantic judgment after the act (Fig 2 inferential sensor): the implement self-review formalized into a read-back checklist; second-model and janitor review deferred with triggers.',
-    body: `Fig 2's inferential (semantic) feedback sensor: a model re-reading code for what deterministic checks cannot see — misdiagnosis, over-engineering, wrong slice, spec mismatch. The article rations it by cost (/code-review every change, /architecture-review rarely) and warns contradictory signals need a tiebreaker (our Principles).
+    summary: 'Semantic judgment after the act: the implement self-review formalized into a read-back checklist; second-model and janitor review deferred with triggers.',
+    body: `Inferential (semantic) feedback: a model re-reading code for what deterministic checks cannot see — misdiagnosis, over-engineering, wrong slice, spec mismatch. Ration by cost (review every change, architecture rarely) and give contradictory signals a tiebreaker (the Principles).
 
-Status here was one unritualized line (implement step 6, "read it as a reviewer would") — same model, same window, no checklist. Earned evidence it was insufficient: the [LSP] mermaid-bracket bug sailed through it and was caught by a computational sensor instead.
+Unritualized self-review ("read it as a reviewer would") is insufficient — same model, same window, no checklist; the evidence is semantic slips sailing through to be caught by computational sensors instead. Formalize, don't expand: the implement step becomes a short read-back — minimalism · scope · quality bars · receipts — same cost, actual teeth.
 
-Formalized, not expanded (2026-09): step 6 is now a 5-point read-back — minimalism · scope · CfRs · catalog mirror · receipts — same cost, actual teeth. No second model, no new skill.
-
-Deferred with triggers: second-model spot review on risky diffs (auth, migrations, map) after the next semantic slip past the checklist; janitor/GC agents — nothing here drifts at army scale.`,
+Deferred with triggers: second-model spot review on risky diffs (auth, migrations, maps) after the next semantic slip past the checklist; janitor/GC agents only where something drifts at scale. Worker/checker separation (an independent nitpicky evaluator) is the autonomous end-state.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -909,6 +827,7 @@ Deferred with triggers: second-model spot review on risky diffs (auth, migration
     links: [
       { label: 'article — sensors', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'implement skill', url: '.pi/skills/implement/SKILL.md' },
+      { label: 'lecture 09 — worker/checker split', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
     ],
   },
   {
@@ -936,12 +855,12 @@ Explicitly out of scope: continuous log-anomaly judges — no runtime users, no 
   {
     title: 'Steering loop',
     category: 'Workflow',
-    summary: 'The human iterates the harness on recurrence (our Principle 9); the loop is human-triggered today — an automatic repetition tripwire is the wanted upgrade.',
-    body: `The article's steering loop: whenever an issue recurs, improve the controls so it gets less probable — and use AI to build those controls (draft rules, scaffold linters, how-tos from archaeology). This repo is the loop running: secrets incident → secrets scanner, invisible rule → AGENTS.md rule, bracket bug → unit test, daemon leak → preview-stop fix. The decisions doc is the loop's journal.
+    summary: 'The human iterates the harness on recurrence; the loop is human-triggered today — an automatic repetition tripwire is the wanted upgrade.',
+    body: `The article's steering loop: whenever an issue recurs, improve the controls so it gets less probable — and use AI to build those controls (draft rules, scaffold linters, how-tos from archaeology). A decisions journal is the loop's memory: secrets incident → secrets scanner, invisible rule → entry-file rule, bracket bug → regression test.
 
-Gap: the loop is human-triggered — recurrence is noticed by a person, then encoded. Nothing counts repetitions, so the "second occurrence" (lint) and "third occurrence" (codemod) triggers assume someone is counting.
+Gap the loop usually has: it is human-triggered — recurrence is noticed by a person, then encoded. Nothing counts repetitions, so the "second occurrence" (lint) and "third occurrence" (codemod) triggers assume someone is counting.
 
-Proposed mechanism (wanted, ~1 hour, zero deps): a failure ledger — check appends each sensor failure as one JSONL line (date, step, class, file) to data/failures.jsonl — plus a warn-only scripts/steering-review.mjs that counts classes in a window and prints rule candidates ("login flow failed 3rd time in 14 days — encode the bar?"). Thresholds mirror the existing rules (2 for lint-class, 3 for mechanical edits). Warn-only until the signal proves itself; a tripwire that cries wolf trains disregard, same as a noisy sensor.
+Proposed mechanism (wanted, ~1 hour, zero deps): a failure ledger — the check command appends each sensor failure as one JSONL line (date, step, class, file) — plus a warn-only review script that counts classes in a window and prints rule candidates ("login flow failed 3rd time in 14 days — encode the bar?"). Thresholds mirror the existing rules (2 for lint-class, 3 for mechanical edits). Warn-only until the signal proves itself; a tripwire that cries wolf trains disregard, same as a noisy sensor.
 
 Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Work through the five layers systematically — task not clearly defined, insufficient context, misconfigured environment, missing verification, loss of state between sessions. Attribution first, fix second: each layer points at a different control (spec, context budget, env parity, check gates, session discipline), and guessing the layer is how fixes land in the wrong place.`,
     considered: true,
@@ -951,6 +870,7 @@ Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Wo
     links: [
       { label: 'article — steering loop', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'lecture 01 — five layers', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
+      { label: 'lecture 10 — review promotion', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
       { label: 'decisions journal', url: 'docs/Harness decisions.md' },
     ],
   },
@@ -1225,6 +1145,33 @@ F01: User Registration
     links: [
       { label: 'lecture 07', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-07-why-agents-overreach-and-under-finish/' },
       { label: 'lecture 08 — primitives', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-08-why-feature-lists-are-harness-primitives/' },
+      { label: 'lecture 09 — no refactor before verified', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
+    ],
+  },
+  {
+    title: 'Agent-actionable errors',
+    category: 'Tooling',
+    summary: 'Lecture-09 pattern: errors that carry repair instructions — never "test failed", always what broke and where to look.',
+    body: `Don't tell the agent "it's wrong" — tell it exactly what's wrong and how to fix it, so it self-corrects without human intervention. The Codex pattern: errors written for agents include repair instructions as a rule, not a courtesy.
+
+Never \`"Test failed"\`. Always: \`"Test failed: POST /api/reset-password returned 500. Check that the email service config exists in environment variables. The template file should be at templates/reset-email.html."\` Name the failing call, the likely cause, and the concrete place to look — three facts, one message.
+
+Canonical shape — what, why, fix:
+
+\`\`\`
+ERROR: Found direct import of 'fs' in src/renderer/App.tsx:12
+WHY: Renderer process has no access to Node.js APIs for security
+FIX: Move file operations to src/preload/file-ops.ts and call via window.api.readFile()
+\`\`\`
+
+Feed it with runtime signals, the objective basis under the words: did the app start and reach ready? Did critical paths execute? Were side effects (writes, files) correct? Were temporary resources cleaned up? Signals are the evidence; the repair instruction is the verdict the agent can act on.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['errors', 'feedback', 'self-correction', 'signals'],
+    links: [
+      { label: 'lecture 09', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
+      { label: 'lecture 10 — what/why/fix', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
     ],
   },
 ];
