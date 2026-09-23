@@ -706,6 +706,67 @@ Standardize toward OpenTelemetry shape: one trace per session, one span per task
     ],
   },
   {
+    title: 'How to Build Observability',
+    category: 'Tooling',
+    summary: 'Lecture-11 method, whole: harness-collected signals, sprint contracts, evaluator rubric, OpenTelemetry shape.',
+    body: `## How to Build Observability
+
+### 1. Build Runtime Signal Collection into the Harness
+
+Don't rely on the agent to print its own logs. The harness should automatically collect the following signals:
+
+- **Application lifecycle:** Startup, ready, running, shutdown phase states
+- **Feature path execution:** Execution records for critical paths, including entry points, checkpoints, and exits
+- **Data flow:** Records of data flowing between components
+- **Resource utilization:** Abnormal resource usage patterns (e.g., continuously growing memory)
+- **Errors and exceptions:** Full error context, not just error messages
+
+### 2. Implement Sprint Contracts
+
+Before each task begins, the generator and evaluator (which may be different invocations of the same agent) negotiate a contract that defines what to build and what "done" looks like:
+
+\`\`\`markdown
+# Sprint Contract: Dark Mode Support
+
+## Scope
+- Modify the theme toggle component
+- Update global CSS variables
+- Add dark mode tests
+
+## Verification Standards
+- Visual regression tests pass for each component
+- Main flow end-to-end tests pass
+- No flash of unstyled content (FOUC)
+
+## Exclusions
+- Not handling print styles
+- Not handling third-party component dark mode
+\`\`\`
+
+### 3. Establish an Evaluator Rubric
+
+Turn "is it good or not" into quantifiable scoring:
+
+# Scoring Rubric
+
+| Dimension | A | B | C | D |
+|-----------|---|---|---|---|
+| Code correctness | All tests pass | Main flow passes | Partial pass | Build fails |
+| Architecture compliance | Fully compliant | Minor deviations | Obvious deviations | Serious violations |
+| Test coverage | Main + edge cases | Main flow only | Only skeleton | No tests |
+
+### 4. Standardize with OpenTelemetry
+
+Create a trace for each harness session, a span for each task, and sub-spans for each verification step. Use standard attributes to annotate key information. This way observability data integrates with standard toolchains (Jaeger, Zipkin).`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['observability', 'how-to', 'signals', 'contract', 'rubric', 'opentelemetry'],
+    links: [
+      { label: 'lecture 11', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
+    ],
+  },
+  {
     title: 'Browser QA',
     category: 'Tooling',
     summary: 'Headless-browser behaviour sensor: console/DOM/error capture, full DOM eval, login flow, screenshots — catches what build cannot.',
@@ -715,7 +776,9 @@ Capabilities: per-run capture of console errors/warnings, uncaught page errors, 
 
 Wired into the suite as behaviour flows gated after the build — green means zero console errors, zero page errors, zero failed requests on the production build. Expect-error-free is meaningful against prod, not dev (dev toolbars and optimizer noise pollute headless runs).
 
-With a vision-capable model the agent can look at the screenshots itself — same sensor, strictly stronger reader.`,
+With a vision-capable model the agent can look at the screenshots itself — same sensor, strictly stronger reader.
+
+Cost shape (Lecture 11): QA rounds run single-digit percent of build cost while deciding pass/fail — verification is cheap, generation is expensive. The behaviour layer is never where to economize.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -756,7 +819,9 @@ Version gotchas are real: compilers change programmatic APIs across majors, so p
 3. **Tickets** — tracer-bullet vertical-slice tickets with dependency edges (full path schema→API→UI→tests, demoable alone, one fresh context window; wide refactors via expand–contract). Quiz the breakdown.
 4. **Implement** — one unblocked ticket at a time, TDD at the spec's seam, typecheck plus targeted tests regularly, full suite at the end, self-review, commit per ticket.
 
-Adaptations that matter: facts through search skills instead of sub-agents; the tracker is local markdown instead of an issue tracker; deliberate steps never model-invoked, so the pipeline never runs accidentally. A spec is only as honest as its open questions.`,
+Adaptations that matter: facts through search skills instead of sub-agents; the tracker is local markdown instead of an issue tracker; deliberate steps never model-invoked, so the pipeline never runs accidentally. A spec is only as honest as its open questions.
+
+Planner restraint (Lecture 11): the planning stage stays bold on scope and high on product context, and stops short of granular technical implementation. Premature specifics that turn out wrong cascade into every downstream step; constrain deliverables and let execution find its own path. Interview the what and the why exhaustively — leave the how sketchy on purpose.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -837,7 +902,6 @@ Deferred with triggers: second-model spot review on risky diffs (auth, migration
 
 Judge against a rubric, not vibes (Lecture 11): quality dimensions with graded evidence levels turn evaluation from subjective judgment into reproducible scoring, so different reviewers reach similar verdicts on the same output:
 
-\`\`\`markdown
 # Scoring Rubric
 
 | Dimension | A | B | C | D |
@@ -845,7 +909,8 @@ Judge against a rubric, not vibes (Lecture 11): quality dimensions with graded e
 | Code correctness | All tests pass | Main flow passes | Partial pass | Build fails |
 | Architecture compliance | Fully compliant | Minor deviations | Obvious deviations | Serious violations |
 | Test coverage | Main + edge cases | Main flow only | Only skeleton | No tests |
-\`\`\``,
+
+Calibrate the reviewer itself (Lecture 11): early evaluators spot real issues, then talk themselves into dismissing them as not severe. Read the review logs, find where machine judgment diverged from human judgment, and patch the review prompt at exactly those points — several rounds of this loop is what makes scoring reliable.`,
     considered: true,
     implemented: true,
     wanted: false,
