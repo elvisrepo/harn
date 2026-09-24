@@ -1027,13 +1027,16 @@ Repeat on a cadence, because harnesses rot like code: instructions drift from re
     summary: 'Lecture-02 experiment: remove one component at a time, measure the drop — ranks value, but only attribution finds bottlenecks.',
     body: `To rank what actually matters, remove one harness component at a time — instructions, feedback, state — and measure the performance drop on a fixed task with a fixed model. Biggest drop wins your attention next.
 
-Caveat that makes it honest: ablation ranks marginal value, it does not locate bottlenecks. Pair every removal with failure attribution (unclear task? thin context? broken env? missing verification? lost state?) — only the attribution says where the bottleneck lives.`,
+Caveat that makes it honest: ablation ranks marginal value, it does not locate bottlenecks. Pair every removal with failure attribution (unclear task? thin context? broken env? missing verification? lost state?) — only the attribution says where the bottleneck lives.
+
+Turn it inward monthly (Lecture 12): every harness component exists because the model couldn't reliably do something alone — but capabilities move. Pick one component, disable it, run benchmark tasks; no degradation means permanent removal, degradation means restore or lighten. Problems absorbed by stronger models free attention for the next capability boundary — the harness doesn't shrink, it shifts.`,
     considered: true,
     implemented: false,
     wanted: true,
     tags: ['ablation', 'experiment', 'attribution', 'metrics'],
     links: [
       { label: 'lecture 02', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/' },
+      { label: 'lecture 12 — simplify inward', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-12-why-every-session-must-leave-a-clean-state/' },
     ],
   },
   {
@@ -1094,6 +1097,7 @@ Two riders: minimal-but-complete (every entry earns its place by changing a deci
     tags: ['acid', 'state', 'consistency', 'isolation'],
     links: [
       { label: 'lecture 03', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-03-why-the-repository-must-become-the-system-of-record/' },
+      { label: 'lecture 12 — session integrity', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-12-why-every-session-must-leave-a-clean-state/' },
     ],
   },
   {
@@ -1126,7 +1130,29 @@ No design documents — a few lines each. Git commits checkpoint the what and wh
     summary: 'Lecture-05 ritual: clock-in / clock-out around /compact — rebuild cost is the metric, drift is the enemy.',
     body: `Treat the agent like an engineer whose short-term memory wipes every session. Clock in: read the progress file, read the decision log, run verification to confirm a consistent state, continue from next steps. Clock out: update the progress file, re-verify, commit completed work. The routine is what makes reset-from-artifacts work — and what /compact hands off to.
 
-Rebuild cost is the metric: minutes for a fresh session to reach an executable state, target single digits. Mixed strategy: short tasks stay in-session; once a task needs most of the window, prepare the handoff instead of pushing through. Without the routine, each boundary adds drift — small misunderstandings compounding session after session until the work no longer resembles the intent.`,
+Rebuild cost is the metric: minutes for a fresh session to reach an executable state, target single digits. Mixed strategy: short tasks stay in-session; once a task needs most of the window, prepare the handoff instead of pushing through. Without the routine, each boundary adds drift — small misunderstandings compounding session after session until the work no longer resembles the intent.
+
+Clean state is completion, not housekeeping (Lecture 12): session done means task verified AND all five exit conditions met — build passes, tests pass (including pre-existing ones, verified in CI not just locally), progress recorded in machine-readable artifacts, no stale artifacts, startup path functional:
+
+\`\`\`markdown
+## Session Exit Checklist
+- [ ] Build passes (npm run build)
+- [ ] All tests pass (npm test)
+- [ ] Feature list updated
+- [ ] No debug code remaining (console.log, debugger, TODO)
+- [ ] Standard startup path available (npm run dev)
+\`\`\`
+
+Immediate cleanup every session (temp files, debug logs, commented code — "clean up later" means never, and the next session can't tell intentional from temporary), periodic cleanup weekly (structural scan, quality-doc refresh, drift benchmarks). Cleanup ops must be idempotent — safe to re-run, no side effects on repeat:
+
+\`\`\`bash
+# Idempotent cleanup operations
+rm -f /tmp/debug-*.log  # -f ensures no error when files don't exist
+git checkout -- .env.local  # Restore to known state
+npm run test  # Verify cleanup didn't break anything
+\`\`\`
+
+Throughput caveat: fast-merge philosophy (minimize gates when agent output exceeds review capacity) applies to high-throughput regimes only. At supervised single-human scale the stance stays opposite — no autonomous merging, human eyes on every diff.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -1134,6 +1160,7 @@ Rebuild cost is the metric: minutes for a fresh session to reach an executable s
     links: [
       { label: 'lecture 05', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-05-why-long-running-tasks-lose-continuity/' },
       { label: 'lecture 06 — readiness', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-06-why-initialization-needs-its-own-phase/' },
+      { label: 'lecture 12 — clean state', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-12-why-every-session-must-leave-a-clean-state/' },
     ],
   },
   {
@@ -1234,6 +1261,39 @@ Read at clock-in alongside the progress file; evaluated against at handoff. Excl
     tags: ['contract', 'scope', 'exclusions', 'alignment'],
     links: [
       { label: 'lecture 11', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
+    ],
+  },
+  {
+    title: 'Quality document',
+    category: 'Knowledge',
+    summary: 'Lecture-12 health tracker: per-module grades showing whether the codebase strengthens or weakens — fix the lowest first.',
+    body: `A living artifact that scores every module on verification, understandability, test stability, boundary compliance, and conventions — not a one-time assessment but a tracker of direction. New sessions read it and know where to prioritize; the weekly cleanup scan refreshes it. Canonical shape:
+
+\`\`\`markdown
+# Quality Document
+
+## User Authentication Module (Quality: A)
+- Verification passing: Yes
+- Agent understandable: Yes
+- Test stability: Stable
+- Architecture boundaries: Compliant
+- Code conventions: Followed
+
+## Payment Module (Quality: C)
+- Verification passing: Partial (payment callback untested)
+- Agent understandable: Difficult (logic spread across 3 files)
+- Test stability: Unstable (2 flaky tests)
+- Architecture boundaries: Violations present
+- Code conventions: Partially followed
+\`\`\`
+
+You can only proactively fix what you know is degrading — without the doc, entropy compounds silently (the observed 12-week drift: builds 100%→68%, session startup 5→60 minutes). With it, each session spends minutes on cleanup and saves hours of chaos.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['quality', 'health', 'entropy', 'cleanup'],
+    links: [
+      { label: 'lecture 12', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-12-why-every-session-must-leave-a-clean-state/' },
     ],
   },
   {
