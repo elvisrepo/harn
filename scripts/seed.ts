@@ -779,7 +779,11 @@ Wired into the suite as behaviour flows gated after the build — green means ze
 
 With a vision-capable model the agent can look at the screenshots itself — same sensor, strictly stronger reader.
 
-Cost shape (Lecture 11): QA rounds run single-digit percent of build cost while deciding pass/fail — verification is cheap, generation is expensive. The behaviour layer is never where to economize.`,
+Cost shape (Lecture 11): QA rounds run single-digit percent of build cost while deciding pass/fail — verification is cheap, generation is expensive. The behaviour layer is never where to economize.
+
+Drive, don't just observe (OpenAI): wire the browser DevTools protocol into the agent runtime with skills for DOM snapshots, screenshots, and navigation, so the agent reproduces bugs, validates fixes, and reasons about UI behaviour directly. The loop: select target and clear console, snapshot BEFORE, trigger the UI path, capture runtime events during interaction, snapshot AFTER, apply fix and restart — then re-run validation until clean:
+
+![Agent drives the app through browser DevTools: snapshot before, trigger path, snapshot after, fix, re-validate until clean](/uploads/5c264350-37db-492f-aa04-fcbfb72b0bc2.png)`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -789,6 +793,7 @@ Cost shape (Lecture 11): QA rounds run single-digit percent of build cost while 
       { label: 'check flows (runner)', url: 'scripts/qa-flows.mjs' },
       { label: 'screenshots', url: '/screenshots/qa-harness-map.png' },
       { label: 'lecture 10 — e2e layer', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
+      { label: 'OpenAI — DevTools driving', url: 'https://openai.com/index/harness-engineering/' },
     ],
   },
   {
