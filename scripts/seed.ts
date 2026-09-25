@@ -1369,6 +1369,23 @@ You can only proactively fix what you know is degrading — without the doc, ent
     ],
   },
   {
+    title: 'Garbage collection',
+    category: 'Workflow',
+    summary: 'OpenAI practice: golden principles in the repo plus recurring scans that update grades and open refactor PRs — small continuous payments.',
+    body: `Agents copy existing patterns — uneven and suboptimal ones included — so drift compounds by default and manual cleanup Fridays don't scale. Fight entropy like garbage collection: small continuous payments, not painful bursts.
+
+Two halves. **Golden principles**, opinionated mechanical rules kept in the repo that hold the codebase legible for future runs: prefer shared utility packages over hand-rolled helpers (invariants stay centralized); never probe data YOLO-style (validate boundaries or rely on typed SDKs, so nothing builds on guessed shapes). **Recurring scans** on cadence that check for deviations, update quality grades, and open targeted refactoring PRs — each reviewable in about a minute.
+
+Human taste is captured once, then enforced continuously on every line: bad patterns get caught daily instead of spreading for weeks. Technical debt is a high-interest loan — continuous small paydowns beat compounding every time.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['garbage-collection', 'entropy', 'principles', 'cleanup'],
+    links: [
+      { label: 'OpenAI harness engineering', url: 'https://openai.com/index/harness-engineering/' },
+    ],
+  },
+  {
     title: 'Loop silent costs',
     category: 'Workflow',
     summary: 'Lecture-13 audit lens: verification debt, comprehension rot, cognitive surrender, token blowout — loops accelerate risk, not just output.',
