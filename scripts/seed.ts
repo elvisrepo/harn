@@ -331,13 +331,14 @@ Two failure modes define quality:
 1. **Stale doc** — worse than no doc: the agent trusts it. (The article's coherence worry: guides must not contradict each other.)
 2. **Invisible doc** — exists but nobody knows when to read it.
 
-Practices that hold: an index in the entry file (each doc with its when-to-read purpose, visible every turn); the single-source rule (ref docs link to systems of record, never copy drifting facts); verification stamps (mark when a doc was last confirmed current). A stale ref doc actively misleads; an invisible one never helps.`,    considered: true,
+Practices that hold: an index in the entry file (each doc with its when-to-read purpose, visible every turn); the single-source rule (ref docs link to systems of record, never copy drifting facts); verification stamps (mark when a doc was last confirmed current); and a doc-gardener (OpenAI) — a recurring pass, human or agent, that scans for documentation contradicting actual code behavior and opens fix-ups, with linters validating cross-links and structure mechanically. A stale ref doc actively misleads; an invisible one never helps.`,    considered: true,
     implemented: true,
     wanted: false,
     tags: ['ref-docs', 'docs', 'feedforward', 'guides', 'index'],
     links: [
       { label: 'article — guides', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'our review (fig 2)', url: 'docs/Harness review — feedforward guides.md' },
+      { label: 'OpenAI — doc-gardening', url: 'https://openai.com/index/harness-engineering/' },
     ],
   },
   {
@@ -528,6 +529,8 @@ Typical rules: logic stays UI-free (unit-testable, portable); persistence takes 
 
 Adoption note: this replaces structure-description prose with an enforced boundary — and it can graduate early on explicit call, no second violation needed.
 
+Taste invariants (OpenAI): beyond layer direction, encode mechanical taste — structured logging, naming conventions for schemas and types, file-size limits — as custom lints with remediation messages. Boundaries centrally, autonomy locally: care deeply about edges, correctness, and reproducibility, and leave everything inside them free. Once encoded, a taste rule applies everywhere at once — multipliers, not pedantry.
+
 Boundaries before tests (Lecture 10): e2e on a tangled architecture only proves the whole mess runs. Establish architectural constraints on day one — agents copy existing patterns, inconsistencies included, so every session without constraints adds drift. The reference shape is a layered domain: fixed layers per domain (Types → Config → Repo → Service → Runtime → UI), dependencies strictly forward, cross-domain concerns through explicit provider interfaces, everything else forbidden and mechanically enforced. Key principle: enforce invariants, don't micromanage implementation — require "data is parsed at the boundary" without prescribing the library.
 
 Every constraint gets its executable check, down to one-liners:
@@ -553,6 +556,7 @@ Three ideas make it work. **Parse at the boundary:** incoming data arrives untyp
       { label: 'dependency-cruiser', url: 'https://github.com/sverweij/dependency-cruiser' },
       { label: 'generated graph', url: 'docs/dependency-graph.mmd' },
       { label: 'lecture 10 — arch rules executable', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
+      { label: 'OpenAI — taste + layers', url: 'https://openai.com/index/harness-engineering/' },
     ],
   },
   {
@@ -967,6 +971,8 @@ Deferred with triggers: second-model spot review on risky diffs (auth, migration
 
 Generator/evaluator separation (Lecture 13): the agent that writes the code and the agent that checks it must be separated. A model grading its own work is untrustworthy; an independent verifier — sometimes using a different model entirely — is the baseline reliability guarantee of any loop. A model is its own output's best defense attorney: it sees its reasoning, not its mistakes. Someone in the crew must not believe you — and the skeptic needs fresh context (Lecture 14): never the implementer's memory, only the shared-state outputs. Reviewing your own reasoning is self-defense; reviewing bare outputs is review.
 
+Output bar (OpenAI): the result needn't match human stylistic preferences — correct, maintainable, and legible to future agent runs meets the bar.
+
 Judge against a rubric, not vibes (Lecture 11): quality dimensions with graded evidence levels turn evaluation from subjective judgment into reproducible scoring, so different reviewers reach similar verdicts on the same output:
 
 # Scoring Rubric
@@ -989,6 +995,7 @@ Calibrate the reviewer itself (Lecture 11): early evaluators spot real issues, t
       { label: 'lecture 11 — evaluator rubric', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
       { label: 'lecture 13 — maker/checker', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-13-loop-engineering/' },
       { label: 'lecture 14 — fresh context', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-14-graph-engineering/' },
+      { label: 'OpenAI — output bar', url: 'https://openai.com/index/harness-engineering/' },
     ],
   },
   {
@@ -1017,7 +1024,7 @@ Explicitly out of scope: continuous log-anomaly judges — no runtime users, no 
     title: 'Steering loop',
     category: 'Workflow',
     summary: 'The human iterates the harness on recurrence; the loop is human-triggered today — an automatic repetition tripwire is the wanted upgrade.',
-    body: `The article's steering loop: whenever an issue recurs, improve the controls so it gets less probable — and use AI to build those controls (draft rules, scaffold linters, how-tos from archaeology). A decisions journal is the loop's memory: secrets incident → secrets scanner, invisible rule → entry-file rule, bracket bug → regression test.
+    body: `The article's steering loop: whenever an issue recurs, improve the controls so it gets less probable — and use AI to build those controls (draft rules, scaffold linters, how-tos from archaeology). When the agent flounders, the fix is likewise never "try harder" (OpenAI) — ask what capability is missing, make it legible and enforceable, and have the agent itself build the fix. A decisions journal is the loop's memory: secrets incident → secrets scanner, invisible rule → entry-file rule, bracket bug → regression test.
 
 Gap the loop usually has: it is human-triggered — recurrence is noticed by a person, then encoded. Nothing counts repetitions, so the "second occurrence" (lint) and "third occurrence" (codemod) triggers assume someone is counting.
 
@@ -1033,6 +1040,7 @@ Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Wo
       { label: 'lecture 01 — five layers', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
       { label: 'lecture 10 — review promotion', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
       { label: 'lecture 11 — evaluator calibration', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
+      { label: 'OpenAI — struggle signals', url: 'https://openai.com/index/harness-engineering/' },
       { label: 'decisions journal', url: 'docs/Harness decisions.md' },
     ],
   },
@@ -1381,6 +1389,21 @@ Human taste is captured once, then enforced continuously on every line: bad patt
     implemented: false,
     wanted: true,
     tags: ['garbage-collection', 'entropy', 'principles', 'cleanup'],
+    links: [
+      { label: 'OpenAI harness engineering', url: 'https://openai.com/index/harness-engineering/' },
+    ],
+  },
+  {
+    title: 'Boring dependencies',
+    category: 'Knowledge',
+    summary: 'OpenAI rule: favor dependencies the agent can fully model — boring and legible beats clever and opaque; reimplement the subset when cheaper.',
+    body: `Judge dependencies by agent-legibility, not just features: composable, API-stable, well-represented-in-training "boring" technology the agent can internalize and reason about beats a clever library with opaque behavior. An agent can only work with what it can model.
+
+When working around an opaque upstream costs more than reimplementing the subset, reimplement — tightly integrated with your instrumentation, fully tested, behaving exactly the runtime expects. A hand-rolled helper with complete tests beats a generic package fought at every call site. Legibility is leverage: pulled into inspectable form, the dependency serves every future agent run, not just this one.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['dependencies', 'legibility', 'simplicity'],
     links: [
       { label: 'OpenAI harness engineering', url: 'https://openai.com/index/harness-engineering/' },
     ],
