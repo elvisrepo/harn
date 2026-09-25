@@ -621,6 +621,7 @@ Layer 1 (syntax/static) is the bare minimum — spell correctly before reading f
       { label: 'lecture 08 — primitives', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-08-why-feature-lists-are-harness-primitives/' },
       { label: 'lecture 09 — leveled termination', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
       { label: 'lecture 10 — e2e layer', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
+      { label: 'lecture 13 — goal triple', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-13-loop-engineering/' },
     ],
   },
   {
@@ -900,6 +901,8 @@ Unritualized self-review ("read it as a reviewer would") is insufficient — sam
 
 Deferred with triggers: second-model spot review on risky diffs (auth, migrations, maps) after the next semantic slip past the checklist; janitor/GC agents only where something drifts at scale. Worker/checker separation (an independent nitpicky evaluator) is the autonomous end-state.
 
+Generator/evaluator separation (Lecture 13): the agent that writes the code and the agent that checks it must be separated. A model grading its own work is untrustworthy; an independent verifier — sometimes using a different model entirely — is the baseline reliability guarantee of any loop. A model is its own output's best defense attorney: it sees its reasoning, not its mistakes. Someone in the crew must not believe you — and the skeptic needs fresh context (Lecture 14): never the implementer's memory, only the shared-state outputs. Reviewing your own reasoning is self-defense; reviewing bare outputs is review.
+
 Judge against a rubric, not vibes (Lecture 11): quality dimensions with graded evidence levels turn evaluation from subjective judgment into reproducible scoring, so different reviewers reach similar verdicts on the same output:
 
 # Scoring Rubric
@@ -920,6 +923,8 @@ Calibrate the reviewer itself (Lecture 11): early evaluators spot real issues, t
       { label: 'implement skill', url: '.pi/skills/implement/SKILL.md' },
       { label: 'lecture 09 — worker/checker split', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
       { label: 'lecture 11 — evaluator rubric', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
+      { label: 'lecture 13 — maker/checker', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-13-loop-engineering/' },
+      { label: 'lecture 14 — fresh context', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-14-graph-engineering/' },
     ],
   },
   {
@@ -973,7 +978,9 @@ Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Wo
     summary: 'Lecture-02 state subsystem: done / in-progress / blocked in one small file — the handoff each session writes to the next.',
     body: `Long tasks die between sessions: the next session inherits files but not intent. Keep one small progress file at a fixed path: what is done, what is in progress, what is blocked. Update it before each session ends; read it when the next one starts.
 
-Fixed shape, tiny, always current — the handoff the agent writes to itself. Complements session hygiene (fresh restarts, distrusted summaries): hygiene keeps sessions cheap, the progress file keeps the work continuous. Canonical shape:
+Fixed shape, tiny, always current — the handoff the agent writes to itself. Complements session hygiene (fresh restarts, distrusted summaries): hygiene keeps sessions cheap, the progress file keeps the work continuous.
+
+External state (Lecture 13): memory that lives outside a single conversation — markdown files, issue trackers, kanban boards. Models forget everything between runs; memory must live on disk. The progress file is the minimal form; loops graduate it to shared boards the scheduler reads. Canonical shape:
 
 \`\`\`markdown
 # Project Progress
@@ -1004,6 +1011,7 @@ Fixed shape, tiny, always current — the handoff the agent writes to itself. Co
     links: [
       { label: 'lecture 02', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/' },
       { label: 'lecture 05 — template', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-05-why-long-running-tasks-lose-continuity/' },
+      { label: 'lecture 13 — loop memory', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-13-loop-engineering/' },
     ],
   },
   {
@@ -1294,6 +1302,65 @@ You can only proactively fix what you know is degrading — without the doc, ent
     tags: ['quality', 'health', 'entropy', 'cleanup'],
     links: [
       { label: 'lecture 12', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-12-why-every-session-must-leave-a-clean-state/' },
+    ],
+  },
+  {
+    title: 'Loop silent costs',
+    category: 'Workflow',
+    summary: 'Lecture-13 audit lens: verification debt, comprehension rot, cognitive surrender, token blowout — loops accelerate risk, not just output.',
+    body: `Loops accelerate output — and risk. Four costs accumulate silently while a repeated agent workflow runs, autonomous or supervised:
+
+- **Verification debt:** "looks fine" accepted instead of machine-confirmed. Stopping conditions must be checkable, never felt.
+- **Comprehension rot:** the faster the loop ships, the further your understanding of your own codebase drifts. Fast loops require fast reading — if you don't read and use what it produces, comprehension decays continuously.
+- **Cognitive surrender:** the comfortable posture of taking whatever comes back without opinions. Two people can run the same loop and get opposite results: one goes faster on work they understand, the other avoids understanding the work. The loop can't tell the difference — you must.
+- **Token blowout:** context grows roughly quadratically with turns unless managed from the first loop, not bolted on later.
+
+Audit any repeated workflow against all four on a cadence. The time a loop saves isn't for resting — it's for making more judgments.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['loops', 'costs', 'audit', 'debt'],
+    links: [
+      { label: 'lecture 13', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-13-loop-engineering/' },
+    ],
+  },
+  {
+    title: 'Methodology file',
+    category: 'Knowledge',
+    summary: 'Lecture-13 horizon: give the agent a methodology, not tasks — human touches direction, agent touches code, ratchet only forward.',
+    body: `The loop-engineering end-state: a methodology document the agent executes indefinitely, not a task list. The human edits direction (goal, constraints, exploration space, evaluation rules, the iron rule to never stop for help); the agent edits code. Fixed time budgets per iteration keep results comparable; only improvements stay on the main line, failures roll back — a ratchet that moves forward or not at all.
+
+Horizon item while a human supervises every run: nothing to build yet, but the trajectory belongs in the catalog. First step when it earns building: one recurring task as goal-plus-stopping-condition, one markdown memory file, one timer — then stack upward.
+
+Anchors (Lecture 14): no matter how elegant the topology, drifting loops in formation are still drifting. Pin every loop to reality — actual outcomes, ground-truth datasets, human spot-checks. Easiest part of the design to skip; least affordable to.
+
+What a complete loop looks like assembled — automation fires, external state is read, triage prioritizes, each item forks an isolated worktree, implementer and verifier split the work, passes open PRs and update state, everything lands in a triage inbox for human review:
+
+![Morning triage loop: automation, external state, triage, isolated worktrees, implementer/verifier split, PR connectors, inbox review](/uploads/9531379d-8037-47f2-b807-40a96ff4ea1c.png)`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['loops', 'methodology', 'autonomy', 'horizon'],
+    links: [
+      { label: 'lecture 13', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-13-loop-engineering/' },
+      { label: 'lecture 14 — anchors', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-14-graph-engineering/' },
+    ],
+  },
+  {
+    title: 'Graph-worthiness test',
+    category: 'Workflow',
+    summary: 'Lecture-14 gate: five criteria, need three — branches and rollbacks decide, not scale; default answer is don’t draw.',
+    body: `A loop becomes a graph when work needs specialization, parallelism, explicit rollback paths, and shared state — but most work doesn't qualify. Score the candidate against five criteria and require three: independently decomposable units, branch or rollback paths worth declaring, intermediate state worth checkpointing, explicitly verifiable nodes, coordination benefits outweighing coordination costs.
+
+"Complex" doesn't mean many steps — a 20-step linear pipeline is a workflow, or a script. Five nodes with real rollback, parallelism, and approvals is a graph. The deciding factor is branches and rollbacks, not scale.
+
+Before drawing, answer four questions or don't draw: which loops feed which other loops? Who owns the targets other loops chase? Who can veto or roll back a change? Which metrics may move and which must stay frozen? And pin whatever you build to reality — business outcomes, ground-truth datasets, human spot-checks — because a network of loops with no anchor is mutual drift in formation.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['graphs', 'criteria', 'scope', 'horizon'],
+    links: [
+      { label: 'lecture 14', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-14-graph-engineering/' },
     ],
   },
   {

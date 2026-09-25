@@ -39,7 +39,14 @@ if (status === 200) {
 
 // .env first: the server needs AUTH_SECRET to serve anything useful
 if (!fs.existsSync('.env')) fail('.env missing — restore the required vars (AUTH_SECRET at minimum)');
-if (!/^AUTH_SECRET=.+/m.test(fs.readFileSync('.env', 'utf8'))) fail('AUTH_SECRET unset in .env');
+const secretLine = fs
+  .readFileSync('.env', 'utf8')
+  .split('\n')
+  .map((l) => l.trim())
+  .find((l) => l.startsWith('AUTH_SECRET'));
+if (!secretLine || !secretLine.split('=').slice(1).join('=').trim()) {
+  fail('AUTH_SECRET unset in .env');
+}
 ok('.env present with AUTH_SECRET');
 
 if (!fs.existsSync('data/app.db')) {
