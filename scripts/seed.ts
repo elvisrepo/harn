@@ -535,7 +535,15 @@ Every constraint gets its executable check, down to one-liners:
 \`\`\`bash
 # Check whether the renderer process directly calls Node.js APIs
 grep -r "require('fs')" src/renderer/ && exit 1 || echo "OK: no direct fs access in renderer"
-\`\`\``,
+\`\`\`
+
+## Layered domain, explained
+
+The reference shape for what those boundaries look like — fixed layers per domain, strictly forward dependencies, one explicit door for cross-cutting concerns:
+
+![Layered domain architecture: forward-only layers with Providers as the single cross-cutting door](/uploads/5ee4aa23-9972-4c7c-97b7-f60170caf2c7.png)
+
+Three ideas make it work. **Parse at the boundary:** incoming data arrives untyped — convert it once into typed domain objects at the edge or reject it there. Past that point nothing re-checks; the type system carries the proof inward. Agents guess shapes, and a guess caught at the door fails loudly with the payload in hand instead of mysteriously three layers deep. **Rigid structure:** agents copy surrounding patterns, inconsistencies included — one layer, one job, everywhere, so the pattern is always the same. Global reasoning collapses into local reasoning: a layer needs only its contracts with the neighbors above and below. **Forward-only flow with Providers:** Types → Config → Repo → Service → Runtime → UI, never backward; auth, telemetry, flags, and connectors enter through exactly one interface, with shared utils outside the domain feeding it. Direction controls blast radius (UI can never break Types; Types may affect everything above), cycles are structurally impossible, and every box shows what it may touch and what it can't. Day-one prerequisite, not big-team luxury — without it every session adds drift; with it drift has nowhere to enter.`,
     considered: true,
     implemented: true,
     wanted: false,
