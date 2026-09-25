@@ -239,7 +239,41 @@ Python 3.11 FastAPI backend, PostgreSQL 15 database.
 - Testing Standards (\`docs/testing-standards.md\`) — Reference when writing tests
 \`\`\`
 
-Keep it alive: update it whenever commands or conventions change, and prune it like a dependency list — unused entries slow the whole system down.`,
+Keep it alive: update it whenever commands or conventions change, and prune it like a dependency list — unused entries slow the whole system down.
+
+The entry points at a laid-out knowledge store, not a pile. Canonical layout — index files at every level, active/completed plans versioned beside tech debt, generated artifacts separated from written ones:
+
+\`\`\`text
+AGENTS.md
+ARCHITECTURE.md
+docs/
+├── design-docs/
+│   ├── index.md
+│   ├── core-beliefs.md
+│   └── ...
+├── exec-plans/
+│   ├── active/
+│   ├── completed/
+│   └── tech-debt-tracker.md
+├── generated/
+│   └── db-schema.md
+├── product-specs/
+│   ├── index.md
+│   ├── new-user-onboarding.md
+│   └── ...
+├── references/
+│   ├── design-system-reference-llms.txt
+│   ├── nixpacks-llms.txt
+│   ├── uv-llms.txt
+│   └── ...
+├── DESIGN.md
+├── FRONTEND.md
+├── PLANS.md
+├── PRODUCT_SENSE.md
+├── QUALITY_SCORE.md
+├── RELIABILITY.md
+└── SECURITY.md
+\`\`\``,
     considered: true,
     implemented: true,
     wanted: false,
@@ -765,6 +799,23 @@ Create a trace for each harness session, a span for each task, and sub-spans for
     tags: ['observability', 'how-to', 'signals', 'contract', 'rubric', 'opentelemetry'],
     links: [
       { label: 'lecture 11', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
+    ],
+  },
+  {
+    title: 'Observability Stack',
+    category: 'Tooling',
+    summary: 'OpenAI shape: app telemetry fanned out to queryable stores per task, agent querying and reasoning in a feedback loop to green.',
+    body: `Give the agent a full observability stack, not just logs on disk: the app emits logs, metrics, and traces; a collector fans them out to queryable stores (a query language per signal); the agent queries, correlates, and reasons over real runtime data — then implements the change, restarts, re-runs the workload and the UI journey, and repeats the feedback loop until clean.
+
+Two properties make it a stack rather than a pile: it is **queryable** (the agent asks questions of runtime behavior instead of reading dumps) and **ephemeral per task** (each unit of work gets an isolated app plus its signals, torn down when done — no cross-task contamination). Prompts like "no span in these critical journeys exceeds two seconds" become tractable only when the agent can interrogate the signals itself.
+
+![Full observability stack: app telemetry fanned out to queryable stores, agent reasoning in a feedback loop with UI journeys](/uploads/16f7c175-db51-4067-867c-0520aeeb6d09.png)`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['observability', 'stack', 'telemetry', 'feedback-loop'],
+    links: [
+      { label: 'OpenAI harness engineering', url: 'https://openai.com/index/harness-engineering/' },
     ],
   },
   {
