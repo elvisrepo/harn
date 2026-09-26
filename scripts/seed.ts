@@ -79,7 +79,33 @@ The trigger is the first gate: a skill that never fires cannot help, and one fir
 
 Test output and trajectory separately: what the agent says versus what it does. Evaluation-driven development inverts the workflow — write the eval cases (input, expected tools, expected output) before drafting the skill, forcing the functional spec upfront. LLM-as-judge at scale has two non-negotiables: swap reference and actual positions to kill ordering bias, and calibrate against human ratings to 90% agreement. Output-only scoring passes significantly more cases than trajectory-aware scoring — the gap is correct answers reached via incorrect tool sequences, acceptable read-only, critical where actions have irreversible side effects. Match trajectory strictness to the skill tier: exact order, ordered subset, or unordered subset.
 
-![Trajectory scoring modes and the output-only blind spot](/uploads/efc37763-fbbb-4ef5-b755-0df2fef00650.png)`,
+![Trajectory scoring modes and the output-only blind spot](/uploads/efc37763-fbbb-4ef5-b755-0df2fef00650.png)
+
+Beware the evaluation illusion: trajectory testing grades the composite system — host agent plus skill — not the skill alone. When a multi-skill trajectory fails, routing, instruction quality, and execution fidelity blur together. Calibrate simply: single-skill sub-agent versus base agent, and save multi-skill co-loading for advanced staging. If a test fails, don't over-fit SKILL.md to one model and ruin portability — isolate tool code from routing with a two-tiered assert (tools validated independently, triggers audited across model families).
+
+Evaluation-driven development inverts the workflow: write the eval cases (input, expected tools, expected output) before drafting the skill, forcing the functional spec — and its ambiguities — upfront:
+
+\`\`\`json
+{
+  "case_id": "refund_dup_charge_001",
+  "input": "I was charged twice for order #4521 last Tuesday",
+  "expected_skill": "refund_processor",
+  "expected_tool_calls": [
+    { "tool": "lookup_order", "args": { "order_id": "4521" } },
+    { "tool": "check_duplicate_charge", "args": { "order_id": "4521" } }
+  ],
+  "expected_output_format": "confirmation_with_refund_id",
+  "rubric": ["acknowledges duplicate", "cites order id", "provides next step"]
+}
+\`\`\`
+
+Never evaluate purely in isolation — production co-loads many skills at once, and a body that passes alone can rot everything together. Isolation accuracy near 90% can collapse toward 40% under co-loaded context noise: passing alone is a false positive for production readiness.
+
+![Isolated skill accuracy versus co-loaded production accuracy](/uploads/223dfe8e-34a6-4d63-882b-a184eb7e0095.png)
+
+Graduate through strict tiers of authority. Read-only: judge eval plus 90% trigger accuracy. Draft-only (human review): golden dataset of 20+ cases plus human approval. Action-allowed: full adversarial red-teaming, sustained success across runs — never a single lucky pass — no rollback events, sustained pass^k (success on every one of k runs; single-run success predicts production reliability poorly). Discount the numbers on the way in: production typically drops a fifth to a third off offline pass@1, and simulation-based evals carry up to ~9% optimistic bias. Human review of representative outputs remains the final validation signal.
+
+Eval coverage means four conditions, one per failure mode: triggers verified both directions (should fire, should not), outputs correct across representative inputs, zero regression on the existing library, token footprint bounded. Any single failure holds the skill in draft tier regardless of happy-path performance.`,
     considered: true,
     implemented: false,
     wanted: true,
