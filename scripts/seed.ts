@@ -44,7 +44,11 @@ const seedMods: SeedMod[] = [
     summary: 'Self-contained capability packages (SKILL.md + assets) loaded on demand.',
     body: `Skills follow the Agent Skills standard: a directory with a SKILL.md, discovered from global and project-level locations. Descriptions are injected into the system prompt; full instructions load on demand.
 
-Keep the set small and curated, and prefer project-level skills so they version with the project. Global skills suit personal workflows; anything the project depends on lives in the repo.`,
+Keep the set small and curated, and prefer project-level skills so they version with the project. Global skills suit personal workflows; anything the project depends on lives in the repo.
+
+Specialize by role (Day-2 paper): one agent with every tool attached hits the monolithic ceiling — huge search space breeds hallucinated calls, full-context prompts dilute attention, one bad instruction corrupts everything. Give each role a narrow tool subset and a focused prompt (reduction of search space, sharper reasoning, clean signal-to-noise); the orchestrator routes instead of reasoning over the whole tree.
+
+Authoring discipline (Day-3 paper): skills are procedural memory — not what happened (episodic) or facts (semantic) but how to do things step by step. Three levels load progressively: metadata always in context, SKILL.md body on trigger, bundled resources strictly as needed — a hundred skills cost a hundred metadata lines. The description is the routing algorithm (the only thing the model sees when deciding): front-load trigger keywords, state what it is NOT for, be pushy if it under-triggers. Name boringly (no utils/tools/jargon). Split the folder by need: deterministic work in scripts/, on-demand knowledge in references/, templates in assets/ — a growing SKILL.md means the next paragraph belongs in references/. Two paths create them: translate existing runbooks (experts need no code), or crystallize a successful agent run (agent drafts, human reviews — unreviewed drafts are worse than none). Test both directions: fires when it should, stays quiet when it shouldn't.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -53,6 +57,8 @@ Keep the set small and curated, and prefer project-level skills so they version 
       { label: 'Agent Skills spec', url: AGS },
       { label: 'Pi skills repo', url: 'https://github.com/badlogic/pi-skills' },
       { label: 'SDLC paper — dynamic pattern', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
+      { label: 'Day-2 paper — specialization', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
+      { label: 'Day-3 paper — authoring', url: 'https://www.kaggle.com/whitepaper-agent-skills' },
     ],
   },
   {
@@ -69,6 +75,7 @@ The discipline worth borrowing: delta/compare receipts (added / removed / change
     tags: ['architecture', 'diagrams', 'skills', 'validation'],
     links: [
       { label: 'repo · tt-a1i/archify', url: 'https://github.com/tt-a1i/archify' },
+      { label: 'Day-2 paper — intent catalog', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
     ],
   },
   {
@@ -240,7 +247,7 @@ Python 3.11 FastAPI backend, PostgreSQL 15 database.
 - Testing Standards (\`docs/testing-standards.md\`) — Reference when writing tests
 \`\`\`
 
-Keep it alive: update it whenever commands or conventions change, and prune it like a dependency list — unused entries slow the whole system down.
+Keep it alive: update it whenever commands or conventions change, and prune it like a dependency list — unused entries slow the whole system down. Close the loop with a short skill catalog at the bottom: entry file stays tight while advertising what the skills library holds, so the router points at on-demand depth.
 
 The entry points at a laid-out knowledge store, not a pile. Canonical layout — index files at every level, active/completed plans versioned beside tech debt, generated artifacts separated from written ones:
 
@@ -282,6 +289,7 @@ docs/
     links: [
       { label: 'agents.md spec', url: AGS },
       { label: 'lecture 04', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-04-why-one-giant-instruction-file-fails/' },
+      { label: 'Day-3 paper — router catalog', url: 'https://www.kaggle.com/whitepaper-agent-skills' },
     ],
   },
   {
@@ -389,7 +397,9 @@ Doc, executable, and norm agreeing is rare enough to state outright — most rep
     summary: 'The Fig-3 knowledge-protocol entry: the knowledge exists (docs, journal, catalog, snapshots) but no MCP server exposes it — files win on context cost; remote docs are the trigger.',
     body: `The change-lifecycle figure's knowledge-management entry: the agent querying team knowledge at generation time through a protocol instead of relying on what is in context.
 
-Decision rule: in-repo knowledge goes in files — indexed docs, decision journal, catalog, snapshots — because files plus search plus progressive disclosure cost zero tokens until needed, while protocol servers tax every turn with context. A remote knowledge server earns its place only for off-repo knowledge (library API docs) looked up often enough that CLI scraping turns clumsy. Trigger for revisiting: repeated multi-repo or off-repo lookups.`,
+Decision rule: in-repo knowledge goes in files — indexed docs, decision journal, catalog, snapshots — because files plus search plus progressive disclosure cost zero tokens until needed, while protocol servers tax every turn with context. A remote knowledge server earns its place only for off-repo knowledge (library API docs) looked up often enough that CLI scraping turns clumsy. Trigger for revisiting: repeated multi-repo or off-repo lookups.
+
+Consumption discipline (Day-2 paper), for when a server is warranted: consume, don't build — search registries (public for prototyping, vetted official, internal first) before writing any wrapper, collapsing N×M bespoke integrations to N+M. Discover, configure (scoped permissions, env-file credentials, read/write boundaries), connect (handshake listing tools, schema validated before real use). Checklist: audit public servers before attaching anything with filesystem or credential access; load tools RAG-style (in-context only while needed); default read-only and non-prod data; scope one project, never broad. Debug transport before prompts — schemas and streams via inspector tooling, not system-prompt tweaks. Never hardcode credentials, never point at production.`,
     considered: true,
     implemented: false,
     wanted: false,
@@ -397,6 +407,7 @@ Decision rule: in-repo knowledge goes in files — indexed docs, decision journa
     links: [
       { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'opencode MCP servers', url: 'https://opencode.ai/docs/mcp-servers' },
+      { label: 'Day-2 paper — consumption', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
     ],
   },
   {
@@ -1157,6 +1168,7 @@ The size of the harness effect is measurable, not rhetorical: one team moved an 
     links: [
       { label: 'lecture 02', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/' },
       { label: 'SDLC paper — anatomy + evidence', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
+      { label: 'Day-2 paper — config failures', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
     ],
   },
   {
@@ -1469,6 +1481,21 @@ Human taste is captured once, then enforced continuously on every line: bad patt
     ],
   },
   {
+    title: 'Bounded vs unbounded',
+    category: 'Workflow',
+    summary: 'Day-2 design lens: fire-and-forget work becomes tools; pause-clarify-resume work needs agent handling — never GOTO a tool.',
+    body: `Before making a capability "just another tool," ask whether its domain is bounded or unbounded. Bounded: one well-formed request, one response, fire-and-forget — make it a tool (or a deterministic template, when even the layout is fixed). Unbounded: ambiguity, pauses, clarifying questions, resumed state — it needs agent-level handling, not a wrapper.
+
+Forcing unbounded work into a tool is the GOTO problem of agentic architecture: control flow leaves structured context and may never cleanly return, while the tool layer's contract (predictable, structured) rots. Keep the tool layer clean by isolating multi-turn mess at the agent layer. The test runs both directions: a tool that keeps needing follow-up questions wants promoting; an agent doing single-shot deterministic transforms wants demoting to a template.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['bounded', 'tools', 'agents', 'design'],
+    links: [
+      { label: 'Day-2 paper', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
+    ],
+  },
+  {
     title: 'Boring dependencies',
     category: 'Knowledge',
     summary: 'OpenAI rule: favor dependencies the agent can fully model — boring and legible beats clever and opaque; reimplement the subset when cheaper.',
@@ -1533,13 +1560,16 @@ What a complete loop looks like assembled — automation fires, external state i
 
 "Complex" doesn't mean many steps — a 20-step linear pipeline is a workflow, or a script. Five nodes with real rollback, parallelism, and approvals is a graph. The deciding factor is branches and rollbacks, not scale.
 
-Before drawing, answer four questions or don't draw: which loops feed which other loops? Who owns the targets other loops chase? Who can veto or roll back a change? Which metrics may move and which must stay frozen? And pin whatever you build to reality — business outcomes, ground-truth datasets, human spot-checks — because a network of loops with no anchor is mutual drift in formation.`,
+Before drawing, answer four questions or don't draw: which loops feed which other loops? Who owns the targets other loops chase? Who can veto or roll back a change? Which metrics may move and which must stay frozen? And pin whatever you build to reality — business outcomes, ground-truth datasets, human spot-checks — because a network of loops with no anchor is mutual drift in formation.
+
+Multi-agent still wins where (Day-3 paper): genuine parallelism, real capability or security boundaries, abstraction layers that actually differ, adversarial check-and-balance setups, agents that must communicate with each other, heterogeneous models. Everything else that was built multi-agent by default simplifies to single-agent-with-skills by design.`,
     considered: true,
     implemented: false,
     wanted: true,
     tags: ['graphs', 'criteria', 'scope', 'horizon'],
     links: [
       { label: 'lecture 14', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-14-graph-engineering/' },
+      { label: 'Day-3 paper — when multi-agent wins', url: 'https://www.kaggle.com/whitepaper-agent-skills' },
     ],
   },
   {
@@ -1596,7 +1626,9 @@ WHY: Renderer process has no access to Node.js APIs for security
 FIX: Move file operations to src/preload/file-ops.ts and call via window.api.readFile()
 \`\`\`
 
-Feed it with runtime signals, the objective basis under the words: did the app start and reach ready? Did critical paths execute? Were side effects (writes, files) correct? Were temporary resources cleaned up? Signals are the evidence; the repair instruction is the verdict the agent can act on.`,
+Feed it with runtime signals, the objective basis under the words: did the app start and reach ready? Did critical paths execute? Were side effects (writes, files) correct? Were temporary resources cleaned up? Signals are the evidence; the repair instruction is the verdict the agent can act on.
+
+Validate-retry-fallback (Day-2 paper): generated artifacts get schema-validated; on failure, retry with the exact validation error appended, capped — then fall back to a safe output so downstream never sees a malformed payload. Bounded correction inside one attempt, not a use-case retry.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -1604,6 +1636,7 @@ Feed it with runtime signals, the objective basis under the words: did the app s
     links: [
       { label: 'lecture 09', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
       { label: 'lecture 10 — what/why/fix', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
+      { label: 'Day-2 paper — retry/fallback', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
     ],
   },
 ];
