@@ -1143,13 +1143,20 @@ External state (Lecture 13): memory that lives outside a single conversation —
     summary: 'Lecture-02 ritual: score instructions/tools/environment/state/feedback 1–5, fix the lowest — harnesses rot like code.',
     body: `Score the five harness subsystems — instructions, tools, environment, state, feedback — 1 to 5. Fix the lowest first; thirty focused minutes beats another round of model-swapping.
 
-Repeat on a cadence, because harnesses rot like code: instructions drift from reality, checks bit-rot, state files go stale. Treat the gap list as harness debt and pay it down like tech debt — the scheduled counterpart to fixing whatever just recurred.`,
+Repeat on a cadence, because harnesses rot like code: instructions drift from reality, checks bit-rot, state files go stale. Treat the gap list as harness debt and pay it down like tech debt — the scheduled counterpart to fixing whatever just recurred.
+
+Anatomy behind the five (SDLC paper): the model is roughly 10% of the system — the engine. The harness is the other 90%: framework layer shaping intelligence (instructions, tools, orchestration, guardrails), developer interface, deployment config, evals, memory store, observability, runtimes, scaling. The model is the engine; the harness is the car, the road, and the traffic laws.
+
+![Harness anatomy: model at center, framework and operational layers around it](/uploads/81a6537c-ab57-4aba-83f9-6f539d9712b5.png)
+
+The size of the harness effect is measurable, not rhetorical: one team moved an agent from outside the Top 30 to the Top 5 on a coding benchmark by changing only the harness, no model change; another gained 13.7 points tweaking only prompt, tools, and middleware around a fixed model. When an agent fails, blame the configuration first — missing tool, vague rule, absent guardrail, noisy context. Most failures, examined honestly, are harness failures.`,
     considered: true,
     implemented: false,
     wanted: true,
     tags: ['audit', 'harness-debt', 'review'],
     links: [
       { label: 'lecture 02', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/' },
+      { label: 'SDLC paper — anatomy + evidence', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
     ],
   },
   {
@@ -1392,6 +1399,23 @@ Read at clock-in alongside the progress file; evaluated against at handoff. Excl
     tags: ['contract', 'scope', 'exclusions', 'alignment'],
     links: [
       { label: 'lecture 11', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
+    ],
+  },
+  {
+    title: 'Factory model',
+    category: 'Workflow',
+    summary: 'SDLC-paper operating model: the developer output is the factory — specs and guardrails above, planning/coding/verification agents below.',
+    body: `The developer's primary output is not code — it's the system that produces code. Two zones: the Developer Zone (define specs, design guardrails, review and approve) and the Agent Factory Floor (planning agent → coding agent → tests-and-verification gate → verified output, with failure feedback looping back to planning and guardrails railing the whole floor).
+
+![Factory model: developer zone above, agent factory floor below, guardrails as rails](/uploads/68cde336-7301-4b3d-a59d-815dd5041231.png)
+
+Five parts make the factory: specifications and context, agents translating spec to implementation, tests and quality gates, feedback loops routing failures back, guardrails constraining behavior. Manage it like a factory manager: design the line, ensure quality control, give agents success criteria rather than step-by-step instructions — then let them iterate.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['factory', 'operating-model', 'zones', 'guardrails'],
+    links: [
+      { label: 'SDLC paper', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
     ],
   },
   {
