@@ -62,6 +62,33 @@ Authoring discipline (Day-3 paper): skills are procedural memory — not what ha
     ],
   },
   {
+    title: 'Skill evaluation',
+    category: 'Knowledge',
+    summary: 'Day-3 method: four failure modes, five-pattern toolkit, trigger gate, trajectory scoring — a skill without a test is a hope.',
+    body: `A skill without a test is a hope, not a capability. Benchmarks show nearly one in five skills performing worse with the skill than without — poorly designed skills actively degrade capability. The failures are predictable, in four modes: trigger failure (wrong skill fires, or the right one doesn't), execution failure (correct trigger, wrong output or errant tool calls), token budget failure (a massive body crowding the window, degrading unrelated turns), and regression (a new skill overlapping an old one, breaking working routing). Single-turn failures surface in routing logs and output quality; budget and regression failures only appear when the full library runs together under load.
+
+![Four skill failure modes: trigger, execution, token rot, regression](/uploads/2c92c274-9c15-4913-9fdc-8191a96500e9.png)
+
+Five complementary testing patterns cover the surface: eval-as-unit-test (skill test files in CI, every change), golden dataset (curated versioned input-output pairs with the skill), LLM-as-judge (peer-model rubric scoring at scale), adversarial red-teaming (probing designed to expose failure), canary/shadow mode (controlled traffic before full rollout).
+
+![Evaluation toolkit: five testing patterns across the failure surface](/uploads/dae8ca45-b0c4-4d83-b724-7337cd33d517.png)
+
+The trigger is the first gate: a skill that never fires cannot help, and one firing too broadly injects irrelevant context. Production analyses show non-invocation rates above half for skills expected to fire consistently — and a stripped skill scoring below no-skill at all, proving bad skills subtract capability. Target 90% trigger accuracy: every description passes testable specificity (three positive and three negative triggers), clarity (no overlap with adjacent skills), execution fidelity (describes actual performance, not aspiration), and rephrasing stability (routes the same however the intent is phrased).
+
+![Evaluation gate pipeline: unit tests, golden data, judge, probing, production split, canary/shadow](/uploads/8adc9d26-ecf9-41e2-9284-e67441cccf0d.png)
+
+Test output and trajectory separately: what the agent says versus what it does. Evaluation-driven development inverts the workflow — write the eval cases (input, expected tools, expected output) before drafting the skill, forcing the functional spec upfront. LLM-as-judge at scale has two non-negotiables: swap reference and actual positions to kill ordering bias, and calibrate against human ratings to 90% agreement. Output-only scoring passes significantly more cases than trajectory-aware scoring — the gap is correct answers reached via incorrect tool sequences, acceptable read-only, critical where actions have irreversible side effects. Match trajectory strictness to the skill tier: exact order, ordered subset, or unordered subset.
+
+![Trajectory scoring modes and the output-only blind spot](/uploads/efc37763-fbbb-4ef5-b755-0df2fef00650.png)`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['skills', 'evaluation', 'trajectory', 'testing'],
+    links: [
+      { label: 'Day-3 paper', url: 'https://www.kaggle.com/whitepaper-agent-skills' },
+    ],
+  },
+  {
     title: 'Archify — validated architecture diagrams',
     category: 'Tooling',
     summary:
