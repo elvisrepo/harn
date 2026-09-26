@@ -52,6 +52,7 @@ Keep the set small and curated, and prefer project-level skills so they version 
     links: [
       { label: 'Agent Skills spec', url: AGS },
       { label: 'Pi skills repo', url: 'https://github.com/badlogic/pi-skills' },
+      { label: 'SDLC paper — dynamic pattern', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
     ],
   },
   {
@@ -347,7 +348,9 @@ Practices that hold: an index in the entry file (each doc with its when-to-read 
     summary: 'The Fig-3 feedforward guide for the app itself: routes, pipeline, data, earned gotchas — the buddy the agent reads before changing any route/table/flow.',
     body: `A curated map of the system under work — routes/endpoints with handlers and auth levels, the request pipeline (middleware, gates, header discipline), the data model and its rules, earned gotchas marked do-not-regress, and where each area's behaviour is proven. Distinct from harness docs (how the agent setup works); this one describes the app itself.
 
-The agent reads it before changing any route, table, or flow. Shape over content: tables beat prose for endpoints, pipelines read top-to-bottom, gotchas are pinned by tests so they can't silently rot. An entry-file architecture sketch that misses half the routes is the coherence failure live — one buddy doc, single-sourced, indexed where the agent looks every turn.`,
+The agent reads it before changing any route, table, or flow. Shape over content: tables beat prose for endpoints, pipelines read top-to-bottom, gotchas are pinned by tests so they can't silently rot. An entry-file architecture sketch that misses half the routes is the coherence failure live — one buddy doc, single-sourced, indexed where the agent looks every turn.
+
+Who holds the pen (SDLC paper): architecture stays the most human phase — trade-offs (consistency vs availability, complexity vs flexibility, build vs buy) rest on business context, org constraints, and strategy no model fully grasps. Agents excel at implementing decided architecture: scaffolding, consistent patterns, conformance to conventions. The doc records human-made structural decisions; the agent works inside them, never re-deciding them silently.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -355,6 +358,7 @@ The agent reads it before changing any route, table, or flow. Shape over content
     links: [
       { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'the buddy', url: 'architecture.md' },
+      { label: 'SDLC paper — human trade-offs', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
     ],
   },
   {
@@ -656,7 +660,9 @@ Hardened form — leveled termination, no skipping (Lecture 09). The agent's con
 - Do not proceed to level 3 if level 2 fails
 \`\`\`
 
-Layer 1 (syntax/static) is the bare minimum — spell correctly before reading further. Layer 2 (runtime behavior: tests, startup, critical paths) is the core evidence — not just written, but runnable. Layer 3 (system: e2e, integration, user scenarios) is the last line — not just runnable, but correct.`,
+Layer 1 (syntax/static) is the bare minimum — spell correctly before reading further. Layer 2 (runtime behavior: tests, startup, critical paths) is the core evidence — not just written, but runnable. Layer 3 (system: e2e, integration, user scenarios) is the last line — not just runnable, but correct.
+
+Evals first (SDLC paper): write the eval suite before generating the code. Tests plus evals are the primary mechanism for communicating intent — a well-written eval suite tells the agent what "correct" means more precisely than any prompt, and hands it automated verification in the same motion. Acceptance criteria aren't checked after the fact; they precede the work.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -750,6 +756,41 @@ Standardize toward OpenTelemetry shape: one trace per session, one span per task
       { label: 'live metrics', url: '/api/metrics' },
       { label: 'live traces', url: '/api/traces' },
       { label: 'lecture 11 — runtime layer', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
+    ],
+  },
+  {
+    title: 'AI-aware deployment (out of scope)',
+    category: 'Tooling',
+    summary: 'SDLC-paper practice parked: health monitoring, auto-rollback, risk prediction — activates on the first prod target.',
+    body: `Deployment pipelines that watch themselves: agents monitoring deploy health, automatically rolling back bad releases, predicting risk from change scope — with production behaviour feeding back into development decisions.
+
+Out of scope until the first production target exists: no prod, no deploys, no rollback to automate. Until then the check command plus the preview server is the whole pipeline. Trigger: the day something ships beyond local — health checks first, rollback second, prediction last.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['deployment', 'rollback', 'out-of-scope'],
+    links: [
+      { label: 'SDLC paper', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
+    ],
+  },
+  {
+    title: 'Static/dynamic context boundary',    category: 'Knowledge',
+    summary: 'SDLC-paper discipline: six context types split into always-loaded static and on-demand dynamic — the boundary a versioned decision.',
+    body: `Code quality depends less on prompt cleverness than on context quality. An agent needs six types of context: instructions (role, goals, boundaries), knowledge (documents, diagrams, domain data), memory (session logs plus persistent state), examples (few-shot demos, reference patterns), tools (API/script/service definitions), and guardrails (hard constraints, safety rules).
+
+![Six types of agent context](/uploads/1a935a3d-90e6-4132-a605-4958de3a9f61.png)
+
+Split them by cost. Static context loads every interaction — system instructions, rule files, global memory, core guardrails: expensive but reliable, the agent never forgets. Dynamic context loads per task — skills by task match, tool results during execution, retrieved documents: pay only for what gets used. Too much static wastes tokens and dilutes signal; too little and the agent forgets critical rules.
+
+![Static vs dynamic context and the boundary decision](/uploads/22456659-4abb-4a5c-a0f9-51c0fffdbc13.png)
+
+The boundary itself is a first-class architectural decision, reviewed and versioned like code. The strongest dynamic pattern is skills: the agent sees lightweight metadata at startup, loads full instructions on task match, pulls deep reference only when explicitly needed — dozens of capabilities carried for the price of one. Guiding question throughout: what would a new team member need to contribute effectively, and how is that knowledge encoded for AI use?`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['context', 'static-dynamic', 'skills', 'tokens'],
+    links: [
+      { label: 'SDLC paper', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
     ],
   },
   {
@@ -983,7 +1024,13 @@ Judge against a rubric, not vibes (Lecture 11): quality dimensions with graded e
 | Architecture compliance | Fully compliant | Minor deviations | Obvious deviations | Serious violations |
 | Test coverage | Main + edge cases | Main flow only | Only skeleton | No tests |
 
-Calibrate the reviewer itself (Lecture 11): early evaluators spot real issues, then talk themselves into dismissing them as not severe. Read the review logs, find where machine judgment diverged from human judgment, and patch the review prompt at exactly those points — several rounds of this loop is what makes scoring reliable.`,
+Calibrate the reviewer itself (Lecture 11): early evaluators spot real issues, then talk themselves into dismissing them as not severe. Read the review logs, find where machine judgment diverged from human judgment, and patch the review prompt at exactly those points — several rounds of this loop is what makes scoring reliable.
+
+Evaluate the path, not just the artifact (SDLC paper): output evaluation checks what was built (compiles, tests pass); trajectory evaluation checks how it got there (right steps, right tools, sound intermediate reasoning). A fluent output that skipped verification is more dangerous than a visible error. Tests are checked by code; evals by labelled datasets, rubrics, and judges — without both, the practice is vibe coding regardless of prompt sophistication.
+
+Review-augmentation posture: the agent as first-pass reviewer (bugs, style, vulnerabilities, perf) before human eyes — never replacing human judgment on design, maintainability, and alignment, but cutting reviewer load. AI-aware deployment closes the loop: health monitoring, automatic rollback, risk prediction from change scope.
+
+![Traditional vs AI-driven SDLC: compressed cycle with output and trajectory eval gates](/uploads/f8a22870-c9a9-4ae8-90a2-f783fbaf9360.png)`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -996,6 +1043,7 @@ Calibrate the reviewer itself (Lecture 11): early evaluators spot real issues, t
       { label: 'lecture 13 — maker/checker', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-13-loop-engineering/' },
       { label: 'lecture 14 — fresh context', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-14-graph-engineering/' },
       { label: 'OpenAI — output bar', url: 'https://openai.com/index/harness-engineering/' },
+      { label: 'SDLC paper — trajectory + augmentation', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
     ],
   },
   {
@@ -1030,6 +1078,8 @@ Gap the loop usually has: it is human-triggered — recurrence is noticed by a p
 
 Proposed mechanism (wanted, ~1 hour, zero deps): a failure ledger — the check command appends each sensor failure as one JSONL line (date, step, class, file) — plus a warn-only review script that counts classes in a window and prints rule candidates ("login flow failed 3rd time in 14 days — encode the bar?"). Thresholds mirror the existing rules (2 for lint-class, 3 for mechanical edits). Warn-only until the signal proves itself; a tripwire that cries wolf trains disregard, same as a noisy sensor.
 
+Quality flywheel (SDLC paper): evaluate against a benchmark suite, diagnose failures by clustering root causes, optimize the prompts or tools that caused them, verify fixes against a regression suite, monitor production traffic for new failure modes. Each cycle compounds — the ledger is the data it feeds on.
+
 Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Work through the five layers systematically — task not clearly defined, insufficient context, misconfigured environment, missing verification, loss of state between sessions. Attribution first, fix second: each layer points at a different control (spec, context budget, env parity, check gates, session discipline), and guessing the layer is how fixes land in the wrong place.`,
     considered: true,
     implemented: true,
@@ -1041,6 +1091,7 @@ Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Wo
       { label: 'lecture 10 — review promotion', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
       { label: 'lecture 11 — evaluator calibration', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-11-why-observability-belongs-inside-the-harness/' },
       { label: 'OpenAI — struggle signals', url: 'https://openai.com/index/harness-engineering/' },
+      { label: 'SDLC paper — flywheel', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
       { label: 'decisions journal', url: 'docs/Harness decisions.md' },
     ],
   },
