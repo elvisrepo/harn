@@ -48,7 +48,17 @@ Keep the set small and curated, and prefer project-level skills so they version 
 
 Specialize by role (Day-2 paper): one agent with every tool attached hits the monolithic ceiling — huge search space breeds hallucinated calls, full-context prompts dilute attention, one bad instruction corrupts everything. Give each role a narrow tool subset and a focused prompt (reduction of search space, sharper reasoning, clean signal-to-noise); the orchestrator routes instead of reasoning over the whole tree.
 
-Authoring discipline (Day-3 paper): skills are procedural memory — not what happened (episodic) or facts (semantic) but how to do things step by step. Three levels load progressively: metadata always in context, SKILL.md body on trigger, bundled resources strictly as needed — a hundred skills cost a hundred metadata lines. The description is the routing algorithm (the only thing the model sees when deciding): front-load trigger keywords, state what it is NOT for, be pushy if it under-triggers. Name boringly (no utils/tools/jargon). Split the folder by need: deterministic work in scripts/, on-demand knowledge in references/, templates in assets/ — a growing SKILL.md means the next paragraph belongs in references/. Two paths create them: translate existing runbooks (experts need no code), or crystallize a successful agent run (agent drafts, human reviews — unreviewed drafts are worse than none). Test both directions: fires when it should, stays quiet when it shouldn't.`,
+Authoring discipline (Day-3 paper): skills are procedural memory — not what happened (episodic) or facts (semantic) but how to do things step by step. Three levels load progressively: metadata always in context, SKILL.md body on trigger, bundled resources strictly as needed — a hundred skills cost a hundred metadata lines. The description is the routing algorithm (the only thing the model sees when deciding): front-load trigger keywords, state what it is NOT for, be pushy if it under-triggers. Name boringly (no utils/tools/jargon). Split the folder by need: deterministic work in scripts/, on-demand knowledge in references/, templates in assets/ — a growing SKILL.md means the next paragraph belongs in references/. Two paths create them: translate existing runbooks (experts need no code), or crystallize a successful agent run (agent drafts, human reviews — unreviewed drafts are worse than none). Test both directions: fires when it should, stays quiet when it shouldn't.
+
+Production readiness (Day-3 paper): past prototype, the model stops being the interesting part — skills become the engineering primitive that ships reliably. The full lifecycle arrives as skills that compose into the existing tool, not another portal: scaffold, code, eval, deploy, publish, observe.
+
+![One install of lifecycle skills into any coding agent](/uploads/565b6fe5-9f26-46b4-a4c2-421614890ebd.png)
+
+Three properties make skills the unit of improvement: conditional (loaded only on description match), composable (chaining downstream tools without mutual knowledge), owned (versioned folders with authors, improvement distributed). Compare against the alternatives:
+
+![Improvement methodologies: model swap, prompt edit, fine-tune, new skill](/uploads/a534a124-53ef-41d6-a144-9e80cfa960e9.png)
+
+New skills win on cycle time (hours to days), blast radius (bounded to matching turns), ownership (any domain team), and context tax (dynamic, on-demand). Inside any agent runtime, incidentally, barely any code is reasoning — the overwhelming share is operational infrastructure (permissions, compaction, delegation, storage). As models converge, the deterministic engineering around them is the differentiator, and the skill is its composable unit.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -848,7 +858,13 @@ Split them by cost. Static context loads every interaction — system instructio
 
 ![Static vs dynamic context and the boundary decision](/uploads/22456659-4abb-4a5c-a0f9-51c0fffdbc13.png)
 
-The boundary itself is a first-class architectural decision, reviewed and versioned like code. The strongest dynamic pattern is skills: the agent sees lightweight metadata at startup, loads full instructions on task match, pulls deep reference only when explicitly needed — dozens of capabilities carried for the price of one. Guiding question throughout: what would a new team member need to contribute effectively, and how is that knowledge encoded for AI use?`,
+The boundary itself is a first-class architectural decision, reviewed and versioned like code. The strongest dynamic pattern is skills: the agent sees lightweight metadata at startup, loads full instructions on task match, pulls deep reference only when explicitly needed — dozens of capabilities carried for the price of one. Guiding question throughout: what would a new team member need to contribute effectively, and how is that knowledge encoded for AI use?
+
+Token economics (Day-3 paper): production's top failure mode isn't hallucination — it's context overflow, the model silently degrading past usable context long before the window fills. Relevance position matters (best at start/end, worst in the middle) and every model degrades as input grows, faster when noise drowns signal. Progressive disclosure is the architectural answer, and the math compounds: fifty workflows as one prompt loads ~15,000 tokens every turn; as a skills library, ~4,000 of metadata plus the ~2,000-token active body — same capability near a tenth of the cost, with published cases near 98% reductions.
+
+![Token economics: one big prompt versus a skills library](/uploads/7c8fc750-d367-4a27-b42d-7c11cb4ab9f0.png)
+
+Three implications: capacity is the wrong metric (degradation starts far below window size); active context is a budget, not a vessel — every token taxes attention from every other, allocate like infrastructure memory; skills resolve the constraint, holding active context small while available capability stays effectively unbounded.`,
     considered: true,
     implemented: false,
     wanted: true,
