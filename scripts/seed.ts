@@ -640,7 +640,7 @@ Complete in three layers that agree with each other:
 2. **Executable** — HTTP seam tests plus unit tests over the pure core, both inside the project's check command.
 3. **Norm** — the entry file's testing section plus TDD steps in the implement workflow, with mid-loop and full commands spelled out.
 
-Doc, executable, and norm agreeing is rare enough to state outright — most repos have two of three, and the missing one is usually the doc.`,
+Doc, executable, and norm agreeing is rare enough to state outright — most repos have two of three, and the missing one is usually the doc. Keep batches small and never modify tests and implementation in the same step — the test stays an objective baseline, and small diffs stay reviewable (a security control as much as a courtesy).`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -952,7 +952,7 @@ Evals first (SDLC paper): write the eval suite before generating the code. Tests
     summary: 'Lecture-01 exercise as instrument: sample tasks, record claimed-done vs actually-done — the one metric for whether verification works.',
     body: `After each task, record whether the agent claimed completion, then verify independently. The proportion of false-dones is your verification gap — the single number that says whether the verification layer functions.
 
-Start manual: one log line per task (claimed-done + independent verdict), gap ratio over a window, beginning with any task where "done" felt cheap. Instrument later: append results automatically from your checks, review the ratio on a cadence, and treat a widening gap as the signal to strengthen verification. This sensor reports on the sensors themselves — build it the day a false-done slips through green.`,
+Start manual: one log line per task (claimed-done + independent verdict, plus turns-to-converge, converged-or-abandoned, and token cost), gap ratio over a window, beginning with any task where "done" felt cheap. Sessions that converge in few turns are the success cases; abandoned sessions are the most informative failures — far more than turn-level errors. Instrument later: append results automatically from your checks, review the ratio on a cadence, and treat a widening gap as the signal to strengthen verification. This sensor reports on the sensors themselves — build it the day a false-done slips through green.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -1223,7 +1223,7 @@ Planner restraint (Lecture 11): the planning stage stays bold on scope and high 
     summary: 'Deterministic commands behind skill wrappers — the portable computational guides: same shell in any harness.',
     body: `Deterministic tooling the agent invokes before and during generation instead of guessing. The endorsed shape is the hybrid — a skill with instructions plus a bootstrap script — rated both computational and inferential. Typical inventory: web research CLI (search/scrape behind skills, with cost guards and outputs kept out of the context window), diagram CLI (typed input in, validated artifact out, repair receipt back), browser-evidence CLI (assert/eval/login/shot flags), plus project scripts for the pre-handoff gate and one-shot ops with exact commands and expected receipts.
 
-Three placements: mid-loop via shell (facts, diagrams, browser evidence), the gate left-shifted into check, one-shot ops documented with commands and receipts. Portability rule: CLIs run through the shell every harness has — they are the one guide category that survives a harness switch unchanged, unlike runtime-specific extensions. New controls ship as skill plus script first.`,
+Three placements: mid-loop via shell (facts, diagrams, browser evidence), the gate left-shifted into check, one-shot ops documented with commands and receipts. Route external fetches through governed paths (offline caches, sanitized crawlers) rather than raw interactive browsing — a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page. Portability rule: CLIs run through the shell every harness has — they are the one guide category that survives a harness switch unchanged, unlike runtime-specific extensions. New controls ship as skill plus script first.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -1261,7 +1261,7 @@ Layers, all in one check command:
 
 1. **Build** — compile gate (bundlers strip types; a build checks nothing semantic — know this).
 2. **Strict typecheck** — the language engine in CLI mode; zero errors, zero warnings.
-3. **Secrets scan** — credential patterns over tracked files, file:line plus fix, values never printed. Must catch a live secret push on its first run to earn the name.
+3. **Secrets scan** — credential patterns over tracked files, file:line plus fix, values never printed. Must catch a live secret push on its first run to earn the name. Pair it with content scanning for invisible payloads (zero-width characters, homoglyphs) on ingested code — hidden instructions bypass human review and replicate faster than eyes can follow. The supply-chain half lives in the Hallucinated-dependency guard mod.
 4. **Lint plus domain rules** — general lint config minus typechecker-covered noise, plus a couple of earned static rules for the project's failure classes.
 
 Behavioural backstop (honestly scoped): a thin suite (zero-dep HTTP tests mirroring the browser flows, including content-negotiation and origin lessons, plus fuzz probes where hostile input never 500s; env-gated login paths sign out after) and unit coverage of the pure core with real per-file lines (regression and property cases included; black-box HTTP coverage stays unmeasurable on most servers — thresholds off until earned).
@@ -1354,7 +1354,7 @@ Gap the loop usually has: it is human-triggered — recurrence is noticed by a p
 
 Proposed mechanism (wanted, ~1 hour, zero deps): a failure ledger — the check command appends each sensor failure as one JSONL line (date, step, class, file) — plus a warn-only review script that counts classes in a window and prints rule candidates ("login flow failed 3rd time in 14 days — encode the bar?"). Thresholds mirror the existing rules (2 for lint-class, 3 for mechanical edits). Warn-only until the signal proves itself; a tripwire that cries wolf trains disregard, same as a noisy sensor.
 
-Quality flywheel (SDLC paper): evaluate against a benchmark suite, diagnose failures by clustering root causes, optimize the prompts or tools that caused them, verify fixes against a regression suite, monitor production traffic for new failure modes. Each cycle compounds — the ledger is the data it feeds on.
+Quality flywheel (SDLC paper): evaluate against a benchmark suite, diagnose failures by clustering root causes, optimize the prompts or tools that caused them, verify fixes against a regression suite, monitor production traffic for new failure modes. Each cycle compounds — the ledger is the data it feeds on. Mine user corrections as labeled failure data: every "no, not like that" is a free failure example — cluster them and the systematic gaps surface faster than any synthetic benchmark.
 
 Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Work through the five layers systematically — task not clearly defined, insufficient context, misconfigured environment, missing verification, loss of state between sessions. Attribution first, fix second: each layer points at a different control (spec, context budget, env parity, check gates, session discipline), and guessing the layer is how fixes land in the wrong place.`,
     considered: true,
@@ -1507,7 +1507,7 @@ Two riders: minimal-but-complete (every entry earns its place by changing a deci
     title: 'ACID agent state',
     category: 'Workflow',
     summary: 'Lecture-03 frame: atomic ops, consistency predicates, isolation between agents, durable git-tracked knowledge.',
-    body: `Run agent state like database transactions. Atomicity: a logical operation ships whole once verified, or is discarded — never half-merged. Consistency: define verifiable predicates (tests pass, lint clean) and check them after each operation; inconsistent states don't get committed. Isolation: concurrent agents get their own progress files or branches — shared mutable state is where toes get stepped on. Durability: anything that must survive the session goes in git-tracked files; what lives only in session memory doesn't count.`,
+    body: `Run agent state like database transactions. Atomicity: a logical operation ships whole once verified, or is discarded — never half-merged. Checkpoint before mutating: snapshot version control before agent edits so failed verification rolls back instead of compounding. Consistency: define verifiable predicates (tests pass, lint clean) and check them after each operation; inconsistent states don't get committed. Isolation: concurrent agents get their own progress files or branches — shared mutable state is where toes get stepped on. Durability: anything that must survive the session goes in git-tracked files; what lives only in session memory doesn't count.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -1904,6 +1904,136 @@ Validate-retry-fallback (Day-2 paper): generated artifacts get schema-validated;
       { label: 'lecture 09', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
       { label: 'lecture 10 — what/why/fix', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
       { label: 'Day-2 paper — retry/fallback', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
+    ],
+  },
+  {
+    title: 'High-stakes confirmation',
+    category: 'Workflow',
+    summary: 'Day-4 practice: irreversible actions need scoped identity plus a plain-language intent-to-steps summary — never a blind approve button.',
+    body: `The standing failure behind every agent incident log: an over-privileged agent, tricked or merely literal-minded, executing something irreversible while the human clicked "approve" on code they never read. Vague prompts produce broad workflows; shared long-lived credentials turn that breadth into ambient authority — and a hidden instruction pasted in with a forum snippet (the confused deputy) spends it on the attacker's behalf.
+
+Three controls, in order:
+
+1. **Least privilege by construction.** The agent never inherits the operator's full permissions. Every task runs under its own scoped identity — observably agentic, never the user's delegated credentials — with fresh, hyper-restricted grants covering exactly the data and tools that step needs, expiring when the step ends. File access follows a deny-by-default allowlist: named project directories readable and writable, secrets, build scripts, and deployment manifests off limits always.
+
+2. **Structured elicitation, not approve/deny.** High-stakes actions — production data, money movement, identity configuration, anything irreversible — cannot ride a bare confirmation button. The agent must ask in context, and the request carries two boundaries: a second-factor human act (at enterprise scale a hardware-key touch; at local scale an explicit typed confirmation, never a cached yes), and a plain-language summary of what will happen.
+
+3. **The plain-language diff.** Before the tool runs, the generated plan is translated back into ordinary language mapping the original fuzzy intent to the proposed execution steps: what it touches, what it excludes, what can be undone. Compilation success is not comprehension — "it runs, ship it" is the fallacy this control exists to break. The human authorises the meaning, not the syntax.
+
+![Secure vibe-coding agent framework: seven-pillar foundation, code-and-execution workflow, active defense layer](/uploads/08aeab65-0bfa-4e25-865c-f9b44fb8e519.png)
+
+Parked at enterprise scale, adopted in miniature here: scoped identities and hardware attestation are the platform's job; the allowlist, the elicitation ritual, and the plain-language diff are ours. Confirmation fatigue is the failure mode to watch — if routine steps start demanding ceremony, the ceremony stops working; reserve it strictly for the irreversible.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['high-stakes', 'approval', 'least-privilege', 'security'],
+    links: [
+      { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
+    ],
+  },
+  {
+    title: 'Hallucinated-dependency guard',
+    category: 'Tooling',
+    summary: 'Day-4 supply-chain control: vet every new dependency against the real registry, pin versions, gate on manifest — slopsquatting never reaches the build.',
+    body: `Generative agents invent dependency names that do not exist — and attackers watch for those hallucinations, publishing malware under the exact fabricated names so the next agent run pulls it straight into the build (slopsquatting). Because agents can rewrite dependency graphs without human confirmation, one confident fiction becomes a supply-chain breach.
+
+The guard has four layers:
+
+1. **Vetted sources only.** New dependencies resolve exclusively against known registries or an internal mirror — never whatever name the model produced. A name that does not exist upstream is rejected before anything downloads.
+2. **Pinned versions.** Ranges float toward whatever was published most recently, which is exactly where the malware sits. Pin exact versions cryptographically and let upgrades arrive as deliberate changes, not ambient drift.
+3. **Composition scan at the gate.** Every build verifies the dependency manifest and artifact signatures before anything advances toward production — the deterministic checkpoint no advisory warning can replace.
+4. **Contained, governed execution.** Generated code first runs in an ephemeral, isolated sandbox whose state resets between runs, so a compromised script cannot persist or reach the host. Network egress travels governed paths only — offline caches or pre-sanitized fetchers — because a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page.
+
+Enforcement split that keeps velocity: advisory hints where the developer types (a linter noting an unvetted dependency), unyielding checks in the pipeline where nothing gets bypassed in a hurry. The local companions: the scheduled dependency sensor watches what is already installed; this guard watches what the agent tries to add.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['supply-chain', 'dependencies', 'sandbox', 'security'],
+    links: [
+      { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
+      { label: 'Wiz — secure vibe coding guide', url: 'https://www.wiz.io/lp/the-technical-guide-to-secure-vibe-coding' },
+    ],
+  },
+  {
+    title: 'Evaluating intent-driven agents',
+    category: 'Knowledge',
+    summary: 'Day-4 method, whole: why vibe eval differs, seven dimensions, eight-method matrix, observability prerequisite, convergence over turns.',
+    body: `Security proves the agent did no harm; evaluation proves it delivered value. An agent can pass every security check while misreading intent, ignoring project conventions, or silently degrading the experience — and vibe-coding evaluation is its own problem, distinct from both deterministic testing and other agent categories.
+
+Why it is different — three constraints shape everything below:
+
+- **The underspecification gap: there is no spec.** "Make it load faster" is not a test case. The prompt leans entirely on the model's latent knowledge and judgment to reconstruct the unstated requirements — so the first job of evaluation is checking whether it reconstructed the right ones.
+- **The user often cannot validate the output.** Nobody reviews hundreds of generated lines in real time, expert or not. The gap between "the agent thinks it succeeded" and "the code is actually correct" is widest here, and closing it is the central work.
+- **The session is iterative and the codebase is state.** Every turn mutates real files; bad early decisions compound. Evaluation must cover the full arc of a multi-turn session on a living codebase, not isolated turns.
+
+![Vibe-coding evaluation framework: why it differs, what to evaluate, how to evaluate](/uploads/8772221b-f92b-4ba3-8dc1-03fad4b90658.png)
+
+What to evaluate — seven dimensions in two groups, plus one transversal:
+
+- **User-facing (what the developer experiences):** 1. intent satisfaction — did it build what was meant, not just what was said (the hardest; the user judges everything on this); 2. functional correctness — builds, runs, passes tests (the floor, not the ceiling; gameable by deleting or mocking tests); 3. visual and behavioural correctness — for UI output the artifact is the rendered page, not the code; 4. cost and efficiency — tokens, latency, tool calls, and corrections-to-converge (one-turn success is a different product from eight corrections).
+- **Internal (invisible to the user):** 5. code quality and convention match — idiomatic, style-consistent, maintainable (a passing diff that violates house style is still a failure); 6. trajectory quality — a sensible path: the right files read first, a coherent edit sequence, the right tool each step (correct output via bad reasoning is fragile); 7. self-repair behaviour — when the build fails or the user says "not like that," does it recover or compound?
+- **Transversal:** safety and responsible AI cuts across all seven — vulnerabilities, leaked credentials, license exposure, refusal behaviour, output safety — scored alongside each dimension, never as a separate gate.
+
+![Evaluation dimensions: four user-facing, three internal, safety transversal](/uploads/e0995662-f112-4bc2-ac7c-b4dd0042cda3.png)
+
+How to evaluate — no single method covers all dimensions; production pipelines combine them (each method described in full in the How to evaluate mod):
+
+- **Automated functional testing** (build, suite, linters) — the cheapest signal; covers functional correctness and rule-checkable quality.
+- **Security and safety evaluation** — static scanners plus scripted adversarial refusal probes; transversal.
+- **Model-as-judge** — a peer model scoring outputs against rubrics, or inspecting the trace for plan coherence; covers intent, style, trajectory. Two non-negotiables at scale: swap reference and actual to kill ordering bias, and calibrate against human ratings.
+- **Browser-based testing** — scripted multi-step workflows against the deployed app plus screenshot comparison; the method for visual and behavioural correctness. Judge the rendered artifact, not the code: a multimodal judge looking at the page catches broken layout, contrast, and states that code-level checks miss entirely, while assertions catch broken interactivity.
+- **Trajectory inspection** — reasoning, tool calls, and retrievals from execution traces; covers trajectory quality and self-repair.
+- **Human review** — sampled sessions scored by qualified reviewers; the only ground truth for intent. Does not scale — used to calibrate the other methods.
+- **Online evaluation** — sample live traffic against the same rubrics; bias sampling toward high-cost sessions, many-correction sessions, and abandonments, since flat sampling misses the long tail.
+- **Standardised benchmarks** — shared task sets for cognitive calibration only. The tradeoff is overfitting: top scores on static sets prove nothing about messy human intent. Never a replacement for custom intent evaluation.
+
+![Evaluation methods mapped to their recommended dimensions](/uploads/8a0296b6-f62e-442a-8a23-21e037f5464d.png)
+
+Observability is the prerequisite: without execution traces the agent is a glass box painted black. One trace per session, reasoning spans before each action, tool spans with arguments and latencies — and tail-based sampling that drops routine successes while keeping errors and repair loops, since full capture drowns storage. Cost accounting rides the same spans: tokens, latency, and repair-loop spend per session.
+
+Four applied tips that survive contact with real sessions:
+
+1. **The session opening is the rubric.** With no spec, derive 3–5 acceptance criteria from the first user messages automatically, then score every subsequent turn against them — the only practical intent metric at scale.
+2. **Judge convergence, not turns.** The question is never "was turn 4 correct" but "did the session converge, in how many turns, at what cost, or was it abandoned?" Abandoned sessions are the most informative failures.
+3. **Mine corrections as labeled data.** Every "no, not like that" is a failure example produced free; cluster them and the systematic gaps surface faster than any synthetic benchmark.
+4. **Local mapping:** artifact judging lives in the browser-behaviour sensor, rubric judging in the review step, functional and security scanning in the static checks, convergence fields in the verification-gap log, correction mining in the steering loop, trajectory scoring in skill evaluation. This mod is the map; those mods are the territory.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['evaluation', 'intent', 'trajectory', 'judge', 'convergence'],
+    links: [
+      { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
+    ],
+  },
+  {
+    title: 'How to evaluate',
+    category: 'Knowledge',
+    summary: 'Day-4 section, quoted whole: the seven evaluation methods with recommended dimensions — no single method covers everything, pipelines combine several.',
+    body: `The seven dimensions are not all measurable the same way. No single method covers everything, so production pipelines combine several. The figure below summarizes the evaluation methods and the dimensions each is recommended for; the rest of the section describes each in detail.
+
+![Evaluation methods mapped to their recommended dimensions](/uploads/8a0296b6-f62e-442a-8a23-21e037f5464d.png)
+
+**Automated functional testing.** Run the build, the test suite, and the linters on the agent's output. The standard tooling does most of the work here, pytest, jest, eslint, mypy, plugged into the project's CI pipeline. This is the cheapest signal available, recommended for functional correctness (dimension 2) and the rule-checkable parts of code quality (dimension 5).
+
+**Security and safety evaluation.** Combine static security analysis on the generated code with adversarial probing for refusal behaviour. This is cross-cutting, it scores safety and responsible AI alongside the other dimensions, not as a separate gate. The tooling splits in two: static scanners like Snyk and Semgrep find vulnerabilities, git-secrets catches credential leaks, and scripted red-team suites test whether the agent refuses clearly harmful requests.
+
+**LLM-as-judge and Agent-as-judge.** Use a model to score outputs against rubrics. Recommended for the dimensions where rules don't quite capture the right answer, intent satisfaction (dimension 1), code quality and style (dimension 5), and trajectory quality (dimension 6). In practice that means Gemini scoring an output against the original user prompt, or an agent-as-judge inspecting the trace for plan coherence.
+
+**Browser-based testing.** Run multi-step workflows against the deployed app and observe what happens. Recommended for visual and behavioural correctness (dimension 3) on UI-producing agents. The techniques are well-established in software testing: Playwright scripts that interact with the rendered UI, screenshot comparison against a reference.
+
+**Trajectory inspection.** Analyze the agent's reasoning, tool calls, skill invocations, and retrievals. Recommended for the internal dimensions, trajectory quality (dimension 6) and self-repair behaviour (dimension 7). The substrate is OpenTelemetry traces with span-level tool-call data, surfaced through trace-replay tools that bind each model invocation to the actions that followed.
+
+**Human review.** Sample sessions for direct review by qualified reviewers. Recommended for intent satisfaction (dimension 1, where humans are the only ground truth), code quality (dimension 5, the traditional domain of code review), and safety and responsible AI calls that need nuanced judgment. Doesn't scale; mainly used to calibrate the other methods. In practice that means structured annotation by senior engineers on review queues filled by online sampling.
+
+**Online evaluation.** Sample live production traffic and score it against the same rubrics used in offline eval. Covers all dimensions at sample rate. The trick is sampling well: a flat 1% misses the long tail, so bias toward high-cost sessions, sessions with many corrections, and sessions the user abandoned.
+
+Local mapping (where each method lives here): functional testing in the static checks; security and safety in the static checks plus the secrets scan; model-as-judge in the review step; browser-based in the browser-behaviour sensor; trajectory inspection in skill evaluation; human review in the safeguards plus the review step; online evaluation in the verification-gap log and the steering loop. New methods should arrive the way this section did — quoted, then mapped, then built.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['evaluation', 'methods', 'testing', 'review', 'sampling'],
+    links: [
+      { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
     ],
   },
 ];
