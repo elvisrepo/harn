@@ -125,6 +125,29 @@ Eval coverage means four conditions, one per failure mode: triggers verified bot
     ],
   },
   {
+    title: 'Meta-skills',
+    category: 'Knowledge',
+    summary: 'Day-3 territory: skills that author, harvest, improve, and evolve other skills — gated by evals, graduated like any skill.',
+    body: `Once a working library exists, the agent can help write, evaluate, and improve skills too. Meta-skills — skills whose job is other skills — fall into four buckets. Authoring: from a workflow description to a draft skill. Assisted authoring from traces: watch the agent succeed a few times, then turn the trace into a skill — the human confirms rather than writes.
+
+![Trace harvesting: successful production histories become procedural memories](/uploads/9b482976-6ba5-41f4-bb47-5a036a201efe.png)
+
+Improvement: existing skill plus failing eval cases in, proposed edits out — bounded experiments kept only on metric improvement.
+
+![Gated improvement: revisions pass evals and human spot-check before promotion](/uploads/d22ed8b1-1992-4862-a2e5-77f3694596c1.png)
+
+Library evolution: the agent finishes a task it had no skill for, notices the recurring shape, and proposes growing the library.
+
+Guardrails, because an agent editing its own skills optimizes whatever metric it is pointed at, including gameable ones: evaluation quality is what keeps this honest (trigger accuracy, regression tests, human spot-checks). Agent-written entries enter at draft tier regardless of confidence and graduate the same ladder. Keep a human on the first edits — overfit descriptions and broken downstream skills are the mistakes humans catch in seconds. And don't start here: manual authoring first; pointing an agent at an empty folder for fifty skills is the fastest route to a bad library. The settling pattern: humans write first versions, meta-skills handle maintenance, full self-extension stays experimental until the gates are tight.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['meta-skills', 'skills', 'self-improvement', 'gated'],
+    links: [
+      { label: 'Day-3 paper', url: 'https://www.kaggle.com/whitepaper-agent-skills' },
+    ],
+  },
+  {
     title: 'Archify — validated architecture diagrams',
     category: 'Tooling',
     summary:
