@@ -50,6 +50,10 @@ Specialize by role (Day-2 paper): one agent with every tool attached hits the mo
 
 Authoring discipline (Day-3 paper): skills are procedural memory — not what happened (episodic) or facts (semantic) but how to do things step by step. Three levels load progressively: metadata always in context, SKILL.md body on trigger, bundled resources strictly as needed — a hundred skills cost a hundred metadata lines. The description is the routing algorithm (the only thing the model sees when deciding): front-load trigger keywords, state what it is NOT for, be pushy if it under-triggers. Name boringly (no utils/tools/jargon). Split the folder by need: deterministic work in scripts/, on-demand knowledge in references/, templates in assets/ — a growing SKILL.md means the next paragraph belongs in references/. Two paths create them: translate existing runbooks (experts need no code), or crystallize a successful agent run (agent drafts, human reviews — unreviewed drafts are worse than none). Test both directions: fires when it should, stays quiet when it shouldn't.
 
+Composition (Day-3 paper): real workflows don't fit in one skill — skills reference each other, pass state, and must avoid circular dependencies. Naive prompt chaining compounds errors; the industry answer is DAG orchestration with decoupled state (no accumulating history in prompts), a file message bus (structured schema references passed between nodes), and protected attention (payloads abstracted from text input, preserving capacity). Environment packaging via capability profiles: versioned personas per execution state (skills, tools, instructions, guardrails, model parameters), swapped in with strict teardown — unload instructions, flush stale variables, rebuild. Populate the graph from a fixed taxonomy: generator (intent to artifacts), reviewer and gate (deterministic blocks), pipeline (linear paths), inversion and recovery (force clarification before execution), domain wrappers (reference nodes teaching conventions).
+
+![Architectural tradeoffs: linear pipelines, DAG orchestration, capability profiles](/uploads/6bf3ae5c-8825-4cdf-b9b3-63c29267ce4b.png)
+
 Production readiness (Day-3 paper): past prototype, the model stops being the interesting part — skills become the engineering primitive that ships reliably. The full lifecycle arrives as skills that compose into the existing tool, not another portal: scaffold, code, eval, deploy, publish, observe.
 
 ![One install of lifecycle skills into any coding agent](/uploads/565b6fe5-9f26-46b4-a4c2-421614890ebd.png)
@@ -58,7 +62,9 @@ Three properties make skills the unit of improvement: conditional (loaded only o
 
 ![Improvement methodologies: model swap, prompt edit, fine-tune, new skill](/uploads/a534a124-53ef-41d6-a144-9e80cfa960e9.png)
 
-New skills win on cycle time (hours to days), blast radius (bounded to matching turns), ownership (any domain team), and context tax (dynamic, on-demand). Inside any agent runtime, incidentally, barely any code is reasoning — the overwhelming share is operational infrastructure (permissions, compaction, delegation, storage). As models converge, the deterministic engineering around them is the differentiator, and the skill is its composable unit.`,
+New skills win on cycle time (hours to days), blast radius (bounded to matching turns), ownership (any domain team), and context tax (dynamic, on-demand). Inside any agent runtime, incidentally, barely any code is reasoning — the overwhelming share is operational infrastructure (permissions, compaction, delegation, storage). As models converge, the deterministic engineering around them is the differentiator, and the skill is its composable unit.
+
+Settled versus emerging (Day-3 paper): the format is settled — an open standard adopted across every coding agent, chatbot, and framework that matters. The architecture around it is still emerging: co-loaded evaluation, library-level optimization, agent-driven creation, governance at scale. The format stays deliberately small so the interesting work happens around it — evaluation under realistic load, composition without the context window as a bus, agent-drafted skills with human review, institutional knowledge as a versioned testable library. Start small, start with knowledge already held, treat skills as code, measure what ships — and don't reach for multi-agent when a skill will do.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -143,6 +149,173 @@ Guardrails, because an agent editing its own skills optimizes whatever metric it
     implemented: false,
     wanted: true,
     tags: ['meta-skills', 'skills', 'self-improvement', 'gated'],
+    links: [
+      { label: 'Day-3 paper', url: 'https://www.kaggle.com/whitepaper-agent-skills' },
+    ],
+  },
+  {
+    title: 'Skill cheatsheet',
+    category: 'Knowledge',
+    summary: 'Day-3 Appendix A, whole: template, structure, naming, description, rules, quality, do/don’ts, smells, checklists.',
+    body: `The printable standalone: everything a team needs to author skills, in checklist form.
+
+## The minimal SKILL.md
+
+Copy-paste, adjust placeholders, done:
+
+\`\`\`markdown
+---
+name: skill-name
+description: |
+  [What it does in one verb-led sentence.] Use this skill when the user
+  [trigger phrase 1], [trigger phrase 2], or [trigger phrase 3].
+  Do NOT use for [anti-trigger 1] or [anti-trigger 2].
+version: 1.0.0
+license: MIT
+allowed-tools: [Optional] Read Bash Write
+metadata:
+  author: [Optional] your-handle
+---
+
+# Skill Name
+
+## When to use
+- [Concrete scenario]
+- [Concrete scenario]
+
+## When NOT to use
+- [Out-of-scope scenario]
+
+## Workflow
+1. [Step]
+2. [Step]
+3. See \`references/advanced.md\` for [edge case].
+
+## Examples
+- Input: "..." → Output: "..."
+
+## Output format
+- Use \`assets/template.md\` etc.
+
+## Anti-patterns to avoid
+- Don't [...]
+\`\`\`
+
+## The folder structure
+
+\`\`\`text
+skill_name/
+├── SKILL.md            # Required: YAML frontmatter + markdown instructions
+├── scripts/            # Optional: executable helper scripts (Python, Bash)
+├── references/         # Optional: supplementary context loaded as needed
+├── assets/             # Optional: files used in output (templates, resources)
+├── ...                 # Any additional files or directories
+\`\`\`
+
+## Naming
+
+- Directory name: snake_case
+- Skill name: kebab-case
+- Prefer gerund form: processing-pdfs, not pdf-processor
+- Avoid generic names: helper, utils, tools, data
+- Avoid vendor prefixes: claude-*, gemini-*, anthropic-*
+- Avoid internal jargon outsiders won't recognize
+
+## The description field
+
+The description is the routing algorithm. Spend more time here than anywhere else.
+
+- State what it does AND when to use it
+- Front-load trigger keywords ("Generate a commit message…", not "This skill helps with…")
+- Include when NOT to use to prevent over-triggering
+- Be pushy when the model under-triggers
+- ≤200 chars for API; ≤1024 chars in YAML. Most authors aim for ~50 words
+
+## The five rules
+
+1. One skill, one job. If you cannot describe what the skill does in one sentence, it is two skills. Decompose before writing.
+2. Descriptions are an interface. The agent picks skills by reading descriptions. A vague description means an unused skill.
+3. Skills are dependencies. Treat them like libraries. Version them, pin them, review them in PRs. A skill without a test is a hope, not a capability.
+4. The right team owns the right skill. Domain experts own domain skills. Do not let the AI team become a bottleneck for the organization's domain knowledge.
+5. The agent runtime is interchangeable. Do not tie skills to one runtime. Portability is part of the value.
+
+## The quality principles
+
+1. Run the task yourself first. Real failure produces signal. Speculation produces noise.
+2. Give the reason, not just the rule. Models generalize wonderfully to edge cases when they understand why an instruction exists. If you find yourself typing "ALWAYS" or "NEVER" in caps, pause and try explaining the rationale instead.
+3. Every line should earn its place. Keep gotchas, exact commands, business logic, anti-patterns. Cut boilerplate the model already knows such as "always validate output".
+4. One skill, one job. If the description needs "and" between unrelated capabilities, split it.
+5. Make instructions verifiable. If the agent can't tell whether it followed the rule, the rule is too vague.
+6. Bundle what repeats. Helper code the agent keeps re-deriving belongs in scripts/.
+
+## Do's and Don'ts
+
+Do:
+
+- Start small and concrete
+- Spend disproportionate time on the description field. It is the routing algorithm. Always include what it does, when to use, and when not to use
+- Trust progressive disclosure
+- Bundle deterministic work in scripts/, not as instructions
+- Treat Skills as code
+- Remember: Skills + MCPs, not Skills vs. MCPs
+- Have test cases and controlled, programmatic evaluation
+
+Don't:
+
+- Write vague descriptions like "helps with documents". Use specific verbs, trigger phrases, and a when-not-to-use clause
+- Write SKILL.md bodies over 5,000 words. Move detail to references/
+- Hard-code paths or secrets
+- Embed "always do X" rules that are more appropriate for AGENTS.md
+- Install untrusted third-party libraries or Skills without scanning
+- Reinvent MCP as scripts
+
+## Skill smells (revise if you see these)
+
+- Over 5,000 words. Probably two skills, or reference material that should live in references/
+- Two domain teams could plausibly own it. Not yet decomposed. Split along team boundaries
+- You can't write three test cases for it. Description is too vague; skill does too many things
+- It does not reference any other resource. Might just be a long instruction that belongs in the system prompt
+- You keep adding "edge cases" sections. Each edge case probably wants its own skill
+- Its description starts with "a helpful skill for…". Rewrite. The description should name the trigger, the inputs, and the output
+
+## Eval coverage checklist
+
+A skill is "evaluated" only when all four are satisfied:
+
+- Trigger. Positive AND negative test cases. Target 90% trigger accuracy
+- Execution. Correct outputs across a representative range of inputs
+- Regression. Adding this skill causes zero drops in the existing library suite
+- Token budget. Co-loaded with 5 to 15 frequently-active skills, does not degrade unrelated turns
+
+Any failure holds the skill at the draft tier, regardless of happy-path performance.
+
+## Deployment checklist
+
+- Frontmatter validates (lint passes)
+- Description includes what + when + when-not
+- Scripts have unit tests passing in CI
+- Eval suite passes in CI with min-pass threshold
+- Security scan clean (no secrets, no untrusted deps)
+- Description reviewed by someone other than the author
+- Cross-tool install paths tested if shipping publicly
+- Org-level admin provisioning updated (if applicable)
+
+## One-line mental model
+
+System prompt = instinct. AGENTS.md = project README. Tools / MCP = hands. RAG = library. Skills = the runbook the experienced colleague hands you on day one, and that the AI never forgets.
+
+## Where to start tomorrow
+
+1. Take your most experienced practitioner aside for an hour. Ask them to narrate three workflows they do regularly. Record it.
+2. Pick the most repeated workflow. Run the prompts yourself, without any skill loaded. Note where the agent fails.
+3. Draft a SKILL.md from the transcript. Write three eval cases (two positive, one negative) before drafting the body.
+4. Ship to a read-only tier. Test in production-like conditions. Iterate the description until trigger accuracy clears 90%.
+
+Repeat. Build the library one workflow at a time. Resist the urge to let an LLM generate fifty skills on day one.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['skills', 'cheatsheet', 'reference', 'authoring'],
     links: [
       { label: 'Day-3 paper', url: 'https://www.kaggle.com/whitepaper-agent-skills' },
     ],
@@ -1287,7 +1460,9 @@ Turn it inward monthly (Lecture 12): every harness component exists because the 
     summary: 'Lecture-04 method: matrix entries × task types, relocate noise to topic docs — "add a rule" is relief today, poison tomorrow.',
     body: `Every mistake tempts one more rule in the entry file, and each addition feels free — until 600 lines eat the context budget, bury hard constraints where models never look, and contradict each other. Audit instead: list every instruction entry, score its relevance across a few common task types, and move whatever is noise for most tasks into topic documents.
 
-Every surviving rule documents its source (why added), applicability (when needed), and expiry (when removable) — audit on cadence and delete. Historical incident notes don't belong in instructions at all: convert them to test cases or delete them. Signal-to-noise is the metric; the entry file is a router, and routers stay thin.`,
+Every surviving rule documents its source (why added), applicability (when needed), and expiry (when removable) — audit on cadence and delete. Historical incident notes don't belong in instructions at all: convert them to test cases or delete them. Signal-to-noise is the metric; the entry file is a router, and routers stay thin.
+
+Context debt (Day-3 paper): bloating descriptions with deterministic imperatives ("ALWAYS DO X") burns attention — models learn to ignore walls of capitalized rules exactly like humans ignore warning-text walls. Shift intelligence left: distill subjective judgments out of prompts into standard, testable scripts. Write software, not rules — replace negative instructions with deterministic constraints that make invalid actions impossible. Decouple state the same way: never use the context window as a database; pass URIs and pointers through the filesystem or message bus.`,
     considered: true,
     implemented: false,
     wanted: true,
