@@ -1989,7 +1989,7 @@ How to evaluate — no single method covers all dimensions; production pipelines
 
 ![Evaluation methods mapped to their recommended dimensions](/uploads/8a0296b6-f62e-442a-8a23-21e037f5464d.png)
 
-Observability is the prerequisite: without execution traces the agent is a glass box painted black. One trace per session, reasoning spans before each action, tool spans with arguments and latencies — and tail-based sampling that drops routine successes while keeping errors and repair loops, since full capture drowns storage. Cost accounting rides the same spans: tokens, latency, and repair-loop spend per session.
+Observability is the prerequisite: without execution traces the agent is a glass box painted black (the full section is quoted in the Observability prerequisite for evaluation mod). One trace per session, reasoning spans before each action, tool spans with arguments and latencies — and tail-based sampling that drops routine successes while keeping errors and repair loops, since full capture drowns storage. Cost accounting rides the same spans: tokens, latency, and repair-loop spend per session.
 
 Four applied tips that survive contact with real sessions:
 
@@ -2032,6 +2032,25 @@ Local mapping (where each method lives here): functional testing in the static c
     implemented: false,
     wanted: true,
     tags: ['evaluation', 'methods', 'testing', 'review', 'sampling'],
+    links: [
+      { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
+    ],
+  },
+  {
+    title: 'Observability prerequisite for evaluation',
+    category: 'Tooling',
+    summary: 'Day-4 section, quoted whole: tracing the thought, tracking costs, tail-based sampling — without it, agent failures look monolithic.',
+    body: `To evaluate an agent's internal reasoning, developers must possess the capability to see it. Observability is the absolute prerequisite for Glass Box evaluation; without it, agent failures appear as inexplicable monolithic events.
+
+- **Tracing the Thought:** Modern agent observability relies on OpenTelemetry to capture non-deterministic flows. agent.session spans capture the entire task duration, agent.think spans record the internal reasoning and prompting cycle prior to action, and agent.tool spans log the specific arguments and latencies of environmental interactions.
+- **Tracking Costs:** Observability provides granular data to calculate true operational costs. By aggregating span attributes, teams can precisely measure token consumption, inference latency, and the cost of self-repair loops.
+- **Dynamic Tail-Based Sampling:** Capturing 100% of traces in production quickly overwhelms storage budgets. Tail-based dynamic sampling allows the collector to evaluate the full trace after completion, dropping routine successes while retaining traces containing errors or excessive self-repair loops.
+
+Local mapping: the session → task → verification trace shape lives in the observability mods (harness-collected signals, sprint contracts, evaluator rubric, queryable per-task stacks); per-turn token measurement in the context tooling; repair-loop cost in the loop-cost audit. Collect signals in the harness, not from the agent — agents don't log what they don't know they need.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['observability', 'traces', 'spans', 'sampling', 'costs'],
     links: [
       { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
     ],
