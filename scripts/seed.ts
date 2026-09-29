@@ -954,7 +954,7 @@ Evals first (SDLC paper): write the eval suite before generating the code. Tests
     summary: 'Lecture-01 exercise as instrument: sample tasks, record claimed-done vs actually-done — the one metric for whether verification works.',
     body: `After each task, record whether the agent claimed completion, then verify independently. The proportion of false-dones is your verification gap — the single number that says whether the verification layer functions.
 
-Start manual: one log line per task (claimed-done + independent verdict, plus turns-to-converge, converged-or-abandoned, and token cost), gap ratio over a window, beginning with any task where "done" felt cheap. Sessions that converge in few turns are the success cases; abandoned sessions are the most informative failures — far more than turn-level errors. Instrument later: append results automatically from your checks, review the ratio on a cadence, and treat a widening gap as the signal to strengthen verification. This sensor reports on the sensors themselves — build it the day a false-done slips through green.`,
+Start manual: one log line per task (claimed-done + independent verdict, plus turns-to-converge, converged-or-abandoned, and token cost), gap ratio over a window, beginning with any task where "done" felt cheap. Sessions that converge in few turns are the success cases; abandoned sessions are the most informative failures — far more than turn-level errors. This ratio has an industry name: rework rate, the DORA stability metric for delivery consumed fixing work previously called complete — the early warning for blind spots and debt from unchecked agent assistance. The surrounding set (change lead time, deployment frequency, mean time to restore, change failure rate) frames it; generated-lines counts never substitute, since faster generation without faster, stable delivery is motion without progress. Use the numbers for reflection, not dashboards — a retro check-in over the ratio beats tracking tooling. Instrument later: append results automatically from your checks, review the ratio on a cadence, and treat a widening gap as the signal to strengthen verification. This sensor reports on the sensors themselves — build it the day a false-done slips through green.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -962,6 +962,7 @@ Start manual: one log line per task (claimed-done + independent verdict, plus tu
     links: [
       { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
       { label: 'lecture 09 — calibration bias', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
+      { label: 'ThoughtWorks Radar — DORA metrics', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1062,13 +1063,16 @@ Token economics (Day-3 paper): production's top failure mode isn't hallucination
 
 ![Token economics: one big prompt versus a skills library](/uploads/7c8fc750-d367-4a27-b42d-7c11cb4ab9f0.png)
 
-Three implications: capacity is the wrong metric (degradation starts far below window size); active context is a budget, not a vessel — every token taxes attention from every other, allocate like infrastructure memory; skills resolve the constraint, holding active context small while available capability stays effectively unbounded.`,
+Three implications: capacity is the wrong metric (degradation starts far below window size); active context is a budget, not a vessel — every token taxes attention from every other, allocate like infrastructure memory; skills resolve the constraint, holding active context small while available capability stays effectively unbounded.
+
+Context engineering names the discipline above the mechanics: not wording prompts but designing the agent's whole information environment — the context window as a design surface. Dumping raw data into large windows causes context rot, reasoning degrading under accumulated noise; the answer stays progressive disclosure (a lightweight index up front, the agent pulling only what each step needs). Four techniques are maturing around it: setup (cache static instructions to cut cost and time-to-first-token), dynamic retrieval (beyond documents — selecting tools and loading only the servers each task needs), context graphs (institutional reasoning — policies, exceptions, precedents — as structured queryable data, the decision log made interrogable), and managed compression (stateful summaries and sub-agent digests as designed pipeline stages, not lossy accidents).`,
     considered: true,
     implemented: false,
     wanted: true,
     tags: ['context', 'static-dynamic', 'skills', 'tokens'],
     links: [
       { label: 'SDLC paper', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
+      { label: 'ThoughtWorks Radar — context engineering', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1897,7 +1901,7 @@ FIX: Move file operations to src/preload/file-ops.ts and call via window.api.rea
 
 Feed it with runtime signals, the objective basis under the words: did the app start and reach ready? Did critical paths execute? Were side effects (writes, files) correct? Were temporary resources cleaned up? Signals are the evidence; the repair instruction is the verdict the agent can act on.
 
-Validate-retry-fallback (Day-2 paper): generated artifacts get schema-validated; on failure, retry with the exact validation error appended, capped — then fall back to a safe output so downstream never sees a malformed payload. Bounded correction inside one attempt, not a use-case retry.`,
+Validate-retry-fallback (Day-2 paper): generated artifacts get schema-validated; on failure, retry with the exact validation error appended, capped — then fall back to a safe output so downstream never sees a malformed payload. Bounded correction inside one attempt, not a use-case retry. Constrain generation to a declared schema before validating (Radar Adopt): native structured-output modes where available, otherwise a stable abstraction across providers with validation and automatic retries — a library such as Instructor, a framework like Pydantic AI, or Outlines for constrained generation on self-hosted models — so the retry loop starts from near-valid output, not free prose.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -1906,6 +1910,7 @@ Validate-retry-fallback (Day-2 paper): generated artifacts get schema-validated;
       { label: 'lecture 09', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
       { label: 'lecture 10 — what/why/fix', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
       { label: 'Day-2 paper — retry/fallback', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
+      { label: 'ThoughtWorks Radar — structured output', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -2231,6 +2236,25 @@ Local mapping: the structural half is dependency rules applied to tool calls (la
     tags: ['policy', 'gating', 'tools', 'governance', 'self-correction'],
     links: [
       { label: 'Day-5 paper', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
+    ],
+  },
+  {
+    title: 'Passkeys',
+    category: 'Tooling',
+    summary: 'Radar Adopt, parked: origin-bound phishing-resistant sign-in as the default — activates the day this app serves anyone beyond local.',
+    body: `Passkeys are FIDO2 credentials that replace passwords with asymmetric public-key cryptography. The private key lives in a hardware-backed secure enclave on the user's device, protected by biometrics or a PIN, and never leaves it. Each credential is origin-bound to its relying-party domain, making passkeys structurally phishing-resistant: a lookalike site receives nothing — unlike SMS OTP or TOTP codes, which a phishing proxy can intercept.
+
+With phishing behind more than a third of all data breaches, that structural resistance carries the argument: the FIDO Alliance counts over 15 billion eligible accounts globally, Google reports 30% better sign-in success across 800 million users, Amazon measures sign-ins six times faster than passwords. NIST SP 800-63-4 classifies synced passkeys as AAL2-compliant, and regulators increasingly mandate phishing-resistant authentication for financial and government systems.
+
+Two design rules: plan account recovery carefully and never offer phishable fallbacks such as SMS OTP — a fallback reintroduces exactly the vulnerability passkeys remove. Keep device-bound credentials on hardware security keys for AAL3 scenarios such as privileged access. Portability is solved via the FIDO Credential Exchange Protocol between managers; major identity providers support passkeys first-class, and implementation has shrunk from multi-month to roughly two sprints.
+
+Status: parked behind real users. Trigger: the day this app serves anyone beyond local — sign-in success and recovery design first, hardware keys for privileged access second. Until then password auth plus local-only access is the honest scope.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['passkeys', 'authentication', 'phishing', 'out-of-scope', 'sign-in'],
+    links: [
+      { label: 'ThoughtWorks Radar — passkeys', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
 ];
