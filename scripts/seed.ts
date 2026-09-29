@@ -790,7 +790,7 @@ Related out-of-scope kin: the Logs mod records the same verdict for the batch fo
     summary: 'The honest signal for suite strength (bugs planted, tests must fail): probed manually 4/4 killed; full tooling parked — no node:test runner exists and no mutant has survived.',
     body: `The most honest signal for a test suite's fault-detection: coverage tracks line execution, mutation introduces deliberate bugs and requires tests to fail when behavior breaks. An undetected mutation is a validation gap, not a coverage gap. Critical in the AI era, where high coverage can mask logically hollow, perpetually-green tests (missing assertions, decoupled mocks).
 
-Manual probe pattern first: plant a handful of deliberate bugs (dropped normalization, flag flips, reverted regression fixes), confirm the suite kills each, revert immediately. A surviving mutant is a validation gap, not a coverage gap. Full mutation tooling earns its place past a size trigger or after the first slipped seam — command-runner based tools drive any test command by exit code, and reports stay untracked residue.`,
+Manual probe pattern first: plant a handful of deliberate bugs (dropped normalization, flag flips, reverted regression fixes), confirm the suite kills each, revert immediately. A surviving mutant is a validation gap, not a coverage gap. Full mutation tooling earns its place past a size trigger or after the first slipped seam — command-runner based tools drive any test command by exit code, and reports stay untracked residue. Run mutation as the reinforcement layer over coverage: generated suites go perpetually green through missing assertions and decoupled mocks, and only planted faults expose them. When full-suite mutation costs too much, start where failure hurts — core domain logic first, scaffolding last. Tooling per stack (Stryker, Pitest, cargo-mutants and kin); the trigger stays the same: suite size where rot outruns eyeballs, or the first seam that slips through green.`,
     considered: true,
     implemented: false,
     wanted: false,
@@ -798,6 +798,7 @@ Manual probe pattern first: plant a handful of deliberate bugs (dropped normaliz
     links: [
       { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'StrykerJS', url: 'https://stryker-mutator.io/' },
+      { label: 'ThoughtWorks Radar — mutation testing', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1071,7 +1072,9 @@ Token economics (Day-3 paper): production's top failure mode isn't hallucination
 
 Three implications: capacity is the wrong metric (degradation starts far below window size); active context is a budget, not a vessel — every token taxes attention from every other, allocate like infrastructure memory; skills resolve the constraint, holding active context small while available capability stays effectively unbounded.
 
-Context engineering names the discipline above the mechanics: not wording prompts but designing the agent's whole information environment — the context window as a design surface. Dumping raw data into large windows causes context rot, reasoning degrading under accumulated noise; the answer stays progressive disclosure (a lightweight index up front, the agent pulling only what each step needs). Four techniques are maturing around it: setup (cache static instructions to cut cost and time-to-first-token), dynamic retrieval (beyond documents — selecting tools and loading only the servers each task needs), context graphs (institutional reasoning — policies, exceptions, precedents — as structured queryable data, the decision log made interrogable), and managed compression (stateful summaries and sub-agent digests as designed pipeline stages, not lossy accidents).`,
+Context engineering names the discipline above the mechanics: not wording prompts but designing the agent's whole information environment — the context window as a design surface. Dumping raw data into large windows causes context rot, reasoning degrading under accumulated noise; the answer stays progressive disclosure (a lightweight index up front, the agent pulling only what each step needs). Four techniques are maturing around it: setup (cache static instructions to cut cost and time-to-first-token), dynamic retrieval (beyond documents — selecting tools and loading only the servers each task needs), context graphs (institutional reasoning — policies, exceptions, precedents — as structured queryable data, the decision log made interrogable), and managed compression (stateful summaries and sub-agent digests as designed pipeline stages, not lossy accidents).
+
+Disclosure beats accumulation: give the agent a lightweight discovery phase where it selects what it needs from the prompt, loading detail only when relevant. This works for retrieval scenarios, where the agent first identifies the relevant domain from the query and then pulls instructions and data accordingly — and it is how skill systems work, determining which skills matter for a task before loading their bodies instead of front-loading one monolithic instruction set. Bloating instructions with endless DO and DO NOT rules to control behavior degrades the performance it tries to buy; the right guidance at the right moment keeps the window lean and rot out.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -1956,7 +1959,7 @@ The guard has four layers:
 1. **Vetted sources only.** New dependencies resolve exclusively against known registries or an internal mirror — never whatever name the model produced. A name that does not exist upstream is rejected before anything downloads.
 2. **Pinned versions.** Ranges float toward whatever was published most recently, which is exactly where the malware sits. Pin exact versions cryptographically and let upgrades arrive as deliberate changes, not ambient drift. Models also propose stale versions from before their knowledge cutoff — feed current documentation to the agent (retrieved docs or version notes alongside the spec) and double-check every proposed version number.
 3. **Composition scan at the gate.** Every build verifies the dependency manifest and artifact signatures before anything advances toward production — the deterministic checkpoint no advisory warning can replace.
-4. **Contained, governed execution.** Generated code first runs in an ephemeral, isolated sandbox whose state resets between runs, so a compromised script cannot persist or reach the host. Network egress travels governed paths only — offline caches or pre-sanitized fetchers — because a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page.
+4. **Contained, governed execution.** Sandboxing is the sensible default, not an optional enhancement: generated code runs isolated, because agents with build, filesystem, and network reach can damage or leak as easily as they can help. The spectrum runs from built-in agent sandbox modes and container-based development environments, through disposable virtual machines that reset every run, to stateful environments with checkpoint and restore, down to OS-native namespace sandboxes. Ephemeral-by-default versus persistent-for-recovery is a design decision trading security against cost and workflow continuity — either confines a tricked agent to something wipeable. A sandbox agents stay inside must stay productive: full build and test tooling, clean authentication to external services, port forwarding, and real CPU and memory. Network egress travels governed paths only — offline caches or pre-sanitized fetchers — because a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page.
 
 Enforcement split that keeps velocity: advisory hints where the developer types (a linter noting an unvetted dependency), unyielding checks in the pipeline where nothing gets bypassed in a hurry. The local companions: the scheduled dependency sensor watches what is already installed; this guard watches what the agent tries to add.`,
     considered: true,
@@ -1966,6 +1969,7 @@ Enforcement split that keeps velocity: advisory hints where the developer types 
     links: [
       { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
       { label: 'Wiz — secure vibe coding guide', url: 'https://www.wiz.io/lp/the-technical-guide-to-secure-vibe-coding' },
+      { label: 'ThoughtWorks Radar — sandboxing', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
