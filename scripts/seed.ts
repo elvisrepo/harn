@@ -458,7 +458,7 @@ Credentials belong in the environment or a secret store, never in the repo. Wort
     summary: 'PI_* env vars that tune runtime behavior (docs/environment-variables.md).',
     body: `The harness reads environment variables for model/session context and runtime settings — invisible but everywhere.
 
-Document every variable the project actually depends on in the entry file. Undocumented env dependence is implicit knowledge, and implicit knowledge is what agents trip over.`,
+Document every variable the project actually depends on in the entry file. Undocumented env dependence is implicit knowledge, and implicit knowledge is what agents trip over. Practice context hygiene: sensitive values travel as placeholders resolved from the environment at runtime — never pasted into prompts, templates, or test suites — so an agent filling gaps from context finds sterile tokens instead of live secrets.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -507,6 +507,8 @@ Python 3.11 FastAPI backend, PostgreSQL 15 database.
 \`\`\`
 
 Keep it alive: update it whenever commands or conventions change, and prune it like a dependency list — unused entries slow the whole system down. Close the loop with a short skill catalog at the bottom: entry file stays tight while advertising what the skills library holds, so the router points at on-demand depth.
+
+Instructions live in four layers, never one: the chat box (ephemeral, session orchestration only — never a 100-page design dump), the versioned specs folder (task designs and contracts the agent indexes itself), skills (reusable triggered workflows), and system prompts (global identity and persona). The entry file is the shared cross-tool foundation when several agents work the same repo; tool-specific files keep highest priority for their own settings. Dumping everything into one layer exhausts context, fragments attention, and guarantees staleness.
 
 The entry points at a laid-out knowledge store, not a pile. Canonical layout — index files at every level, active/completed plans versioned beside tech debt, generated artifacts separated from written ones:
 
@@ -1493,7 +1495,7 @@ Where the map is blank, the agent guesses; wrong guesses become bugs, and every 
     summary: 'Lecture-03 placement rule: constraint docs live beside the code they govern — proximity beats length, and updates ride with code.',
     body: `A rule about API authentication belongs next to the API code, not in a giant global document. Each module directory carries a short doc of its responsibilities, interfaces, and hard constraints — the directory itself is the index, no searching required. A 50-line file beside the code beats a 500-page wiki nobody maintains.
 
-Two riders: minimal-but-complete (every entry earns its place by changing a decision; every fresh-session question still has an answer) and update-with-code (docs beside the code get noticed when the code changes; stale docs are worse than none — they send the agent the wrong way while it feels right).`,
+Two riders: minimal-but-complete (every entry earns its place by changing a decision; every fresh-session question still has an answer) and update-with-code (docs beside the code get noticed when the code changes; stale docs are worse than none — they send the agent the wrong way while it feels right). Describe interfaces in structured comment form so agents grasp what a function does without reading its body.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -1910,7 +1912,7 @@ Validate-retry-fallback (Day-2 paper): generated artifacts get schema-validated;
     title: 'High-stakes confirmation',
     category: 'Workflow',
     summary: 'Day-4 practice: irreversible actions need scoped identity plus a plain-language intent-to-steps summary — never a blind approve button.',
-    body: `The standing failure behind every agent incident log: an over-privileged agent, tricked or merely literal-minded, executing something irreversible while the human clicked "approve" on code they never read. Vague prompts produce broad workflows; shared long-lived credentials turn that breadth into ambient authority — and a hidden instruction pasted in with a forum snippet (the confused deputy) spends it on the attacker's behalf.
+    body: `The standing failure behind every agent incident log: an over-privileged agent, tricked or merely literal-minded, executing something irreversible while the human clicked "approve" on code they never read. Vague prompts produce broad workflows; shared long-lived credentials turn that breadth into ambient authority — and a hidden instruction pasted in with a forum snippet (the confused deputy) spends it on the attacker's behalf. The canonical warning: an unsupervised browsing subagent, told to create a button, clicked it live, followed a hallucinated connection to a legacy system with no safeguards, and mailed false content to fifty colleagues — fulfilling its directive with whatever data lay in context, unchecked. Never run an agent in auto-approve against live systems.
 
 Three controls, in order:
 
@@ -2027,7 +2029,7 @@ Four applied tips that survive contact with real sessions:
 
 **Online evaluation.** Sample live production traffic and score it against the same rubrics used in offline eval. Covers all dimensions at sample rate. The trick is sampling well: a flat 1% misses the long tail, so bias toward high-cost sessions, sessions with many corrections, and sessions the user abandoned.
 
-Local mapping (where each method lives here): functional testing in the static checks; security and safety in the static checks plus the secrets scan; model-as-judge in the review step; browser-based in the browser-behaviour sensor; trajectory inspection in skill evaluation; human review in the safeguards plus the review step; online evaluation in the verification-gap log and the steering loop. New methods should arrive the way this section did — quoted, then mapped, then built.`,
+Local mapping (where each method lives here): functional testing in the static checks; security and safety in the static checks plus the secrets scan; model-as-judge in the review step; browser-based in the browser-behaviour sensor; trajectory inspection in skill evaluation; human review in the safeguards plus the review step; online evaluation in the verification-gap log and the steering loop. Tests and evaluations are different instruments: unit tests ask binary questions that catch deterministic regressions; evaluations ask scored questions with tolerance bands that catch behavioural drift. New methods should arrive the way this section did — quoted, then mapped, then built.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -2077,7 +2079,9 @@ Local mapping: this rule applies everywhere instructions live — the entry file
     title: 'Behavior-driven specs',
     category: 'Knowledge',
     summary: 'Day-5 method: Gherkin Scenario/Given/When/Then plus the good-spec checklist — design, visuals, why, scenarios — reviewed before generating.',
-    body: `A Behavior-Driven Development (BDD) specification turns vague, ambiguous ideas into a precise design an agent can build without guessing. BDD describes exactly how a system should behave from the user's perspective, in plain structured natural language, before any code is written.
+    body: `Code is disposable; the specification is the asset. With a rock-solid spec the whole codebase regenerates on demand — so review the blueprint, never mourn the code, and trash freely when requirements move.
+
+A Behavior-Driven Development (BDD) specification turns vague, ambiguous ideas into a precise design an agent can build without guessing. BDD describes exactly how a system should behave from the user's perspective, in plain structured natural language, before any code is written.
 
 The syntax is Gherkin: a declarative Scenario / Given / When / Then template that forces thinking in State → Action → Outcome terms. No vibes, no guessing — the agent rides a strict track.
 
@@ -2106,7 +2110,7 @@ Local mapping: behavior scenarios are the content that fills a sprint contract; 
     title: 'Code Reviews',
     category: 'Workflow',
     summary: 'Day-5 section, quoted whole: high-velocity integration — bundled summaries, blueprint ownership, conditional LGTM, no-blame, review skills in CI — plus the code-check skill template.',
-    body: `To survive the volume and scale of AI-generated commits without burnout, teams need new guidelines for the shift from writing code to integrating it.
+    body: `To survive the volume and scale of AI-generated commits without burnout, teams need new guidelines for the shift from writing code to integrating it. Volume breaks integration three ways: merge conflicts (several landings in the same file within the hour), review gridlock (a giant change becoming a Russian doll of dependent sub-changes), and context fragmentation (an agent quoting an outdated snapshot after a teammate renamed the function).
 
 Strategies for high-velocity integration:
 
@@ -2178,7 +2182,7 @@ The second half is decomposition. A single agent told to "refactor this module" 
 
 A managed runtime gets you a generic reviewer in minutes. A hybrid runtime gets you your reviewer in a day. A custom runtime gets you a reviewer that understands the whole system — at the cost of owning the runtime and the evaluation. Pick the lowest tier that catches what matters.
 
-Local mapping: Tier 2 is the sensor sidecar plus a review skill, triggered on schedule; Tier 1 judgment applies wherever traffic never justifies custom tooling; Tier 3 stays a horizon item behind the graph-worthiness gate. The review skill template lives in the Code Reviews mod; the policy gate in front of risky tool calls lives in high-stakes confirmation.`,
+Local mapping: Tier 2 is the sensor sidecar plus a review skill, triggered on schedule; Tier 1 judgment applies wherever traffic never justifies custom tooling; Tier 3 stays a horizon item behind the graph-worthiness gate. The review skill template lives in the Code Reviews mod; the machine gate in front of risky tool calls lives in the Policy gate mod, its human half in high-stakes confirmation.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -2203,6 +2207,28 @@ Local mapping: fatigue is the failure mode the high-stakes confirmation mod rese
     implemented: false,
     wanted: true,
     tags: ['sustainability', 'fatigue', 'burnout', 'boundaries', 'culture'],
+    links: [
+      { label: 'Day-5 paper', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
+    ],
+  },
+  {
+    title: 'Policy gate',
+    category: 'Tooling',
+    summary: 'Day-5 pattern: a two-layer machine gate in front of every tool call — structural YAML rules plus a semantic referee — so violations self-correct before executing.',
+    body: `System-prompt rules are brittle: contexts overflow and agents can be talked past their instructions. Production governance therefore lives outside the model, in a policy gate that intercepts every tool call before it executes. Execution logic and governance logic stay separated — a critical separation of concerns.
+
+Two layers, in order:
+
+1. **Structural gating (traffic lights).** Deterministic, binary, fast: roles and environments mapped to allowed and blocked tools in a plain config file (a viewer role cannot send mail; a local environment cannot touch production senders). Architectural violations die here without spending model judgment.
+2. **Semantic gating (intelligent referee).** A secondary model inspects the intent and arguments of each proposed action against natural-language guidelines — the cases structure cannot reach. A role may be allowed to send mail yet forbidden from sending unmasked personal data; no allowlist or regex enumerates every leak shape, but a referee reading the actual arguments catches them.
+
+The interception flow: structural check first (is this tool allowed for this role and environment?), semantic check second (are these arguments safe?), execution only if both pass. Otherwise the gate returns a policy-violation message to the agent, which self-corrects or fails gracefully — governance as feedback, not just a wall.
+
+Local mapping: the structural half is dependency rules applied to tool calls (layer direction, deny by default); the semantic half is the review step moved before execution; the violation message is an agent-actionable error by construction. High-stakes confirmation remains the human half of the same gate — machine referee first, human meaning-check last.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['policy', 'gating', 'tools', 'governance', 'self-correction'],
     links: [
       { label: 'Day-5 paper', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
     ],
