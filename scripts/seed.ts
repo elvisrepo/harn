@@ -458,12 +458,16 @@ Credentials belong in the environment or a secret store, never in the repo. Wort
     summary: 'PI_* env vars that tune runtime behavior (docs/environment-variables.md).',
     body: `The harness reads environment variables for model/session context and runtime settings — invisible but everywhere.
 
-Document every variable the project actually depends on in the entry file. Undocumented env dependence is implicit knowledge, and implicit knowledge is what agents trip over. Practice context hygiene: sensitive values travel as placeholders resolved from the environment at runtime — never pasted into prompts, templates, or test suites — so an agent filling gaps from context finds sterile tokens instead of live secrets.`,
+Document every variable the project actually depends on in the entry file. Undocumented env dependence is implicit knowledge, and implicit knowledge is what agents trip over. Practice context hygiene: sensitive values travel as placeholders resolved from the environment at runtime — never pasted into prompts, templates, or test suites — so an agent filling gaps from context finds sterile tokens instead of live secrets. Prefer short-lived identity-issued credentials over long-lived static keys wherever the platform offers them: a leaked token that expires in minutes is an incident, one that lives forever is a backdoor.`,
     considered: true,
     implemented: true,
     wanted: false,
     tags: ['env', 'config'],
-    links: [{ label: 'npm package', url: NPM }],
+    links: [
+      { label: 'npm package', url: NPM },
+      { label: 'Day-5 paper — context hygiene', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
+      { label: 'ThoughtWorks Radar — zero trust', url: 'https://www.thoughtworks.com/radar' },
+    ],
   },
   {
     title: 'Settings.json',
@@ -683,7 +687,7 @@ Consumption discipline (Day-2 paper), for when a server is warranted: consume, d
 4. **Coverage core** — unit-tested pure logic with real per-file lines, thresholds off until earned; a thin HTTP suite proves the seams instead of chasing unmeasurable black-box coverage.
 5. **Dependency rules** — layer boundaries at error severity once the tree earns them.
 
-The pipeline re-run half (CI) is optional at small scale — one command can serve both halves until it can't.`,
+The pipeline re-run half (CI) is optional at small scale — one command can serve both halves until it can't. Read the loop as feedback backpressure: sensors pushing quality back into generation so each pass starts from a cleaner state, earning trust instead of demanding vigilance. Run the fast half during the session and report clean before committing — post-commit checks arrive after the context that could have used them is gone.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -691,6 +695,7 @@ The pipeline re-run half (CI) is optional at small scale — one command can ser
     links: [
       { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'run & interpret check', url: 'docs/Harness how-tos.md' },
+      { label: 'ThoughtWorks Radar — feedback sensors', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -805,7 +810,7 @@ Typical rules: logic stays UI-free (unit-testable, portable); persistence takes 
 
 Adoption note: this replaces structure-description prose with an enforced boundary — and it can graduate early on explicit call, no second violation needed.
 
-Taste invariants (OpenAI): beyond layer direction, encode mechanical taste — structured logging, naming conventions for schemas and types, file-size limits — as custom lints with remediation messages. Boundaries centrally, autonomy locally: care deeply about edges, correctness, and reproducibility, and leave everything inside them free. Once encoded, a taste rule applies everywhere at once — multipliers, not pedantry.
+Taste invariants (OpenAI): beyond layer direction, encode mechanical taste — structured logging, naming conventions for schemas and types, file-size limits — as custom lints with remediation messages. Boundaries centrally, autonomy locally: care deeply about edges, correctness, and reproducibility, and leave everything inside them free. Once encoded, a taste rule applies everywhere at once — multipliers, not pedantry. Pair each recurring smell with its prescribed fix (Radar Trial): layer the mapping from generic references down to house skills and entry-file rules, and let the detecting lint dispatch it — deterministic feedback that triggers the approach, not just the complaint. This matters most where training data falls short (legacy stacks, distinctive house standards): without targeted mappings the agent defaults to generic patterns instead of house requirements. The steering loop decides when a mapping earns encoding — on recurrence.
 
 Boundaries before tests (Lecture 10): e2e on a tangled architecture only proves the whole mess runs. Establish architectural constraints on day one — agents copy existing patterns, inconsistencies included, so every session without constraints adds drift. The reference shape is a layered domain: fixed layers per domain (Types → Config → Repo → Service → Runtime → UI), dependencies strictly forward, cross-domain concerns through explicit provider interfaces, everything else forbidden and mechanically enforced. Key principle: enforce invariants, don't micromanage implementation — require "data is parsed at the boundary" without prescribing the library.
 
@@ -833,6 +838,7 @@ Three ideas make it work. **Parse at the boundary:** incoming data arrives untyp
       { label: 'generated graph', url: 'docs/dependency-graph.mmd' },
       { label: 'lecture 10 — arch rules executable', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-10-why-end-to-end-testing-changes-results/' },
       { label: 'OpenAI — taste + layers', url: 'https://openai.com/index/harness-engineering/' },
+      { label: 'ThoughtWorks Radar — smell mappings', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1929,13 +1935,14 @@ Three controls, in order:
 
 ![Secure vibe-coding agent framework: seven-pillar foundation, code-and-execution workflow, active defense layer](/uploads/08aeab65-0bfa-4e25-865c-f9b44fb8e519.png)
 
-Parked at enterprise scale, adopted in miniature here: scoped identities and hardware attestation are the platform's job; the allowlist, the elicitation ritual, and the plain-language diff are ours. Confirmation fatigue is the failure mode to watch — if routine steps start demanding ceremony, the ceremony stops working; reserve it strictly for the irreversible.`,
+Parked at enterprise scale, adopted in miniature here: scoped identities and hardware attestation are the platform's job; the allowlist, the elicitation ritual, and the plain-language diff are ours. Treat the stance as a non-negotiable default (zero trust): verify per action and monitor behavior throughout — the observability mods are the monitoring half. Confirmation fatigue is the failure mode to watch — if routine steps start demanding ceremony, the ceremony stops working; reserve it strictly for the irreversible.`,
     considered: true,
     implemented: false,
     wanted: true,
     tags: ['high-stakes', 'approval', 'least-privilege', 'security'],
     links: [
       { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
+      { label: 'ThoughtWorks Radar — zero trust', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
