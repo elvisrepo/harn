@@ -640,7 +640,7 @@ Complete in three layers that agree with each other:
 2. **Executable** — HTTP seam tests plus unit tests over the pure core, both inside the project's check command.
 3. **Norm** — the entry file's testing section plus TDD steps in the implement workflow, with mid-loop and full commands spelled out.
 
-Doc, executable, and norm agreeing is rare enough to state outright — most repos have two of three, and the missing one is usually the doc. Keep batches small and never modify tests and implementation in the same step — the test stays an objective baseline, and small diffs stay reviewable (a security control as much as a courtesy).`,
+Doc, executable, and norm agreeing is rare enough to state outright — most repos have two of three, and the missing one is usually the doc. Keep batches small and never modify tests and implementation in the same step — the test stays an objective baseline, and small diffs stay reviewable (a security control as much as a courtesy). Fix forensically: report evidence, not symptoms (log lines and failing calls, not "it broke"); compare versions to isolate the break and trace the flow (request → gate → failure) before touching code; reproduce first with a failing test or request and keep it in the suite so the bug cannot return; repair the root cause only — no drive-by cleanup, renames ship as a separate task. (The errors mod covers the reverse direction: failures that carry their own repair instructions.)`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -1157,7 +1157,7 @@ Capabilities: per-run capture of console errors/warnings, uncaught page errors, 
 
 Wired into the suite as behaviour flows gated after the build — green means zero console errors, zero page errors, zero failed requests on the production build. Expect-error-free is meaningful against prod, not dev (dev toolbars and optimizer noise pollute headless runs).
 
-With a vision-capable model the agent can look at the screenshots itself — same sensor, strictly stronger reader.
+With a vision-capable model the agent can look at the screenshots itself — same sensor, strictly stronger reader. Run the debugging browser in an isolated profile with no shared logins or live sessions: step-by-step visual instructions ("point at what breaks, define what fixed looks like") with zero context leakage into production.
 
 Cost shape (Lecture 11): QA rounds run single-digit percent of build cost while deciding pass/fail — verification is cheap, generation is expensive. The behaviour layer is never where to economize.
 
@@ -1205,7 +1205,7 @@ Version gotchas are real: compilers change programmatic APIs across majors, so p
 3. **Tickets** — tracer-bullet vertical-slice tickets with dependency edges (full path schema→API→UI→tests, demoable alone, one fresh context window; wide refactors via expand–contract). Quiz the breakdown.
 4. **Implement** — one unblocked ticket at a time, TDD at the spec's seam, typecheck plus targeted tests regularly, full suite at the end, self-review, commit per ticket.
 
-Adaptations that matter: facts through search skills instead of sub-agents; the tracker is local markdown instead of an issue tracker; deliberate steps never model-invoked, so the pipeline never runs accidentally. A spec is only as honest as its open questions.
+Adaptations that matter: facts through search skills instead of sub-agents; the tracker is local markdown instead of an issue tracker; deliberate steps never model-invoked, so the pipeline never runs accidentally. Generation starts with a proposed structure, stack, and version pins — confirmed before code — with tests, docs, and logging in the brief from the start. A spec is only as honest as its open questions.
 
 Planner restraint (Lecture 11): the planning stage stays bold on scope and high on product context, and stops short of granular technical implementation. Premature specifics that turn out wrong cascade into every downstream step; constrain deliverables and let execution find its own path. Interview the what and the why exhaustively — leave the how sketchy on purpose.`,
     considered: true,
@@ -1223,7 +1223,7 @@ Planner restraint (Lecture 11): the planning stage stays bold on scope and high 
     summary: 'Deterministic commands behind skill wrappers — the portable computational guides: same shell in any harness.',
     body: `Deterministic tooling the agent invokes before and during generation instead of guessing. The endorsed shape is the hybrid — a skill with instructions plus a bootstrap script — rated both computational and inferential. Typical inventory: web research CLI (search/scrape behind skills, with cost guards and outputs kept out of the context window), diagram CLI (typed input in, validated artifact out, repair receipt back), browser-evidence CLI (assert/eval/login/shot flags), plus project scripts for the pre-handoff gate and one-shot ops with exact commands and expected receipts.
 
-Three placements: mid-loop via shell (facts, diagrams, browser evidence), the gate left-shifted into check, one-shot ops documented with commands and receipts. Route external fetches through governed paths (offline caches, sanitized crawlers) rather than raw interactive browsing — a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page. Portability rule: CLIs run through the shell every harness has — they are the one guide category that survives a harness switch unchanged, unlike runtime-specific extensions. New controls ship as skill plus script first.`,
+Three placements: mid-loop via shell (facts, diagrams, browser evidence), the gate left-shifted into check, one-shot ops documented with commands and receipts. Show the work: data operations cite the exact query or command that produced the output — receipts, not prose. Route external fetches through governed paths (offline caches, sanitized crawlers) rather than raw interactive browsing — a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page. Portability rule: CLIs run through the shell every harness has — they are the one guide category that survives a harness switch unchanged, unlike runtime-specific extensions. New controls ship as skill plus script first.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -1304,7 +1304,7 @@ Calibrate the reviewer itself (Lecture 11): early evaluators spot real issues, t
 
 Evaluate the path, not just the artifact (SDLC paper): output evaluation checks what was built (compiles, tests pass); trajectory evaluation checks how it got there (right steps, right tools, sound intermediate reasoning). A fluent output that skipped verification is more dangerous than a visible error. Tests are checked by code; evals by labelled datasets, rubrics, and judges — without both, the practice is vibe coding regardless of prompt sophistication.
 
-Review-augmentation posture: the agent as first-pass reviewer (bugs, style, vulnerabilities, perf) before human eyes — never replacing human judgment on design, maintainability, and alignment, but cutting reviewer load. AI-aware deployment closes the loop: health monitoring, automatic rollback, risk prediction from change scope.
+Review-augmentation posture: the agent as first-pass reviewer (bugs, style, vulnerabilities, perf) before human eyes — never replacing human judgment on design, maintainability, and alignment, but cutting reviewer load. Generated code matches house style (naming, error handling); multi-file edits are confirmed against a visible diff. AI-aware deployment closes the loop: health monitoring, automatic rollback, risk prediction from change scope.
 
 ![Traditional vs AI-driven SDLC: compressed cycle with output and trajectory eval gates](/uploads/f8a22870-c9a9-4ae8-90a2-f783fbaf9360.png)`,
     considered: true,
@@ -1560,7 +1560,7 @@ Clean state is completion, not housekeeping (Lecture 12): session done means tas
 - [ ] Standard startup path available (npm run dev)
 \`\`\`
 
-Immediate cleanup every session (temp files, debug logs, commented code — "clean up later" means never, and the next session can't tell intentional from temporary), periodic cleanup weekly (structural scan, quality-doc refresh, drift benchmarks). Cleanup ops must be idempotent — safe to re-run, no side effects on repeat:
+Immediate cleanup every session (temp files, debug logs, commented code — "clean up later" means never, and the next session can't tell intentional from temporary), periodic cleanup weekly (structural scan, quality-doc refresh, drift benchmarks). Docs ride with code: the handoff updates the changelog and any behavior docs the change invalidated — unmaintained docs teach the next session to hallucinate. Cleanup ops must be idempotent — safe to re-run, no side effects on repeat:
 
 \`\`\`bash
 # Idempotent cleanup operations
@@ -1940,7 +1940,7 @@ Parked at enterprise scale, adopted in miniature here: scoped identities and har
 The guard has four layers:
 
 1. **Vetted sources only.** New dependencies resolve exclusively against known registries or an internal mirror — never whatever name the model produced. A name that does not exist upstream is rejected before anything downloads.
-2. **Pinned versions.** Ranges float toward whatever was published most recently, which is exactly where the malware sits. Pin exact versions cryptographically and let upgrades arrive as deliberate changes, not ambient drift.
+2. **Pinned versions.** Ranges float toward whatever was published most recently, which is exactly where the malware sits. Pin exact versions cryptographically and let upgrades arrive as deliberate changes, not ambient drift. Models also propose stale versions from before their knowledge cutoff — feed current documentation to the agent (retrieved docs or version notes alongside the spec) and double-check every proposed version number.
 3. **Composition scan at the gate.** Every build verifies the dependency manifest and artifact signatures before anything advances toward production — the deterministic checkpoint no advisory warning can replace.
 4. **Contained, governed execution.** Generated code first runs in an ephemeral, isolated sandbox whose state resets between runs, so a compromised script cannot persist or reach the host. Network egress travels governed paths only — offline caches or pre-sanitized fetchers — because a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page.
 
@@ -2053,6 +2053,158 @@ Local mapping: the session → task → verification trace shape lives in the ob
     tags: ['observability', 'traces', 'spans', 'sampling', 'costs'],
     links: [
       { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
+    ],
+  },
+  {
+    title: 'Instruction format sensitivity',
+    category: 'Knowledge',
+    summary: 'Day-5 finding, quoted: generic markdown can cost ~40% performance; narrative in Markdown, deep structure in YAML — formatting is token economics.',
+    body: `Agents are extremely sensitive to how instructions are formatted: a 2026 study (Ouyang et al., "SkCC: Portable and Secure Skill Compilation for Cross-Framework LLM Agents") found up to a 40% performance drop when using generic, unoptimized Markdown files. The researchers' answer is compilation — a single-source instruction file rendered into each model's optimal target format in milliseconds.
+
+The best formatting strategy the study demonstrates is hybrid Markdown + conditional YAML: clean Markdown headers anchor the model's attention for narrative instructions, while any structured configuration or data schema with a nesting depth greater than 3 switches to YAML. For deeply nested configurations, YAML achieves 51.9% parsing accuracy, compared to 43.1% for JSON and 33.8% for XML. Rendering deep specifications in YAML while keeping prose in Markdown bypasses the reasoning "format tax" of heavy JSON inputs — maximum accuracy at optimal token economics.
+
+Local mapping: this rule applies everywhere instructions live — the entry file, skill bodies, and the specs folder. Keep nesting shallow by construction; when structure must go deep, reach for YAML, not JSON. The entry-file audit owns how much gets written; this mod owns what shape it takes. New formatting claims arrive the same way this one did — measured, then encoded.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['formatting', 'yaml', 'tokens', 'instructions'],
+    links: [
+      { label: 'Day-5 paper', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
+      { label: 'SkCC study (Ouyang et al.)', url: 'https://arxiv.org/abs/2605.03353' },
+    ],
+  },
+  {
+    title: 'Behavior-driven specs',
+    category: 'Knowledge',
+    summary: 'Day-5 method: Gherkin Scenario/Given/When/Then plus the good-spec checklist — design, visuals, why, scenarios — reviewed before generating.',
+    body: `A Behavior-Driven Development (BDD) specification turns vague, ambiguous ideas into a precise design an agent can build without guessing. BDD describes exactly how a system should behave from the user's perspective, in plain structured natural language, before any code is written.
+
+The syntax is Gherkin: a declarative Scenario / Given / When / Then template that forces thinking in State → Action → Outcome terms. No vibes, no guessing — the agent rides a strict track.
+
+A good specification for generating a new project contains:
+
+- **The full technical design.** Never "make a login page" — break it down: requirements, data schemas, and the API contracts that let the parts talk to each other.
+- **Visual aids.** Diagrams plus the specific tools and libraries with version numbers.
+- **Background information.** The why behind the what — it lets the agent think forward to steps you will likely need next.
+- **Scenarios.** What good looks like, what wrong looks like, and the edge cases.
+
+Review the design before generating: have humans read and critique the plan first — a logic flaw caught in prose costs nothing next to thousands of generated lines built on top of it. Once reviewed, the spec lives versioned in the project's specs folder as the shared source of truth for humans and agents alike.
+
+Treat tokenization as a hard physical constraint: every character, newline, and indentation space converts directly into budget, latency, and attention capacity. Keep the specs folder a lean, compiled instruction set — human-readable prose balanced with flat, targeted structure blocks, repetitive ceremony trimmed. (The measured side of this rule lives in the Instruction format sensitivity mod.)
+
+Local mapping: behavior scenarios are the content that fills a sprint contract; the specs folder is knowledge-next-to-code at project scale; scenario lists double as acceptance criteria in the task breakdown.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['bdd', 'gherkin', 'specs', 'scenarios'],
+    links: [
+      { label: 'Day-5 paper', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
+      { label: 'Gherkin reference', url: 'https://cucumber.io/docs/gherkin/reference' },
+    ],
+  },
+  {
+    title: 'Code Reviews',
+    category: 'Workflow',
+    summary: 'Day-5 section, quoted whole: high-velocity integration — bundled summaries, blueprint ownership, conditional LGTM, no-blame, review skills in CI — plus the code-check skill template.',
+    body: `To survive the volume and scale of AI-generated commits without burnout, teams need new guidelines for the shift from writing code to integrating it.
+
+Strategies for high-velocity integration:
+
+- **Bundled summaries and risk assessments.** Require every change to include an AI-generated snapshot of what changed, potential breakage points, and a risk assessment — a markdown file or a detailed commit description that focuses human reviewers on architectural impact rather than lines.
+- **Reimagined ownership.** Shift human review from nitpicking style on disposable, agent-written code to ensuring the integrity of the architectural blueprints. Style rides on automated tooling: shared syntax linters or workspace-specific stylebooks.
+- **The "Conditional LGTM".** A reviewer approves contingent on all automated tests passing; if the suite turns green, the code merges automatically — no 12-hour cross-timezone wait.
+- **No-blame culture.** In high-velocity environments the most prolific producer becomes the scapegoat for bugs and merge conflicts. Attribute those issues to broken integration processes, not to the individual driving the agent.
+- **Agent coding reviews.** Build a skill that reviews code — and skills that respond to reviews — triggered automatically on every change by the CI pipeline. (The managed / hybrid / custom deployment spectrum lives in the Deploying Agents That Watch Your Repo mod.)
+
+Split work so members rarely touch the same files — clear ownership of APIs versus UX, for example. Where overlap is unavoidable, the designated part owner handles the final synchronization. (And the open question behind all of it: with a squad of agents at hand, which teamwork is still load-bearing, and which is ritual?)
+
+A review skill template (trigger from CI in non-interactive mode, post the verdict as a comment):
+
+\`\`\`markdown
+Act as a Senior Software Engineer and Security Researcher. Review the provided
+code for this PR or diff using these strict criteria.
+Fetch the change from version control first (e.g. \`gh pr view <PR NUMBER>\`).
+Then analyze, then review:
+
+1. **Critical Vulnerabilities:** hardcoded secrets, injection, XSS, broken authentication.
+2. **Logic & Efficiency:** off-by-one errors, infinite loops, redundant calls.
+3. **Readability:** naming, breaking down mega-functions.
+4. **Edge Cases:** null inputs, network failure — what happens?
+
+Output format:
+- **Description:** what is this change doing, in detail.
+- ISSUES: Critical (stop-ship) · Warnings (smells, style) · Best Practices (lines to refactor) · Quick Win (biggest improvement in one sentence).
+- With no issues: Description plus LGTM.
+\`\`\`
+
+Local mapping: the review step owns the semantic half; the static checks are the automated half the Conditional LGTM waits on (pass-state gating in the task breakdown); style enforcement lives in lint and domain rules; ownership split mirrors the isolation rule in agent state.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['code-review', 'integration', 'ownership', 'review-skill', 'risk'],
+    links: [
+      { label: 'Day-5 paper', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
+    ],
+  },
+  {
+    title: 'Deploying Agents That Watch Your Repo',
+    category: 'Tooling',
+    summary: 'Day-5 section, quoted whole: continuous review agents across three tiers — managed, hybrid, custom — and graph-native understanding at full scale.',
+    body: `You can write a great review prompt. But who runs it on every change, every nightly sweep — without a human pushing the button?
+
+A code review skill runs when invoked from inside the IDE. The next step is deploying review skills as continuous code analysis agents — services that watch the repository, react to events (change opened, nightly cron), and post findings back without anyone asking. They catch what tired humans miss on a Friday afternoon: a dependency with a fresh vulnerability, a TODO from six months ago that quietly became a security gap. Once a team ships AI-generated changes at volume, a continuous reviewer is the only thing that scales with the output. The question is how custom you need to go — and the answer is a spectrum with three tiers, each trading control for simplicity.
+
+The three tiers differ in who owns the runtime and who writes the review criteria:
+
+- **Tier 1 — Managed.** The off-the-shelf path: enable a SaaS reviewer on the forge and every change gets AI comments on style, bugs, and security out of the box. No prompts to write, no infrastructure to manage; pay per seat. The trade: you get the vendor's review opinions, not yours — a generic reviewer misses what matters to a team with a strict house style or a domain-specific risk profile.
+- **Tier 2 — Hybrid.** The middle path, and the right starting point for most teams. Write your own review skill, commit it to the repo, and trigger it from a CI action that runs the agent CLI in non-interactive mode and posts the result as a comment. The runtime belongs to the CI provider; the prompts, model choice, sandboxing, and review criteria belong to you.
+- **Tier 3 — Custom.** The fully owned path: the reviewer as a bespoke agent on a managed runtime with durable sessions and memory, wired to webhook events from the source host. The right answer when the reviewer must hold context across a multi-change refactor, decompose "audit this service for compliance drift" into a hundred sub-tasks via a planner-and-sub-agents pattern, or coordinate with other agents. The trade: you own evaluation, observability, cost, and the on-call rotation when it fails in production.
+
+Three questions tell you which tier you need:
+
+1. **How specific is the review criteria?** Generic → Tier 1. Team- or repo-specific → Tier 2 or 3.
+2. **Does the agent need to remember things across runs?** No → Tier 1 or 2. Yes (codebase memory, cross-change context) → Tier 3.
+3. **What is the worst case if it goes wrong?** A noisy comment → any tier. A merged regression or leaked secret → Tier 3 with a policy gate in front of every tool call.
+
+Most teams discover their tier the moment the managed reviewer misses something specific. A platform team at a mid-size fintech, for example, started on Tier 1 and found their compliance reviewer flagging boilerplate auditors had already signed off — while missing the one pattern that mattered, unmasked credentials in log statements. A 40-line compliance skill wired to a CI action (Tier 2) dropped the false positives sharply within a week. Tier 3 has not yet been needed.
+
+Tier 3 at full scale means graph-native code understanding. Loading code as flat text into a context window runs out of room on hundred-million-line codebases, and standard retrieval strips out the structure that makes code legible: a class belongs to a file, a call traces to a requirements doc written a decade ago. Flatten that into a vector store and the map is gone.
+
+![Custom code review runtime: knowledge graph plus code context feeding a Search → Impact → Tasks → Coding sub-agent pipeline](/uploads/87c3ca9b-f06d-4874-90dc-92d2b9391203.png)
+
+The pattern that has emerged on the largest legacy modernisations is to build the agent on a knowledge graph. Ingest code, docs, tickets, and design documents into a graph database, then combine three retrieval modes: graph traversal for structural queries ("every function that transitively calls payment processing"), vector search over node embeddings for semantic queries ("find code that does what this paragraph describes"), and full-text search for exact identifier matches. The combination answers "what breaks if I change this?" with a precise impact map instead of a confident guess.
+
+The second half is decomposition. A single agent told to "refactor this module" will fail. Split the same job across a sub-agent pipeline — a Search agent that explores the graph, a Story agent that captures requirements, an Impact agent that predicts side-effects, a Task-breakdown agent that produces atomic units of work, and only then a Coding agent — and the work becomes manageable. Pilots in production on million-line codebases have moved equivalent refactor work from two weeks to a few hours. This is Tier 3 at full scale: not an agent that watches changes, but one that understands the system the changes live in.
+
+A managed runtime gets you a generic reviewer in minutes. A hybrid runtime gets you your reviewer in a day. A custom runtime gets you a reviewer that understands the whole system — at the cost of owning the runtime and the evaluation. Pick the lowest tier that catches what matters.
+
+Local mapping: Tier 2 is the sensor sidecar plus a review skill, triggered on schedule; Tier 1 judgment applies wherever traffic never justifies custom tooling; Tier 3 stays a horizon item behind the graph-worthiness gate. The review skill template lives in the Code Reviews mod; the policy gate in front of risky tool calls lives in high-stakes confirmation.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['continuous-reviewer', 'tiers', 'ci', 'knowledge-graph', 'decomposition'],
+    links: [
+      { label: 'Day-5 paper', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
+    ],
+  },
+  {
+    title: 'Sustainability',
+    category: 'Workflow',
+    summary: 'Day-5 section, quoted: approval fatigue burns out frequent AI users — replace constant oversight with structured boundaries.',
+    body: `A new phenomenon: approval fatigue. Research reports frequent AI users are 45% more likely to experience high burnout than non-users. Faced with a constant stream of micro-approvals — improving a single line, adjusting a tool call — developers start clicking "Approve" reflexively. It is a low-grade exhaustion where the team stops checking the machine's work just to keep up with its pace, and attention to detail goes missing.
+
+To protect the team, move from constant oversight to structured boundaries:
+
+- **Digital quiet hours.** Set boundaries so approval requests do not bleed into evenings and weekends.
+- **Agent insight sessions.** Hold weekly sessions where developers share patterns identified by their AI counterparts, turning isolated discoveries into shared organizational knowledge.
+
+Local mapping: fatigue is the failure mode the high-stakes confirmation mod reserves ceremony for the irreversible to avoid; micro-approvals are the unit the steering loop should count before they train disregard like a noisy sensor; insight sessions are the decisions journal kept as a conversation — discoveries encoded into guides before they evaporate. Oversight scales through gates, not vigilance.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['sustainability', 'fatigue', 'burnout', 'boundaries', 'culture'],
+    links: [
+      { label: 'Day-5 paper', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
     ],
   },
 ];
