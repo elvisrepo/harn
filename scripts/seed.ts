@@ -1240,7 +1240,7 @@ Planner restraint (Lecture 11): the planning stage stays bold on scope and high 
     summary: 'Deterministic commands behind skill wrappers — the portable computational guides: same shell in any harness.',
     body: `Deterministic tooling the agent invokes before and during generation instead of guessing. The endorsed shape is the hybrid — a skill with instructions plus a bootstrap script — rated both computational and inferential. Typical inventory: web research CLI (search/scrape behind skills, with cost guards and outputs kept out of the context window), diagram CLI (typed input in, validated artifact out, repair receipt back), browser-evidence CLI (assert/eval/login/shot flags), plus project scripts for the pre-handoff gate and one-shot ops with exact commands and expected receipts.
 
-Three placements: mid-loop via shell (facts, diagrams, browser evidence), the gate left-shifted into check, one-shot ops documented with commands and receipts. Show the work: data operations cite the exact query or command that produced the output — receipts, not prose. Route external fetches through governed paths (offline caches, sanitized crawlers) rather than raw interactive browsing — a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page. Portability rule: CLIs run through the shell every harness has — they are the one guide category that survives a harness switch unchanged, unlike runtime-specific extensions. New controls ship as skill plus script first.`,
+Three placements: mid-loop via shell (facts, diagrams, browser evidence), the gate left-shifted into check, one-shot ops documented with commands and receipts. Show the work: data operations cite the exact query or command that produced the output — receipts, not prose. Route external fetches through governed paths (offline caches, sanitized crawlers) rather than raw interactive browsing — a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page. Portability rule: CLIs run through the shell every harness has — they are the one guide category that survives a harness switch unchanged, unlike runtime-specific extensions. Their human-side sibling is the single-file HTML utility (see the HTML tools mod). New controls ship as skill plus script first.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -1374,7 +1374,7 @@ Proposed mechanism (wanted, ~1 hour, zero deps): a failure ledger — the check 
 
 Quality flywheel (SDLC paper): evaluate against a benchmark suite, diagnose failures by clustering root causes, optimize the prompts or tools that caused them, verify fixes against a regression suite, monitor production traffic for new failure modes. Each cycle compounds — the ledger is the data it feeds on. Mine user corrections as labeled failure data: every "no, not like that" is a free failure example — cluster them and the systematic gaps surface faster than any synthetic benchmark.
 
-Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Work through the five layers systematically — task not clearly defined, insufficient context, misconfigured environment, missing verification, loss of state between sessions. Attribution first, fix second: each layer points at a different control (spec, context budget, env parity, check gates, session discipline), and guessing the layer is how fixes land in the wrong place.`,
+Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Work through the five layers systematically — task not clearly defined, insufficient context, misconfigured environment, missing verification, loss of state between sessions. Attribution first, fix second: each layer points at a different control (spec, context budget, env parity, check gates, session discipline), and guessing the layer is how fixes land in the wrong place. Run it as a retrospective ritual: capture session successes and failures, spend them on feedforward controls (shared instructions) and feedback sensors — the compounding is the point, like refactoring. Re-evaluate the whole harness when the environment moves, especially across models: what worked on one may not survive the next. The agentic next level (the loop improving itself) stays parked behind a human — self-directed improvement without oversight drifts into rot and noisy feedback.`,
     considered: true,
     implemented: true,
     wanted: true,
@@ -1387,6 +1387,7 @@ Diagnose by layer (Lecture 01): don't just say "the model isn't good enough." Wo
       { label: 'OpenAI — struggle signals', url: 'https://openai.com/index/harness-engineering/' },
       { label: 'SDLC paper — flywheel', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
       { label: 'decisions journal', url: 'docs/Harness decisions.md' },
+      { label: 'ThoughtWorks Radar — feedback flywheel', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -2329,6 +2330,40 @@ Local mapping: the flat decision log is the pilot substrate — adopt the record
     tags: ['context-graph', 'provenance', 'decisions', 'temporal', 'memory'],
     links: [
       { label: 'ThoughtWorks Radar — context graph', url: 'https://www.thoughtworks.com/radar' },
+    ],
+  },
+  {
+    title: 'HTML tools',
+    category: 'Tooling',
+    summary: 'Radar Assess: small utilities as single self-contained HTML files — no install, no hosting, pasteable out of a model response.',
+    body: `Agentic tools make small task-specific utilities cheap to build; the hard part is deploying and sharing them. Packaging a utility as a single HTML file splits the difference between CLIs and web apps: run it directly in a browser, host it anywhere static, or just send the file. No binaries, no package managers, no dedicated hosting.
+
+Why it works — the burden comparison for a small single-purpose utility:
+
+![CLI tool: four steps to share, four to use, install required](/uploads/987f7b99-d9e5-4e07-90eb-96e7b85ebb31.png)
+
+![Web app: four steps to share with hosting required, two to use](/uploads/80fb24b7-a90c-4952-96be-90142aa0d896.png)
+
+![HTML tool: two steps to share, one to use, hosting optional, no install](/uploads/e86738b8-b78a-461e-829a-6fdfa488b035.png)
+
+CLI burden falls on both sides (package and publish; install and terminal). Web-app burden falls on the author (hosting, server, domain). HTML burden is nearly nothing: write one file, send it or drop it on any static host; the recipient opens it.
+
+What a good one looks like — four traits:
+
+- **One file.** JS and CSS inline, so the whole thing copies straight out of a model response.
+- **No build step.** No framework syntax that needs compiling — pasteable and hostable as-is.
+- **Pinned CDN dependencies.** Version-pinned URLs from well-known CDNs for anything external.
+- **Small.** A few hundred lines, so a model reads it whole or rewrites it from scratch in minutes.
+
+More capable than it sounds — a serverless page does real work: paste-in/copy-out transforms over text or images; bookmarkable state in the URL with larger state and keys in local storage; local file reads and generated downloads without uploading anything; calls to public cross-origin APIs and even model APIs directly — with the key rule that secrets are never baked into the file (the tool asks each user for their own key and stores it locally: clunky but safe); heavy lifting via WebAssembly runtimes in the page.
+
+Security posture: running untrusted files always carries risk; the browser sandbox plus inspectable source is the mitigation, not a guarantee. Adopt as the default shape for agent-built utilities: inline everything, no build, pinned dependencies, small, keys never baked. Sibling rule for machine-side portability: shell-runnable commands behind skill wrappers.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['html-tools', 'distribution', 'single-file', 'utilities', 'portable'],
+    links: [
+      { label: 'ThoughtWorks Radar — HTML tools', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
 ];
