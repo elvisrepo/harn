@@ -664,7 +664,7 @@ Doc, executable, and norm agreeing is rare enough to state outright — most rep
 
 Decision rule: in-repo knowledge goes in files — indexed docs, decision journal, catalog, snapshots — because files plus search plus progressive disclosure cost zero tokens until needed, while protocol servers tax every turn with context. A remote knowledge server earns its place only for off-repo knowledge (library API docs) looked up often enough that CLI scraping turns clumsy. Trigger for revisiting: repeated multi-repo or off-repo lookups.
 
-Consumption discipline (Day-2 paper), for when a server is warranted: consume, don't build — search registries (public for prototyping, vetted official, internal first) before writing any wrapper, collapsing N×M bespoke integrations to N+M. Discover, configure (scoped permissions, env-file credentials, read/write boundaries), connect (handshake listing tools, schema validated before real use). Checklist: audit public servers before attaching anything with filesystem or credential access; load tools RAG-style (in-context only while needed); default read-only and non-prod data; scope one project, never broad. Debug transport before prompts — schemas and streams via inspector tooling, not system-prompt tweaks. Never hardcode credentials, never point at production.`,
+Consumption discipline (Day-2 paper), for when a server is warranted: consume, don't build — search registries (public for prototyping, vetted official, internal first) before writing any wrapper, collapsing N×M bespoke integrations to N+M. Prefer editor- and IDE-exposed navigation and refactoring capabilities (semantic retrieval, find-refs, renames) over bespoke wrappers for the same. Discover, configure (scoped permissions, env-file credentials, read/write boundaries), connect (handshake listing tools, schema validated before real use). Checklist: audit public servers before attaching anything with filesystem or credential access; load tools RAG-style (in-context only while needed); default read-only and non-prod data; scope one project, never broad. Debug transport before prompts — schemas and streams via inspector tooling, not system-prompt tweaks. Never hardcode credentials, never point at production.`,
     considered: true,
     implemented: false,
     wanted: false,
@@ -673,6 +673,7 @@ Consumption discipline (Day-2 paper), for when a server is warranted: consume, d
       { label: 'article — change lifecycle', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'opencode MCP servers', url: 'https://opencode.ai/docs/mcp-servers' },
       { label: 'Day-2 paper — consumption', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
+      { label: 'ThoughtWorks Radar — code intelligence', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1199,7 +1200,7 @@ Drive, don't just observe (OpenAI): wire the browser DevTools protocol into the 
 
 The audit finding that earns this mod: bundler builds strip types without checking them, so a "check" that runs build-only has no typecheck sensor at all — a type error sails through green. Chain the language engine in CLI mode into the check command (build → typecheck → secrets scan → behaviour flows). Interactive form (editor/extension diagnostics on edit, silent when clean) is the true guide placement; the batch sensor is its portable cover under runtimes without extension APIs. Watch the failure mode where a crashed probe is byte-identical to "clean" — failures need a distinct note.
 
-Version gotchas are real: compilers change programmatic APIs across majors, so pin the toolchain the checker needs until support lands, and record the pin with its upstream reference.`,
+Version gotchas are real: compilers change programmatic APIs across majors, so pin the toolchain the checker needs until support lands, and record the pin with its upstream reference. Expose the engine as agent tooling, not just a gate: models read code as token streams with no native sense of call graphs, type hierarchies, or symbol relations — left to text search they burn tokens reconstructing what the tree already knows and hallucinate the edits. Reference lookup and whole-tree renames belong behind tool calls the agent invokes mid-loop, delegating tree questions to tree tools.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -1207,6 +1208,7 @@ Version gotchas are real: compilers change programmatic APIs across majors, so p
     links: [
       { label: 'astro check docs', url: 'https://docs.astro.build/en/reference/cli-reference/#astro-check' },
       { label: 'TS 7 API gap (roadmap#1321)', url: 'https://github.com/withastro/roadmap/discussions/1321' },
+      { label: 'ThoughtWorks Radar — code intelligence', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1256,7 +1258,7 @@ Three placements: mid-loop via shell (facts, diagrams, browser evidence), the ga
 
 **Status: verified gap, not neglect (2026-09).** Grep finds only the word "codemods" in the article-summary doc; no jscodeshift / recast / OpenRewrite / scaffolders anywhere. Rationale: ~30-file single-user tool — every candidate change is rare and reads better as a reviewed hand-edit (Minimalism; the Performance/scalability CfR explicitly forbids over-engineering here).
 
-**Trigger rule instead of tooling:** the third occurrence of the same mechanical multi-file edit gets encoded as a script, shipped in skill + script form (see the CLIs + scripts mod). Named candidates: seed-mirror generation, repetitive Astro/API-route scaffolding, the TS 6→7 pin flip.`,
+**Trigger rule instead of tooling:** the third occurrence of the same mechanical multi-file edit gets encoded as a script, shipped in skill + script form (see the CLIs + scripts mod). Named candidates: seed-mirror generation, repetitive Astro/API-route scaffolding, the TS 6→7 pin flip. Rich-tree transforms (codemod engines operating on lossless semantic trees) are the end-state of the same rule: deterministic rewrites without model judgment, fewer hallucinated edits, lower token spend — earned by repetition, same as scripts.`,
     considered: true,
     implemented: false,
     wanted: false,
@@ -1264,6 +1266,7 @@ Three placements: mid-loop via shell (facts, diagrams, browser evidence), the ga
     links: [
       { label: 'article — guides', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'OpenRewrite recipes', url: 'https://docs.openrewrite.org/' },
+      { label: 'ThoughtWorks Radar — code intelligence', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -2266,6 +2269,66 @@ Status: parked behind real users. Trigger: the day this app serves anyone beyond
     tags: ['passkeys', 'authentication', 'phishing', 'out-of-scope', 'sign-in'],
     links: [
       { label: 'ThoughtWorks Radar — passkeys', url: 'https://www.thoughtworks.com/radar' },
+    ],
+  },
+  {
+    title: 'Semantic layer',
+    category: 'Knowledge',
+    summary: 'Radar Trial, parked: one governed definition per business concept between raw data and every consumer — agents ask the layer, never guess SQL.',
+    body: `A semantic layer is a translation layer between raw data and everything that reads it: a shared business-logic plane sitting between data stores and consumers — dashboards, AI agents, APIs. Business concepts get defined once, in one place: what "revenue" means (net of refunds? recognized on delivery?), how tables join, who can see what, and what the business calls things. Consumers ask the layer instead of writing their own SQL.
+
+The idea in one picture — three tools asking "what was revenue last quarter?", first without the layer, then with it:
+
+![Without a semantic layer: dashboard, agent, and API each re-implement revenue and disagree](/uploads/deb1d640-fabe-4aea-ab0c-43cbb0580a4e.png)
+
+![With a semantic layer: all three ask one governed definition and agree](/uploads/d9fa996e-c41c-405f-9a2c-aec60f5af92e.png)
+
+The problem it fixes: without the layer, each tool re-implements every metric its own way. Definitions drift apart quietly and nobody notices until two reports disagree in a meeting. Business logic scatters across ad-hoc tables, dashboards, and downstream apps while shared meanings quietly diverge.
+
+Why it matters more with AI: a model doing text-to-SQL sees the schema only. Rules like revenue recognition usually live outside the schema, so the model guesses — and the query looks plausible while returning the wrong number. An agent asking the layer for the revenue metric gets the governed definition instead of a guess. Centralized metric definitions, joins, access rules, and terminology turn naive translation into governed lookup.
+
+The cost is upfront data modeling. Start with a single domain (say, sales) rather than an enterprise-wide rollout — broad deployments leave legacy reports running in parallel with the new layer, reintroducing the inconsistent definitions it was built to kill. Standardization is converging (open interchange formats backed by multiple vendors; metric views embedded in major platforms; portable code-first metric stores) — adopt the pattern, stay neutral on the vendor.
+
+Status: parked behind real consumers. Trigger: the first agent or analysis querying business data beyond the application schema. Until then the schema itself is the definition. Sibling rule on the docs side: the single-source principle in reference docs — one definition, referenced never copied.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['semantic-layer', 'metrics', 'text-to-sql', 'governance', 'out-of-scope'],
+    links: [
+      { label: 'ThoughtWorks Radar — semantic layer', url: 'https://www.thoughtworks.com/radar' },
+    ],
+  },
+  {
+    title: 'Context graph',
+    category: 'Knowledge',
+    summary: 'Radar Assess: decisions, policies, exceptions, and evidence as connected, time-valid nodes — the why behind the data, queryable by agents.',
+    body: `A context graph stores the reasoning behind your data as well as the data itself. A system of record says what happened; a context graph also stores why — which decision produced it, under which policy or exception, based on what evidence, and similar to which earlier case. Decisions, policies, exceptions, precedents, evidence, and outcomes each become first-class connected nodes, and the edges between them say how they relate.
+
+Flat record first — what an agent gets from a plain database row:
+
+![System of record: a lone discount row that cannot say whether 20% is policy or override](/uploads/1bc2b600-9317-4e67-92e2-f46cd39e04d5.png)
+
+The row alone cannot tell an agent whether 20% is standing policy or a one-off, so the agent guesses. In the graph, the agent follows the hops — Decision, then Exception, then Policy — and gets the answer. Step through the dates:
+
+![Context graph as of March 2025: standing policy is a 10% cap, no exceptions on file](/uploads/fd4302a8-4f07-4855-8130-dd0fe10a7eac.png)
+
+![Context graph as of September 2025: the 20% resolves to a one-time exception overriding the 15% cap, backed by evidence and precedent](/uploads/49a3fec7-7b48-49be-9630-1f287d8e4b72.png)
+
+![Context graph as of February 2026: the exception has expired, so renewal needs new approval — old facts stay, marked expired](/uploads/57508f62-9ee7-4a2b-8deb-9caf2ec7f395.png)
+
+Every edge carries a validity window: superseded policy versions grey out rather than delete, expired exceptions stay visible as expired. You can ask what was true at the time of a decision, not just what is true now.
+
+How this differs from GraphRAG: retrieval graphs typically build from a fixed document set — a snapshot. When a policy changes, re-indexing overwrites old facts or lets versions coexist with no indication of which is current. A context graph invalidates superseded facts instead of overwriting them, which is what makes it usable for audits and for agents needing memory across sessions.
+
+Worth assessing where agents need cross-session memory or must justify decisions — approvals, exceptions, compliance-heavy workflows. The hard part is not the database; it is capturing reasoning that lives in chat threads and people's heads, and keeping it current as policies change. Document lookup alone needs only ordinary retrieval. A sensible pilot is one decision type where each record carries the decision, the rule applied, an exception flag, the approver, a validity window, and a pointer to what superseded it.
+
+Local mapping: the flat decision log is the pilot substrate — adopt the record shape (rule, exception flag, approver, validity, superseded-by) before any graph machinery; the boundary mod's progressive disclosure decides what the agent pulls and when.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['context-graph', 'provenance', 'decisions', 'temporal', 'memory'],
+    links: [
+      { label: 'ThoughtWorks Radar — context graph', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
 ];
