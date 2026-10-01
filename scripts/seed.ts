@@ -85,7 +85,9 @@ Settled versus emerging (Day-3 paper): the format is settled — an open standar
 
 ![Four skill failure modes: trigger, execution, token rot, regression](/uploads/2c92c274-9c15-4913-9fdc-8191a96500e9.png)
 
-Five complementary testing patterns cover the surface: eval-as-unit-test (skill test files in CI, every change), golden dataset (curated versioned input-output pairs with the skill), LLM-as-judge (peer-model rubric scoring at scale), adversarial red-teaming (probing designed to expose failure), canary/shadow mode (controlled traffic before full rollout).
+Five complementary testing patterns cover the surface: eval-as-unit-test (skill test files in CI, every change), golden dataset (curated versioned input-output pairs with the skill), LLM-as-judge (peer-model rubric scoring at scale), adversarial red-teaming (probing designed to expose failure), canary/shadow mode (controlled traffic before full rollout). Add supply-chain scanning in front of all five: a useful-looking third-party skill can embed hidden instructions exfiltrating sensitive data, so map its data paths before installing — what it reads, where it sends, which descriptions carry override language. Toxic-flow scanners automate exactly this over installed skills and tool configs:
+
+![Agent scan output: untrusted-content warning on a forge tool plus critical prompt injection in a tool description](/uploads/ba74e75b-c54c-4acd-9825-6d406ad4637c.png)
 
 ![Evaluation toolkit: five testing patterns across the failure surface](/uploads/dae8ca45-b0c4-4d83-b724-7337cd33d517.png)
 
@@ -128,6 +130,7 @@ Eval coverage means four conditions, one per failure mode: triggers verified bot
     tags: ['skills', 'evaluation', 'trajectory', 'testing'],
     links: [
       { label: 'Day-3 paper', url: 'https://www.kaggle.com/whitepaper-agent-skills' },
+      { label: 'ThoughtWorks Radar — toxic flows', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -662,7 +665,7 @@ Doc, executable, and norm agreeing is rare enough to state outright — most rep
     summary: 'The Fig-3 knowledge-protocol entry: the knowledge exists (docs, journal, catalog, snapshots) but no MCP server exposes it — files win on context cost; remote docs are the trigger.',
     body: `The change-lifecycle figure's knowledge-management entry: the agent querying team knowledge at generation time through a protocol instead of relying on what is in context.
 
-Decision rule: in-repo knowledge goes in files — indexed docs, decision journal, catalog, snapshots — because files plus search plus progressive disclosure cost zero tokens until needed, while protocol servers tax every turn with context. A remote knowledge server earns its place only for off-repo knowledge (library API docs) looked up often enough that CLI scraping turns clumsy. Trigger for revisiting: repeated multi-repo or off-repo lookups.
+Decision rule: in-repo knowledge goes in files — indexed docs, decision journal, catalog, snapshots — because files plus search plus progressive disclosure cost zero tokens until needed, while protocol servers tax every turn with context. Never default to a protocol server: a well-designed CLI (good help, structured responses, predictable errors) gives agents everything they need without the overhead, and every protocol layer between agent and API levies an abstraction tax in lost fidelity that compounds on complex interfaces. A remote knowledge server earns its place only for off-repo knowledge (library API docs) looked up often enough that CLI scraping turns clumsy — or where structured contracts, authentication boundaries, or governed multi-tenant access genuinely require protocol-level interop. Trigger for revisiting: repeated multi-repo or off-repo lookups.
 
 Consumption discipline (Day-2 paper), for when a server is warranted: consume, don't build — search registries (public for prototyping, vetted official, internal first) before writing any wrapper, collapsing N×M bespoke integrations to N+M. Prefer editor- and IDE-exposed navigation and refactoring capabilities (semantic retrieval, find-refs, renames) over bespoke wrappers for the same. Discover, configure (scoped permissions, env-file credentials, read/write boundaries), connect (handshake listing tools, schema validated before real use). Checklist: audit public servers before attaching anything with filesystem or credential access; load tools RAG-style (in-context only while needed); default read-only and non-prod data; scope one project, never broad. Debug transport before prompts — schemas and streams via inspector tooling, not system-prompt tweaks. Never hardcode credentials, never point at production.`,
     considered: true,
@@ -674,6 +677,7 @@ Consumption discipline (Day-2 paper), for when a server is warranted: consume, d
       { label: 'opencode MCP servers', url: 'https://opencode.ai/docs/mcp-servers' },
       { label: 'Day-2 paper — consumption', url: 'https://www.kaggle.com/whitepaper-agent-tools-and-interoperability-with-mcp' },
       { label: 'ThoughtWorks Radar — code intelligence', url: 'https://www.thoughtworks.com/radar' },
+      { label: 'ThoughtWorks Radar — MCP by default', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -962,7 +966,7 @@ Evals first (SDLC paper): write the eval suite before generating the code. Tests
     summary: 'Lecture-01 exercise as instrument: sample tasks, record claimed-done vs actually-done — the one metric for whether verification works.',
     body: `After each task, record whether the agent claimed completion, then verify independently. The proportion of false-dones is your verification gap — the single number that says whether the verification layer functions.
 
-Start manual: one log line per task (claimed-done + independent verdict, plus turns-to-converge, converged-or-abandoned, and token cost), gap ratio over a window, beginning with any task where "done" felt cheap. Sessions that converge in few turns are the success cases; abandoned sessions are the most informative failures — far more than turn-level errors. This ratio has an industry name: rework rate, the DORA stability metric for delivery consumed fixing work previously called complete — the early warning for blind spots and debt from unchecked agent assistance. The surrounding set (change lead time, deployment frequency, mean time to restore, change failure rate) frames it; generated-lines counts never substitute, since faster generation without faster, stable delivery is motion without progress. Use the numbers for reflection, not dashboards — a retro check-in over the ratio beats tracking tooling. Instrument later: append results automatically from your checks, review the ratio on a cadence, and treat a widening gap as the signal to strengthen verification. This sensor reports on the sensors themselves — build it the day a false-done slips through green.`,
+Start manual: one log line per task (claimed-done + independent verdict, plus turns-to-converge, converged-or-abandoned, and token cost), gap ratio over a window, beginning with any task where "done" felt cheap. Sessions that converge in few turns are the success cases; abandoned sessions are the most informative failures — far more than turn-level errors. This ratio has an industry name: rework rate, the DORA stability metric for delivery consumed fixing work previously called complete — the early warning for blind spots and debt from unchecked agent assistance. The surrounding set (change lead time, deployment frequency, mean time to restore, change failure rate) frames it; generated-lines counts never substitute, since faster generation without faster, stable delivery is motion without progress. Use the numbers for reflection, not dashboards — a retro check-in over the ratio beats tracking tooling. Track collaboration quality alongside delivery metrics and never let throughput set the story: time-to-first-output, lines generated, and tasks completed measure the speed trap, not the outcome. The collaboration fields are first-pass acceptance rate (changes landing without correction), iteration cycles per task (corrections to converge), post-merge rework (fixes after "done"), failed builds, and review burden (reviewer effort per change) — shorter cycles and fewer red builds mean the interaction works; repeated back-and-forth means the flywheel needs feeding. Digest the ledger periodically into a plain-language session report of successes and challenges rather than another dashboard. Measure the loop at team level, never the individual: metrics that grade developers get gamed, metrics that grade the collaboration get used. Instrument later: append results automatically from your checks, review the ratio on a cadence, and treat a widening gap as the signal to strengthen verification. This sensor reports on the sensors themselves — build it the day a false-done slips through green.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -971,6 +975,7 @@ Start manual: one log line per task (claimed-done + independent verdict, plus tu
       { label: 'lecture 01', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-01-why-capable-agents-still-fail/' },
       { label: 'lecture 09 — calibration bias', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-09-why-agents-declare-victory-too-early/' },
       { label: 'ThoughtWorks Radar — DORA metrics', url: 'https://www.thoughtworks.com/radar' },
+      { label: 'ThoughtWorks Radar — collaboration quality', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1045,13 +1050,14 @@ Standardize toward OpenTelemetry shape: one trace per session, one span per task
     summary: 'SDLC-paper practice parked: health monitoring, auto-rollback, risk prediction — activates on the first prod target.',
     body: `Deployment pipelines that watch themselves: agents monitoring deploy health, automatically rolling back bad releases, predicting risk from change scope — with production behaviour feeding back into development decisions.
 
-Out of scope until the first production target exists: no prod, no deploys, no rollback to automate. Until then the check command plus the preview server is the whole pipeline. Trigger: the day something ships beyond local — health checks first, rollback second, prediction last.`,
+Out of scope until the first production target exists: no prod, no deploys, no rollback to automate. Until then the check command plus the preview server is the whole pipeline. Prototypes live inside tracked sandboxes, and a shared catalogue gets checked before building — discoverability before duplication. Traction decides what graduates: usage, not enthusiasm, triggers production-grade investment, and every effort gets an explicit verdict up front — disposable one-off or durable critical process. Trigger: the day something ships beyond local — health checks first, rollback second, prediction last.`,
     considered: true,
     implemented: false,
     wanted: false,
     tags: ['deployment', 'rollback', 'out-of-scope'],
     links: [
       { label: 'SDLC paper', url: 'https://www.kaggle.com/whitepaper-the-new-SDLC-with-vibe-coding' },
+      { label: 'ThoughtWorks Radar — shadow IT', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1240,7 +1246,7 @@ Planner restraint (Lecture 11): the planning stage stays bold on scope and high 
     summary: 'Deterministic commands behind skill wrappers — the portable computational guides: same shell in any harness.',
     body: `Deterministic tooling the agent invokes before and during generation instead of guessing. The endorsed shape is the hybrid — a skill with instructions plus a bootstrap script — rated both computational and inferential. Typical inventory: web research CLI (search/scrape behind skills, with cost guards and outputs kept out of the context window), diagram CLI (typed input in, validated artifact out, repair receipt back), browser-evidence CLI (assert/eval/login/shot flags), plus project scripts for the pre-handoff gate and one-shot ops with exact commands and expected receipts.
 
-Three placements: mid-loop via shell (facts, diagrams, browser evidence), the gate left-shifted into check, one-shot ops documented with commands and receipts. Show the work: data operations cite the exact query or command that produced the output — receipts, not prose. Route external fetches through governed paths (offline caches, sanitized crawlers) rather than raw interactive browsing — a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page. Portability rule: CLIs run through the shell every harness has — they are the one guide category that survives a harness switch unchanged, unlike runtime-specific extensions. Their human-side sibling is the single-file HTML utility (see the HTML tools mod). New controls ship as skill plus script first.`,
+Three placements: mid-loop via shell (facts, diagrams, browser evidence), the gate left-shifted into check, one-shot ops documented with commands and receipts. Show the work: data operations cite the exact query or command that produced the output — receipts, not prose. Route external fetches through governed paths (offline caches, sanitized crawlers) rather than raw interactive browsing — a domain allowlist cannot stop injected instructions hiding inside an otherwise legitimate page. Portability rule: CLIs run through the shell every harness has — they are the one guide category that survives a harness switch unchanged, unlike runtime-specific extensions, and the first resort before any protocol integration. Their human-side sibling is the single-file HTML utility (see the HTML tools mod). New controls ship as skill plus script first.`,
     considered: true,
     implemented: true,
     wanted: false,
@@ -1248,6 +1254,7 @@ Three placements: mid-loop via shell (facts, diagrams, browser evidence), the ga
     links: [
       { label: 'article — guides', url: 'https://martinfowler.com/articles/harness-engineering.html' },
       { label: 'our review (fig 2)', url: 'docs/Harness review — feedforward guides.md' },
+      { label: 'ThoughtWorks Radar — MCP by default', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1477,7 +1484,7 @@ Turn it inward monthly (Lecture 12): every harness component exists because the 
     title: 'Instruction SNR audit',
     category: 'Knowledge',
     summary: 'Lecture-04 method: matrix entries × task types, relocate noise to topic docs — "add a rule" is relief today, poison tomorrow.',
-    body: `Every mistake tempts one more rule in the entry file, and each addition feels free — until 600 lines eat the context budget, bury hard constraints where models never look, and contradict each other. Audit instead: list every instruction entry, score its relevance across a few common task types, and move whatever is noise for most tasks into topic documents.
+    body: `Every mistake tempts one more rule in the entry file, and each addition feels free — until 600 lines eat the context budget, bury hard constraints where models never look, and contradict each other. Bloat degrades non-linearly: models attend least to the middle of long contexts, so the most-buried rule is the most-ignored, and independently sensible additions compose into contradiction. Write the entry by hand: research finds hand-written instruction files routinely outperform model-generated ones — generation drafts, humans decide. Audit instead: list every instruction entry, score its relevance across a few common task types, and move whatever is noise for most tasks into topic documents.
 
 Every surviving rule documents its source (why added), applicability (when needed), and expiry (when removable) — audit on cadence and delete. Historical incident notes don't belong in instructions at all: convert them to test cases or delete them. Signal-to-noise is the metric; the entry file is a router, and routers stay thin.
 
@@ -1488,6 +1495,8 @@ Context debt (Day-3 paper): bloating descriptions with deterministic imperatives
     tags: ['snr', 'audit', 'instructions', 'bloat'],
     links: [
       { label: 'lecture 04', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-04-why-one-giant-instruction-file-fails/' },
+      { label: 'hand-written vs generated instructions', url: 'https://arxiv.org/abs/2601.20404' },
+      { label: 'ThoughtWorks Radar — instruction bloat', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1526,7 +1535,7 @@ Two riders: minimal-but-complete (every entry earns its place by changing a deci
     title: 'ACID agent state',
     category: 'Workflow',
     summary: 'Lecture-03 frame: atomic ops, consistency predicates, isolation between agents, durable git-tracked knowledge.',
-    body: `Run agent state like database transactions. Atomicity: a logical operation ships whole once verified, or is discarded — never half-merged. Checkpoint before mutating: snapshot version control before agent edits so failed verification rolls back instead of compounding. Consistency: define verifiable predicates (tests pass, lint clean) and check them after each operation; inconsistent states don't get committed. Isolation: concurrent agents get their own progress files or branches — shared mutable state is where toes get stepped on. Durability: anything that must survive the session goes in git-tracked files; what lives only in session memory doesn't count.`,
+    body: `Run agent state like database transactions. Atomicity: a logical operation ships whole once verified, or is discarded — never half-merged. Checkpoint before mutating: snapshot version control before agent edits so failed verification rolls back instead of compounding. Consistency: define verifiable predicates (tests pass, lint clean) and check them after each operation; inconsistent states don't get committed. Isolation: concurrent agents get their own progress files or branches — shared mutable state is where toes get stepped on. Durability: anything that must survive the session goes in git-tracked files; what lives only in session memory doesn't count. Design for resumption, not just rollback: persist progress and tool calls as the task runs so failures (network, crashes, expired sessions) resume from the last persisted step instead of restarting — and suspend durably while awaiting human input rather than holding a live session open. Expect failures as the mindset; use framework-native persistence first and reach for standalone durable platforms only as workflows grow critical or long-lived.`,
     considered: true,
     implemented: false,
     wanted: true,
@@ -1534,6 +1543,7 @@ Two riders: minimal-but-complete (every entry earns its place by changing a deci
     links: [
       { label: 'lecture 03', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-03-why-the-repository-must-become-the-system-of-record/' },
       { label: 'lecture 12 — session integrity', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-12-why-every-session-must-leave-a-clean-state/' },
+      { label: 'ThoughtWorks Radar — durable workflows', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1807,13 +1817,14 @@ When working around an opaque upstream costs more than reimplementing the subset
 - **Cognitive surrender:** the comfortable posture of taking whatever comes back without opinions. Two people can run the same loop and get opposite results: one goes faster on work they understand, the other avoids understanding the work. The loop can't tell the difference — you must.
 - **Token blowout:** context grows roughly quadratically with turns unless managed from the first loop, not bolted on later.
 
-Audit any repeated workflow against all four on a cadence. The time a loop saves isn't for resting — it's for making more judgments.`,
+Audit any repeated workflow against all four on a cadence. The time a loop saves isn't for resting — it's for making more judgments. Name the accumulation: codebase cognitive debt, the gap between implementation and shared understanding of how and why it works. Velocity, lost intent, and hidden coupling form a reinforcing loop — weaker understanding steers agents worse, worse output deepens the gap — until a tipping point where small changes fail unexpectedly, fixes regress, and cleanup adds risk instead of removing it. Counter with sensors on every change, tracked cognitive load (review burden per change is the number), and fitness functions holding architectural constraints while output accelerates.`,
     considered: true,
     implemented: false,
     wanted: true,
     tags: ['loops', 'costs', 'audit', 'debt'],
     links: [
       { label: 'lecture 13', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-13-loop-engineering/' },
+      { label: 'ThoughtWorks Radar — cognitive debt', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1822,7 +1833,7 @@ Audit any repeated workflow against all four on a cadence. The time a loop saves
     summary: 'Lecture-13 horizon: give the agent a methodology, not tasks — human touches direction, agent touches code, ratchet only forward.',
     body: `The loop-engineering end-state: a methodology document the agent executes indefinitely, not a task list. The human edits direction (goal, constraints, exploration space, evaluation rules, the iron rule to never stop for help); the agent edits code. Fixed time budgets per iteration keep results comparable; only improvements stay on the main line, failures roll back — a ratchet that moves forward or not at all.
 
-Horizon item while a human supervises every run: nothing to build yet, but the trajectory belongs in the catalog. First step when it earns building: one recurring task as goal-plus-stopping-condition, one markdown memory file, one timer — then stack upward.
+Horizon item while a human supervises every run: nothing to build yet, but the trajectory belongs in the catalog. The concrete pattern is the fixed-prompt loop (Radar Assess): one agent, one unchanging brief, fresh context every iteration — pick a task from the plan, implement, restart clean, converge on the spec by repetition rather than orchestration. Fresh windows dodge context degradation at significant token cost, which prices it out of supervised single-human use; cross-model review between iterations is the known refinement. First step when it earns building: one recurring task as goal-plus-stopping-condition, one markdown memory file, one timer — then stack upward.
 
 Anchors (Lecture 14): no matter how elegant the topology, drifting loops in formation are still drifting. Pin every loop to reality — actual outcomes, ground-truth datasets, human spot-checks. Easiest part of the design to skip; least affordable to.
 
@@ -1836,6 +1847,7 @@ What a complete loop looks like assembled — automation fires, external state i
     links: [
       { label: 'lecture 13', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-13-loop-engineering/' },
       { label: 'lecture 14 — anchors', url: 'https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-14-graph-engineering/' },
+      { label: 'ThoughtWorks Radar — Ralph loop', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -1930,7 +1942,7 @@ Validate-retry-fallback (Day-2 paper): generated artifacts get schema-validated;
     title: 'High-stakes confirmation',
     category: 'Workflow',
     summary: 'Day-4 practice: irreversible actions need scoped identity plus a plain-language intent-to-steps summary — never a blind approve button.',
-    body: `The standing failure behind every agent incident log: an over-privileged agent, tricked or merely literal-minded, executing something irreversible while the human clicked "approve" on code they never read. Vague prompts produce broad workflows; shared long-lived credentials turn that breadth into ambient authority — and a hidden instruction pasted in with a forum snippet (the confused deputy) spends it on the attacker's behalf. The canonical warning: an unsupervised browsing subagent, told to create a button, clicked it live, followed a hallucinated connection to a legacy system with no safeguards, and mailed false content to fifty colleagues — fulfilling its directive with whatever data lay in context, unchecked. Never run an agent in auto-approve against live systems.
+    body: `The standing failure behind every agent incident log: an over-privileged agent, tricked or merely literal-minded, executing something irreversible while the human clicked "approve" on code they never read. Vague prompts produce broad workflows; shared long-lived credentials turn that breadth into ambient authority — and a hidden instruction pasted in with a forum snippet (the confused deputy) spends it on the attacker's behalf. The canonical warning: an unsupervised browsing subagent, told to create a button, clicked it live, followed a hallucinated connection to a legacy system with no safeguards, and mailed false content to fifty colleagues — fulfilling its directive with whatever data lay in context, unchecked. Never run an agent in auto-approve against live systems. Scope by the lethal trifecta: private-data access plus untrusted-content exposure plus external communication in a single task means the full ceremony applies, no exceptions — that combination is where injection and tool poisoning turn from theory into incidents.
 
 Three controls, in order:
 
@@ -1950,6 +1962,7 @@ Parked at enterprise scale, adopted in miniature here: scoped identities and har
     links: [
       { label: 'Day-4 paper', url: 'https://www.kaggle.com/whitepaper-vibe-coding-agent-security-and-evaluation' },
       { label: 'ThoughtWorks Radar — zero trust', url: 'https://www.thoughtworks.com/radar' },
+      { label: 'ThoughtWorks Radar — toxic flows', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -2244,13 +2257,14 @@ Two layers, in order:
 
 The interception flow: structural check first (is this tool allowed for this role and environment?), semantic check second (are these arguments safe?), execution only if both pass. Otherwise the gate returns a policy-violation message to the agent, which self-corrects or fails gracefully — governance as feedback, not just a wall.
 
-Local mapping: the structural half is dependency rules applied to tool calls (layer direction, deny by default); the semantic half is the review step moved before execution; the violation message is an agent-actionable error by construction. High-stakes confirmation remains the human half of the same gate — machine referee first, human meaning-check last.`,
+Local mapping: the structural half is dependency rules applied to tool calls (layer direction, deny by default); the semantic half is the review step moved before execution; the violation message is an agent-actionable error by construction. High-stakes confirmation remains the human half of the same gate — machine referee first, human meaning-check last. Mirror the gate on the retrieval side: tag knowledge chunks with role permissions at index time and filter the search space by authenticated identity at query time, so unauthorized context never enters the window instead of being refused after. Trigger: the first multi-role knowledge base — one human and file-based knowledge needs no retrieval layer.`,
     considered: true,
     implemented: false,
     wanted: true,
     tags: ['policy', 'gating', 'tools', 'governance', 'self-correction'],
     links: [
       { label: 'Day-5 paper', url: 'https://www.kaggle.com/whitepaper-spec-driven-production-grade-development-in-the-age-of-vibe-coding' },
+      { label: 'ThoughtWorks Radar — retrieval isolation', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
   {
@@ -2364,6 +2378,41 @@ Security posture: running untrusted files always carries risk; the browser sandb
     tags: ['html-tools', 'distribution', 'single-file', 'utilities', 'portable'],
     links: [
       { label: 'ThoughtWorks Radar — HTML tools', url: 'https://www.thoughtworks.com/radar' },
+    ],
+  },
+  {
+    title: 'MITRE ATLAS',
+    category: 'Knowledge',
+    summary: 'Radar Assess: a shared vocabulary of adversarial tactics against AI systems — threat-model with it instead of checkboxing security.',
+    body: `Agentic systems introduce new architectures and emergent threats. MITRE ATLAS is a knowledge base of adversarial tactics and techniques targeting AI and ML systems — more focused than the broader ATT&CK framework and designed to complement it, with a taxonomy covering ML pipelines, LLM applications, and agentic systems.
+
+Without a shared vocabulary, security risks get overlooked or reduced to a checkbox exercise; grounded in research on real incidents and technology patterns, the framework supports threat modeling directly and complements control frameworks by describing how threats evolve.
+
+Local mapping: name our known threats in its terms — the confused deputy and prompt-injected tool calls in high-stakes confirmation, historic failure modes in safeguards against missteps, machine-side enforcement in the policy gate. The next security review of the harness runs down the taxonomy instead of memory.`,
+    considered: true,
+    implemented: false,
+    wanted: true,
+    tags: ['threat-model', 'atlas', 'security', 'taxonomy', 'adversarial'],
+    links: [
+      { label: 'ThoughtWorks Radar — MITRE ATLAS', url: 'https://www.thoughtworks.com/radar' },
+      { label: 'MITRE ATT&CK resources', url: 'https://attack.mitre.org/resources/' },
+    ],
+  },
+  {
+    title: 'Reverse-engineered design systems',
+    category: 'Knowledge',
+    summary: 'Radar Assess, parked: extract tokens and component patterns from legacy visuals with multimodal models — trigger is the first UI consolidation.',
+    body: `Fragmented legacy interfaces often hold their "design standard" only as a loose collection of pages, marketing materials, and screenshots — auditing that estate into a unified foundation by hand is slow and thankless. Multimodal models automate the extraction: feed websites, screenshots, and UI fragments to a vision-capable model and pull out core design tokens (color palettes, typography scales, spacing rules) plus recurring component patterns, synthesized into a structured semantic representation of a design system. Piped into component tooling, the output accelerates a formal, maintainable library.
+
+Beyond the audit savings, the technique is a stepping stone toward AI-ready design systems: for brownfield design debt, an extracted baseline is the practical start before any full redesign or front-end standardization.
+
+Status: parked behind a legacy estate. Trigger: the first UI consolidation or design-token audit — nothing here to reverse-engineer until then. Sibling capability, opposite direction: the browser sensor's vision reading, which checks rendered output against intent rather than extracting systems from it.`,
+    considered: true,
+    implemented: false,
+    wanted: false,
+    tags: ['design-system', 'tokens', 'multimodal', 'reverse-engineering', 'out-of-scope'],
+    links: [
+      { label: 'ThoughtWorks Radar — design systems', url: 'https://www.thoughtworks.com/radar' },
     ],
   },
 ];
