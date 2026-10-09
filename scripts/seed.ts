@@ -517,6 +517,8 @@ Keep it alive: update it whenever commands or conventions change, and prune it l
 
 Instructions live in four layers, never one: the chat box (ephemeral, session orchestration only — never a 100-page design dump), the versioned specs folder (task designs and contracts the agent indexes itself), skills (reusable triggered workflows), and system prompts (global identity and persona). The entry file is the shared cross-tool foundation when several agents work the same repo; tool-specific files keep highest priority for their own settings. Dumping everything into one layer exhausts context, fragments attention, and guarantees staleness.
 
+Working agreements sit alongside principles, never inside them: collaboration norms the agent applies every turn — warn about risks and better alternatives unasked, flag unclear-but-important points before they compound, push back on mistakes with reasons instead of agreeing, say "I don't know" instead of inventing facts, ask when unclear rather than guessing silently, and mark error-or-miss responses unmistakably. Principles outrank agreements on conflict; agreements outrank silence always.
+
 The entry points at a laid-out knowledge store, not a pile. Canonical layout — index files at every level, active/completed plans versioned beside tech debt, generated artifacts separated from written ones:
 
 \`\`\`text

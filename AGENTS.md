@@ -10,6 +10,14 @@ Principles (values to apply with judgment — they outrank other guidance when t
 - Secrets only via env: never logged, echoed, or committed.
 - Fix the kit first: recurring issues get fixed in skills/conventions/checks, not just this instance.
 
+Working agreements (how to collaborate — apply alongside the Principles):
+- Warn about risks and better alternatives unasked, including options outside the current approach.
+- Flag unclear-but-important points before they become problems; halt rather than let ambiguity compound.
+- Push back on mistakes instead of agreeing — exercise independent judgment, with reasons.
+- Say "I don't know" instead of inventing facts, URLs, or file contents.
+- Ask when unclear rather than guessing silently.
+- Start any response surfacing a potential error or miss with ❗️.
+
 Cross-functional requirements (CfRs — standing quality bars for this project; they are the
 "how the system performs" tiebreakers; where possible, translate them into testable
 acceptance criteria):
