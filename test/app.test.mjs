@@ -87,6 +87,20 @@ describe('archify', () => {
 });
 
 describe('login', () => {
+  it('GET /register offers registration and links back to sign-in', async () => {
+    const res = await fetch(`${BASE}/register`);
+    assert.equal(res.status, 200);
+    const html = await res.text();
+    assert.match(html, /id="registerForm"/);
+    for (const name of ['name', 'email', 'password']) {
+      assert.match(html, new RegExp(`name="${name}"`));
+    }
+    assert.match(html, /minlength="8"/);
+    assert.match(html, /href="\/login"/);
+    const login = await fetch(`${BASE}/login`);
+    assert.match(await login.text(), /href="\/register"/);
+  });
+
   it('GET /admin without a session redirects to /login', async () => {
     const res = await fetch(`${BASE}/admin`, { redirect: 'manual' });
     assert.ok([301, 302, 303, 307, 308].includes(res.status), `expected redirect, got ${res.status}`);

@@ -166,7 +166,7 @@ enforces). Read `architecture.md` before changing any route/table/flow.
 - Email/password via better-auth; the password hash and never the provider
   credential are stored. `auth.json` is only probed for existence — its
   contents are not read.
-- `signUp` API is enabled for seeding convenience — no register UI exists.
+- Email/password registration is available at `/register`; new accounts are stored in the installation's local SQLite database.
 - Astro's origin check blocks cross-site mutations; browser fetches send JSON
   `content-type`, which passes.
 

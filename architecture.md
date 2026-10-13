@@ -19,6 +19,7 @@ Astro 7 SSR (`output: 'server'`, `@astrojs/node` standalone) + better-auth
 | `/mods/<slug>` | `src/pages/mods/[id].astro` | public | markdown `body` rendered via marked |
 | `/harness` | `src/pages/harness.astro` | public | mermaid map (`C4Diagram.astro`) + snapshot panel + `?v=N` switcher |
 | `/login` | `src/pages/login.astro` | public | `#loginForm` → `auth-client` sign-in, redirects to `/admin` |
+| `/register` | `src/pages/register.astro` | public | `#registerForm` → `auth-client` sign-up, redirects to the catalog |
 | `/admin` | `src/pages/admin.astro` | session (middleware redirect) | mod CRUD form + snapshot buttons; embeds mods JSON for the client |
 | `/api/mods` | `src/pages/api/mods.ts` | GET public; mutations session-checked | list / create / update / delete |
 | `/api/harness-versions` | `src/pages/api/harness-versions.ts` | GET public; POST/DELETE session-checked | list / snapshot (auto-bumps version + writes `data/c4/vN.mmd`) / delete |

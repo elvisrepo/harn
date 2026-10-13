@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+const session = Astro.locals.session;
+---
+
+<Base title="Create an account" session={session}>
+  <div class="card login-card">
+    <p class="kicker">Harness — register</p>
+    <h1 style="margin-top: 0">Create an account</h1>
+    <form id="registerForm" style="display: flex; flex-direction: column; gap: 0.85rem">
+      <label>
+        Name
+        <input type="text" name="name" required autocomplete="name" />
+      </label>
+      <label>
+        Email
+        <input type="email" name="email" required autocomplete="email" />
+      </label>
+      <label>
+        Password (at least 8 characters)
+        <input type="password" name="password" required minlength="8" autocomplete="new-password" />
+      </label>
+      <button class="btn" type="submit">Create account</button>
+      <div id="err" class="error" role="alert" hidden></div>
+    </form>
+    <p class="muted small">Already have an account? <a href="/login">Sign in</a>.</p>
+  </div>
+</Base>
+
+<script>
+  import { authClient } from '../lib/auth-client.ts';
+
+  const form = document.getElementById('registerForm') as HTMLFormElement;
+  const err = document.getElementById('err')!;
+  const button = form.querySelector('button')!;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    err.hidden = true;
+    button.disabled = true;
+    const data = new FormData(form);
+    try {
+      const res = await authClient.signUp.email({
+        name: String(data.get('name')).trim(),
+        email: String(data.get('email')).trim(),
+        password: String(data.get('password')),
+      });
+      if (res.error) {
+        err.textContent = res.error.message ?? 'Registration failed';
+        err.hidden = false;
+      } else {
+        window.location.href = '/';
+      }
+    } catch {
+      err.textContent = 'Registration failed. Please try again.';
+      err.hidden = false;
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
