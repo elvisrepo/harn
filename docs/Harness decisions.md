@@ -711,3 +711,28 @@ Decisions (2026-09-17 — built):
 3. **Unit-pinned** (valid/trimmed/invalid/non-throwing cases) + live
    proof (authed garbage POSTs now 400 across the board). Fuzz probes
    stay as the regression net.
+
+---
+
+## UI review: rendered behavior is the assertion
+
+Decisions (2026-10-14 — built):
+
+1. **Assert geometry as well as state.** At 390px the catalog set `hidden`
+   correctly while mobile `display: block` rendered every row. The shared
+   hidden rule now wins. `scripts/qa-usability.mjs`, wired into `check`,
+   tests visible filter results, URL restoration, compact headers, and
+   overflow in dark/light themes. Authenticated checks cover Manage search,
+   pending/failing/retried saves (intercepted HTTP, no catalog writes), and
+   the unsaved-edit guard.
+2. **Snapshot identity stays explicit.** Historical headings name their
+   version; “view current” resolves the actual current snapshot. Facts and
+   changes precede the expandable map; secondary diagrams are collapsed.
+   Browser checks follow the historical-to-current navigation.
+3. **Keep the two shortlists distinct.** Wanted remains a catalog flag;
+   Reading shortlist is a browser-only reading workspace. Existing storage
+   keys stay intact. Move controls and explicit Preview supplement mouse
+   drag/hover with touch and keyboard actions.
+4. **Saving is observable and durable guidance is visible.** Pending saves
+   block duplicate submits, failures retain edits, success survives reload,
+   and the editor explains seed mirroring. No automatic seed rewriting.

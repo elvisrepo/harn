@@ -16,7 +16,7 @@
   --border-strong: #2d3542;
   --text: #e5e8ed;
   --dim: #98a1ad;
-  --faint: #6b7480;
+  --faint: #8993a0;
 
   --accent: #e3b35c;
   --accent-ink: #171209;
@@ -45,14 +45,18 @@
     --border-strong: #cfc8ba;
     --text: #1c1e23;
     --dim: #5f6670;
-    --faint: #8b919b;
-    --accent: #a06a15;
+    --faint: #68707b;
+    --accent: #905e10;
     --accent-ink: #ffffff;
     --link: #8a5a0e;
-    --green: #2e8b3d;
+    --green: #267834;
     --sky: #1e6fb8;
     --red: #c14339;
   }
+}
+
+[hidden] {
+  display: none !important;
 }
 
 * {
@@ -155,7 +159,7 @@ h2 {
   gap: 0.55rem;
   margin: 0 0 0.35rem;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.16em;
@@ -217,6 +221,11 @@ h2 {
   font-size: 0.9rem;
   padding: 0.35rem 0.6rem;
   border-radius: var(--radius-sm);
+}
+.nav a[aria-current="page"] {
+  color: var(--accent);
+  background: var(--surface2);
+  font-weight: 600;
 }
 .nav a:hover {
   color: var(--text);
@@ -284,7 +293,7 @@ h2 {
   border: 1px solid var(--border);
   color: var(--dim);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -321,6 +330,10 @@ h2 {
 }
 .badge.soft::before {
   background: var(--accent);
+}
+.badge.no {
+  color: var(--faint);
+  border-color: transparent;
 }
 .badge.no::before {
   background: transparent;
@@ -411,7 +424,7 @@ table {
 }
 th {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.09em;
@@ -445,9 +458,9 @@ td.name a:hover {
 }
 td .summary {
   margin-top: 3px;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   color: var(--dim);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 /* ---------- cards / admin ---------- */
@@ -630,6 +643,8 @@ button.btn.danger:hover {
     padding: 1.1rem 1rem 3rem;
   }
   .topbar-inner {
+    padding-block: 0.65rem;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.5rem 1rem;
   }
@@ -639,6 +654,13 @@ button.btn.danger:hover {
     flex-wrap: wrap;
     border-top: 1px solid var(--border);
     padding-top: 0.45rem;
+  }
+  .nav {
+    gap: 0.15rem;
+  }
+  .nav a {
+    padding: 0.4rem;
+    font-size: 0.82rem;
   }
   .who .email {
     display: none;
@@ -724,5 +746,35 @@ button.btn.danger:hover {
   }
   .login-card {
     margin-top: 6vh;
+  }
+}
+.catalog-statuses {
+  display: none;
+}
+.filter-feedback {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0;
+}
+input, textarea, select {
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 720px) {
+  .catalog-table td.status-cell {
+    display: none;
+  }
+  .catalog-statuses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+  }
+  .catalog-table td.name::before {
+    content: none;
+  }
+  .form-actions {
+    flex-wrap: wrap;
   }
 }

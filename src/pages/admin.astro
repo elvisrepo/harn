@@ -10,7 +10,6 @@ const versions = await listHarnessVersions();
 const categories = [...new Set(mods.map((m) => m.category))].sort();
 const session = Astro.locals.session;
 const userEmail = session?.user?.email ?? 'unknown';
-const editingId = Astro.url.searchParams.get('edit');
 ---
 
 <Base title="Manage mods" session={session}>
@@ -23,8 +22,49 @@ const editingId = Astro.url.searchParams.get('edit');
 
   <script type="application/json" id="mods-data" set:html={JSON.stringify(mods).replace(/</g, '\\u003c')}></script>
 
+  <details class="card" id="existingMods">
+    <summary>Find and edit existing mods ({mods.length})</summary>
+    <label style="margin-top:1rem">Search existing mods
+      <input type="search" id="manageSearch" placeholder="Title, summary, or category" />
+    </label>
+    <p id="manageCount" class="muted small" role="status">{mods.length} mods</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {mods.map((m) => (
+          <tr data-mod-search={`${m.title} ${m.summary} ${m.category}`.toLowerCase()}>
+            <td class="name">
+              <a href={`/mods/${m.slug}`}>{m.title}</a>
+              <div class="muted small">{m.category}</div>
+            </td>
+            <td>
+              <span class={m.considered ? 'badge yes' : 'badge no'}>
+                {m.considered ? '✓ considered' : '✗ not considered'}
+              </span>{' '}
+              <span class={m.implemented ? 'badge yes' : 'badge no'}>
+                {m.implemented ? '✓ implemented' : '✗ not implemented'}
+              </span>
+              {m.wanted && <span class="badge want">★ wanted</span>}
+            </td>
+            <td style="text-align: right; white-space: nowrap" data-label="Actions">
+              <button class="btn ghost" data-edit={m.id}>Edit</button>{' '}
+              <button class="btn danger" data-del={m.id}>Delete</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </details>
+
   <div class="card">
     <h2 id="formTitle" style="margin-top: 0">New mod</h2>
+    <p class="muted small">Saving updates this installation. Mirror catalog changes into <code>scripts/seed.ts</code> before reseeding, which would otherwise overwrite them.</p>
     <form id="modForm" class="form-grid">
       <label class="full">
         Title *
@@ -49,7 +89,7 @@ const editingId = Astro.url.searchParams.get('edit');
         Notes / thoughts (markdown)
         <textarea name="body" rows="8" placeholder="What is it, and what are our thoughts?"></textarea>
       </label>
-      <div class="full" style="display: flex; gap: 0.6rem; align-items: center">
+      <div class="full form-actions" style="display: flex; gap: 0.6rem; align-items: center">
         <input type="file" id="imgFile" accept="image/png,image/jpeg,image/gif,image/webp" />
         <button class="btn ghost" type="button" id="imgBtn">Upload & insert image</button>
         <span id="imgStatus" class="muted small"></span>
@@ -71,10 +111,10 @@ const editingId = Astro.url.searchParams.get('edit');
       <label class="check-row" style="grid-column: 1 / -1">
         <input type="checkbox" name="wanted" value="1" /> Wanted
       </label>
-      <div class="full" style="display: flex; gap: 0.6rem; align-items: center">
+      <div class="full form-actions" style="display: flex; gap: 0.6rem; align-items: center">
         <button class="btn" type="submit" id="saveBtn">Save mod</button>
         <button class="btn ghost" type="button" id="resetBtn">Start over</button>
-        <span id="formStatus" class="muted small"></span>
+        <span id="formStatus" class="muted small" role="status"></span>
       </div>
     </form>
   </div>
@@ -83,7 +123,7 @@ const editingId = Astro.url.searchParams.get('edit');
   <div class="card">
     <p class="muted small">
       Capture a versioned snapshot of the harness: provider/model, token status
-      (masked), tools, skills, and the current design tokens. v1 was created at
+      (masked), tools, skills, and the estimated context size. v1 was created at
       setup — snapshot again whenever the harness changes.
     </p>
     <form id="snapForm" class="form-grid" style="margin-top:.6rem">
@@ -95,9 +135,9 @@ const editingId = Astro.url.searchParams.get('edit');
         Summary
         <input type="text" name="summary" placeholder="what changed?" autocomplete="off" />
       </label>
-      <div class="full" style="display:flex;gap:.6rem;align-items:center">
+      <div class="full form-actions" style="display:flex;gap:.6rem;align-items:center">
         <button class="btn" type="submit" id="snapBtn">Take snapshot</button>
-        <span id="snapStatus" class="small muted"></span>
+        <span id="snapStatus" class="small muted" role="status"></span>
       </div>
     </form>
   </div>
@@ -134,39 +174,7 @@ const editingId = Astro.url.searchParams.get('edit');
     </tbody>
   </table>
 
-  <h2>All mods ({mods.length})</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Status</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {mods.map((m) => (
-        <tr>
-          <td class="name">
-            <a href={`/mods/${m.slug}`}>{m.title}</a>
-            <div class="muted small">{m.category}</div>
-          </td>
-          <td>
-            <span class={m.considered ? 'badge yes' : 'badge no'}>
-              {m.considered ? '✓ considered' : '✗ not considered'}
-            </span>{' '}
-            <span class={m.implemented ? 'badge yes' : 'badge no'}>
-              {m.implemented ? '✓ implemented' : '✗ not implemented'}
-            </span>
-            {m.wanted && <span class="badge want">★ wanted</span>}
-          </td>
-          <td style="text-align: right; white-space: nowrap" data-label="Actions">
-            <button class="btn ghost" data-edit={m.id}>Edit</button>{' '}
-            <button class="btn danger" data-del={m.id}>Delete</button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
+
 </Base>
 
 <script>
@@ -194,13 +202,36 @@ const editingId = Astro.url.searchParams.get('edit');
   const formStatus = document.getElementById('formStatus')!;
   const statuses = ['considered', 'implemented', 'wanted'];
   let editingId: string | null = null;
+  let dirty = false;
+  let saving = false;
+  const saveBtn = document.getElementById('saveBtn') as HTMLButtonElement;
+  form.addEventListener('input', () => { dirty = true; });
+  form.addEventListener('change', () => { dirty = true; });
+  window.addEventListener('beforeunload', (event) => {
+    if (dirty) event.preventDefault();
+  });
+  const savedMessage = sessionStorage.getItem('mod-save-message');
+  if (savedMessage) {
+    formStatus.textContent = savedMessage;
+    sessionStorage.removeItem('mod-save-message');
+  }
+  const search = document.getElementById('manageSearch') as HTMLInputElement;
+  search.addEventListener('input', () => {
+    let visible = 0;
+    document.querySelectorAll<HTMLTableRowElement>('[data-mod-search]').forEach((row) => {
+      row.hidden = !row.dataset.modSearch!.includes(search.value.trim().toLowerCase());
+      if (!row.hidden) visible++;
+    });
+    document.getElementById('manageCount')!.textContent = `${visible} of ${mods.length} mods`;
+  });
 
   function setStatus(msg: string) {
     formStatus.textContent = msg;
-    setTimeout(() => (formStatus.textContent = ''), 4000);
   }
 
   function fillForm(m: (typeof mods)[number]) {
+    if (dirty && !confirm('Discard unsaved changes?')) return false;
+    dirty = false;
     editingId = m.id;
     formTitle.textContent = `Edit: ${m.title}`;
     const el = (name: string) => form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement;
@@ -214,9 +245,14 @@ const editingId = Astro.url.searchParams.get('edit');
     for (const s of statuses) {
       (form.elements.namedItem(s) as HTMLInputElement).checked = (m as unknown as Record<string, boolean>)[s];
     }
+    (document.getElementById('existingMods') as HTMLDetailsElement).open = false;
+    el('title').focus();
+    return true;
   }
 
   function resetForm() {
+    if (dirty && !confirm('Discard unsaved changes?')) return;
+    dirty = false;
     editingId = null;
     formTitle.textContent = 'New mod';
     form.reset();
@@ -246,6 +282,7 @@ const editingId = Astro.url.searchParams.get('edit');
     const { selectionStart: s = ta.value.length, selectionEnd: e = ta.value.length } = ta;
     ta.value = `${ta.value.slice(0, s)}${tag}\n${ta.value.slice(e)}`;
     ta.focus();
+    dirty = true;
     status.textContent = 'Inserted ✓';
     setTimeout(() => (status.textContent = ''), 4000);
   });
@@ -265,6 +302,8 @@ const editingId = Astro.url.searchParams.get('edit');
       const m = mods.find((x) => x.id === btn.dataset.del);
       if (!m) return;
       if (!confirm(`Delete "${m.title}"?`)) return;
+      if (dirty && !confirm('Discard unsaved changes and delete this mod?')) return;
+      dirty = false;
       const res = await fetch(`/api/mods?id=${m.id}`, {
         method: 'DELETE',
         headers: { 'content-type': 'application/json' },
@@ -276,6 +315,7 @@ const editingId = Astro.url.searchParams.get('edit');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (saving) return;
     const data = new FormData(form);
     const links: LinkRec[] = String(data.get('links') || '')
       .split('\n')
@@ -303,18 +343,30 @@ const editingId = Astro.url.searchParams.get('edit');
         .filter(Boolean),
       links,
     };
-    const res = await fetch('/api/mods', {
-      method: editingId ? 'PUT' : 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const body = await res.json().catch(() => ({}));
-    if (res.ok) {
-      setStatus(editingId ? 'Updated ✓' : 'Created ✓');
-      resetForm();
-      setTimeout(() => window.location.reload(), 300);
-    } else {
-      setStatus(`Error: ${(body as { error?: string }).error ?? res.status}`);
+    saving = true;
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+    setStatus('Saving…');
+    try {
+      const res = await fetch('/api/mods', {
+        method: editingId ? 'PUT' : 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok) {
+        dirty = false;
+        sessionStorage.setItem('mod-save-message', `${editingId ? 'Updated' : 'Created'} ✓ — mirror this change into scripts/seed.ts before reseeding.`);
+        window.location.reload();
+      } else {
+        setStatus(`Error: ${(body as { error?: string }).error ?? res.status}`);
+      }
+    } catch {
+      setStatus('Could not save. Check your connection and retry; your edits are still here.');
+    } finally {
+      saving = false;
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save mod';
     }
   });
 
@@ -329,19 +381,30 @@ const editingId = Astro.url.searchParams.get('edit');
   const snapStatus = document.getElementById('snapStatus')!;
   snapForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (dirty) { setStatus('Save or discard your mod edits before taking a snapshot.'); return; }
+    const snapBtn = document.getElementById('snapBtn') as HTMLButtonElement;
+    if (snapBtn.disabled) return;
+    snapBtn.disabled = true;
     const data = new FormData(snapForm);
-    snapStatus.textContent = 'snapshotting…';
-    const res = await fetch('/api/harness-versions', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ label: data.get('label'), summary: data.get('summary') }),
-    });
-    const body = await res.json().catch(() => ({}));
-    if (res.ok) {
-      snapStatus.textContent = `v${(body as { version: number }).version} created ✓`;
-      setTimeout(() => window.location.reload(), 400);
-    } else {
-      snapStatus.textContent = `Error: ${(body as { error?: string }).error ?? res.status}`;
+    try {
+      snapStatus.textContent = 'snapshotting…';
+      const res = await fetch('/api/harness-versions', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ label: data.get('label'), summary: data.get('summary') }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok) {
+        snapStatus.textContent = `v${(body as { version: number }).version} created ✓`;
+        sessionStorage.setItem('mod-save-message', `Snapshot v${(body as { version: number }).version} created ✓`);
+        window.location.reload();
+      } else {
+        snapStatus.textContent = `Error: ${(body as { error?: string }).error ?? res.status}`;
+      }
+    } catch {
+      snapStatus.textContent = 'Could not take snapshot. Check your connection and retry.';
+    } finally {
+      snapBtn.disabled = false;
     }
   });
 

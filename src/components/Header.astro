@@ -3,22 +3,23 @@ interface Props {
   session?: { user: { name?: string; email?: string } } | null;
 }
 const { session = null } = Astro.props;
+const currentPath = Astro.url.pathname;
 ---
 <header class="topbar">
   <div class="wrap topbar-inner">
     <a class="brand" href="/">⚙ Harness Mods</a>
     <nav class="nav">
-      <a href="/">Catalog</a>
-      <a href="/articles">Articles</a>
-      <a href="/harness">Harness map</a>
-      <a href="/docs/coupling/dashboard.html">Coupling</a>
-      <a href="/docs/sensors/history.html">Sensors</a>
-      <a href="/admin">Manage</a>
+      <a href="/" aria-current={currentPath === '/' || currentPath.startsWith('/mods/') ? 'page' : undefined}>Catalog</a>
+      <a href="/articles" aria-current={currentPath === '/articles' ? 'page' : undefined}>Articles</a>
+      <a href="/harness" aria-current={currentPath === '/harness' ? 'page' : undefined}>Harness map</a>
+      <a href="/docs/coupling/dashboard.html" aria-current={currentPath === '/docs/coupling/dashboard.html' ? 'page' : undefined}>Coupling</a>
+      <a href="/docs/sensors/history.html" aria-current={currentPath === '/docs/sensors/history.html' ? 'page' : undefined}>Sensors</a>
+      <a href="/admin" aria-current={currentPath === '/admin' ? 'page' : undefined}>Manage</a>
     </nav>
     <div class="who">
       {session ? (
         <>
-          <span class="muted">{session.user.email}</span>
+          <span class="email">{session.user.email}</span>
           <button id="logout" class="link-btn" type="button">Sign out</button>
         </>
       ) : (
@@ -37,52 +38,3 @@ const { session = null } = Astro.props;
     window.location.href = '/';
   });
 </script>
-
-<style>
-  .topbar {
-    border-bottom: 1px solid var(--border);
-    background: var(--panel);
-  }
-  .topbar-inner {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    padding-block: 0.75rem;
-  }
-  .brand {
-    font-weight: 700;
-    color: var(--text);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .nav {
-    display: flex;
-    gap: 1rem;
-    flex: 1;
-  }
-  .nav a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 0.95rem;
-  }
-  .nav a:hover {
-    color: var(--text);
-  }
-  .who {
-    font-size: 0.9rem;
-  }
-  .who a {
-    color: var(--accent);
-    text-decoration: none;
-  }
-  .link-btn {
-    background: none;
-    border: none;
-    color: var(--accent);
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-family: inherit;
-    margin-left: 0.75rem;
-    padding: 0;
-  }
-</style>

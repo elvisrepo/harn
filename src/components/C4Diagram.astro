@@ -5,6 +5,7 @@
 interface Props { graph: string }
 const { graph = '' } = Astro.props as Props;
 ---
+<button class="btn ghost" type="button" id="mapSize" aria-pressed="false" aria-controls="harness-mermaid">View full-size map</button>
 <div class="mmd" id="harness-mermaid" aria-label="C4 architecture of the pi coding-agent harness" data-graph={graph}></div>
 
 <script>
@@ -13,6 +14,12 @@ const { graph = '' } = Astro.props as Props;
   const root = document.getElementById('harness-mermaid');
   if (!root) throw new Error('harness-mermaid container missing');
   const graph = root.dataset.graph || '';
+  document.getElementById('mapSize')?.addEventListener('click', (event) => {
+    const expanded = root.classList.toggle('expanded');
+    const button = event.currentTarget as HTMLButtonElement;
+    button.setAttribute('aria-pressed', String(expanded));
+    button.textContent = expanded ? 'Fit map to page' : 'View full-size map';
+  });
 
   mermaid.initialize({
     startOnLoad: false,
@@ -60,6 +67,10 @@ const { graph = '' } = Astro.props as Props;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding: 0.4rem 0;
+  }
+  .mmd.expanded :global(svg) {
+    max-width: none !important;
+    width: 1600px;
   }
   .mmd svg {
     max-width: 100%;

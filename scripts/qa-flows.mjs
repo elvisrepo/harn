@@ -16,6 +16,7 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ensureServer } from './boot-preview.mjs';
+import { checkUsability } from './qa-usability.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const QA = path.join(root, '.pi', 'skills', 'browser-qa', 'scripts', 'qa.mjs');
@@ -28,7 +29,7 @@ let serverCleanup = async () => {};
 
 const flows = [
   { name: 'catalog', path: '/', args: ['--assert', 'main', '--text', 'Harness Mods', '--shot', path.join(SHOT_DIR, 'check-catalog.png')] },
-  { name: 'harness', path: '/harness', args: ['--wait', '.mmd svg', '--assert', '.ver-switch .vs-item', '--assert', '#harness-mermaid', '--eval', 'document.querySelectorAll("#harness-mermaid svg").length', '--shot', path.join(SHOT_DIR, 'check-harness.png')] },
+  { name: 'harness', path: '/harness', args: ['--wait', '.mmd svg', '--assert', '#snapshotVersion', '--assert', '#harness-mermaid', '--eval', 'document.querySelectorAll("#harness-mermaid svg").length', '--shot', path.join(SHOT_DIR, 'check-harness.png')] },
   { name: 'archify', path: '/docs/archify/harness-mods.architecture.html', args: ['--assert', 'svg', '--shot', path.join(SHOT_DIR, 'check-archify.png')] },
 ];
 if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
@@ -53,6 +54,8 @@ try {
         : { raw: (r.stderr || r.stdout || '').slice(0, 200) },
     });
   }
+  const usability = await checkUsability(BASE);
+  results.push({ name: 'usability', ok: usability.ok, details: usability });
 } finally {
   await serverCleanup();
 }
@@ -63,6 +66,12 @@ if (useJson) {
 } else {
   console.log(`qa-flows · ${BASE}`);
   for (const r of results) {
+    if (r.name === 'usability') {
+      for (const assertion of r.details.assertions) {
+        console.log(`  ${assertion.pass ? '✓' : '✗'} ${assertion.name}${assertion.error ? ` · ${assertion.error}` : ''}`);
+      }
+      continue;
+    }
     const s = r.details?.summary ?? {};
     console.log(`  ${r.ok ? '✓' : '✗'} ${r.name}  (asserts ${s.failedAssertions ?? '-'} failed · console ${s.consoleErrors ?? '-'} err · pageErrs ${s.pageErrors ?? '-'} · reqFail ${s.failedRequests ?? '-'})${r.details?.eval ? ` · eval=${r.details.eval}` : ''}${r.details?.errors ? ` · ${r.details.errors}` : ''}`);
   }

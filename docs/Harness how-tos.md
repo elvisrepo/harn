@@ -137,8 +137,8 @@ node bin/archify.mjs deliver architecture <json> /home/sevi/harn/public/docs/arc
 
 The pre-handoff sensor: `astro build` + `astro check` (typecheck) +
 `eslint` + `semgrep` (custom rules) + `depcruise` (layer rules) +
-secrets scan + thin suite + unit coverage + 4 browser behaviour
-flows. Self-contained — if no server is running it boots `astro preview` on
+secrets scan + thin suite + unit coverage + browser behaviour
+flows, including mobile usability and authenticated editing. Self-contained — if no server is running it boots `astro preview` on
 the fresh build (port 54321) and shuts it down after.
 
 ```bash

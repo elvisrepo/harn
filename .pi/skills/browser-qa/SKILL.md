@@ -46,14 +46,14 @@ Screenshots go to `public/screenshots/` (served at `/screenshots/…`):
 node .pi/skills/browser-qa/scripts/qa.mjs http://127.0.0.1:4321/ --assert "main" --text "Harness Mods" --shot public/screenshots/catalog.png --json
 
 # harness map: switcher + mermaid diagram render
-node .pi/skills/browser-qa/scripts/qa.mjs "http://127.0.0.1:4321/harness?v=6" --assert ".ver-switch .vs-item" --assert "#harness-mermaid" --shot public/screenshots/map-v6.png --json
+node .pi/skills/browser-qa/scripts/qa.mjs "http://127.0.0.1:4321/harness?v=6" --assert "#snapshotVersion" --assert "#harness-mermaid" --shot public/screenshots/map-v6.png --json
 
 # login page renders, then full sign-in flow -> /admin (creds via env, never in the file)
 set -a; source .env; set +a
 node .pi/skills/browser-qa/scripts/qa.mjs http://127.0.0.1:4321/login --login --assert "h1" --shot public/screenshots/qa-admin.png
 
 # arbitrary browser-DOM introspection (mermaid rendered? pills? iframes?)
-node .pi/skills/browser-qa/scripts/qa.mjs "http://127.0.0.1:4321/harness?v=6" --eval '({svg: document.querySelectorAll("#harness-mermaid svg").length, pills: document.querySelectorAll(".vs-item").length, iframes: document.querySelectorAll("iframe").length})' --json
+node .pi/skills/browser-qa/scripts/qa.mjs "http://127.0.0.1:4321/harness?v=6" --eval '({svg: document.querySelectorAll("#harness-mermaid svg").length, snapshots: document.querySelectorAll("#snapshotVersion option").length, iframes: document.querySelectorAll("iframe").length})' --json
 
 # archify artifact served same-origin (no 404, svg present)
 node .pi/skills/browser-qa/scripts/qa.mjs http://127.0.0.1:4321/docs/archify/harness-mods.architecture.html --assert "svg" --shot public/screenshots/archify.png

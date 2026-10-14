@@ -14,13 +14,13 @@ Astro 7 SSR (`output: 'server'`, `@astrojs/node` standalone) + better-auth
 
 | Route | File | Auth | Notes |
 |---|---|---|---|
-| `/` | `src/pages/index.astro` | public | searchable catalog; client-side filter JS in-page |
+| `/` | `src/pages/index.astro` | public | searchable catalog; URL-backed client-side filters + result count |
 | `/articles` | `src/pages/articles.astro` | public | reading list: 3 papers × linked mods (matched on mod links) + unmapped |
 | `/mods/<slug>` | `src/pages/mods/[id].astro` | public | markdown `body` rendered via marked |
-| `/harness` | `src/pages/harness.astro` | public | mermaid map (`C4Diagram.astro`) + snapshot panel + `?v=N` switcher |
+| `/harness` | `src/pages/harness.astro` | public | snapshot facts + expandable mermaid map (`C4Diagram.astro`) + `?v=N` selector |
 | `/login` | `src/pages/login.astro` | public | `#loginForm` → `auth-client` sign-in, redirects to `/admin` |
 | `/register` | `src/pages/register.astro` | public | `#registerForm` → `auth-client` sign-up, redirects to the catalog |
-| `/admin` | `src/pages/admin.astro` | session (middleware redirect) | mod CRUD form + snapshot buttons; embeds mods JSON for the client |
+| `/admin` | `src/pages/admin.astro` | session (middleware redirect) | searchable mod list + CRUD form + snapshot buttons; unsaved-edit guard; embeds mods JSON for the client |
 | `/api/mods` | `src/pages/api/mods.ts` | GET public; mutations session-checked | list / create / update / delete |
 | `/api/harness-versions` | `src/pages/api/harness-versions.ts` | GET public; POST/DELETE session-checked | list / snapshot (auto-bumps version + writes `data/c4/vN.mmd`) / delete |
 | `/api/metrics` | `src/pages/api/metrics.ts` | public | Prometheus text exposition (requests, avg/p50 ms, by-status/path) |
@@ -57,6 +57,7 @@ eslint.config.mjs       flat lint config (recommended minus tsc-covered noise)
 .dependency-cruiser.mjs layer rules (routes→lib→db, ops aside, extension isolated)
 scripts/check-secrets.mjs credential-pattern scanner (file:line, never echoes values)
 scripts/qa-flows.mjs    browser behaviour flows (self-boots preview, reaps via preview stop)
+scripts/qa-usability.mjs mobile filters/layout, snapshot navigation, reading shortlist, authenticated editing
 scripts/boot-preview.mjs shared dev/preview boot (qa-flows + thin suite)
 scripts/coupling.mjs    TS-compiler fan-in/fan-out + cycles + dashboard
 scripts/export-versions.mjs / import-versions.mjs portable history round-trip
@@ -103,7 +104,9 @@ In-page scripts (catalog filter, mermaid render, admin form). **Astro
 `<style>` blocks are scoped to compile-time markup: DOM nodes created at
 runtime by page scripts never get the scope attribute, so their CSS must
 use `:global(...)` selectors** (earned: the Preferred list rendered
-unstyled until its rules went global). Design tokens
+unstyled until its rules went global). The reading shortlist remains localStorage-only; Wanted is the separate catalog flag.
+Catalog detail links carry a validated relative return URL.
+Design tokens
 live only in `src/styles/global.css` (dark block + light override) — the C4
 diagram reads them at runtime; they are not snapshot data.
 

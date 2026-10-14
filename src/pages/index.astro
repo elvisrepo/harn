@@ -24,7 +24,7 @@ const session = Astro.locals.session;
   <div class="legend">
     <span><span class="dot" style="background: var(--green)"></span>{stats.implemented} implemented</span>
     <span><span class="dot" style="background: var(--accent)"></span>{stats.considered} considered</span>
-    <span><span class="dot" style="background: var(--amber)"></span>{stats.wanted} wanted</span>
+    <span><span class="dot" style="background: var(--sky)"></span>{stats.wanted} wanted</span>
     <span>{stats.total} total</span>
   </div>
 
@@ -32,15 +32,16 @@ const session = Astro.locals.session;
     <input
       type="search"
       id="q"
+      aria-label="Search mods"
       class="search"
       placeholder="Search by name, summary, tags, category…"
       autocomplete="off"
     />
     <div class="seg" id="statusSeg" role="group" aria-label="Filter by status">
-      <button data-filter="all" class="active">All</button>
-      <button data-filter="considered">Considered</button>
-      <button data-filter="implemented">Implemented</button>
-      <button data-filter="wanted">Wanted</button>
+      <button type="button" aria-pressed="true" data-filter="all" class="active">All</button>
+      <button type="button" aria-pressed="false" data-filter="considered">Considered</button>
+      <button type="button" aria-pressed="false" data-filter="implemented">Implemented</button>
+      <button type="button" aria-pressed="false" data-filter="wanted">Wanted</button>
     </div>
     <select id="catFilter" aria-label="Filter by category">
       <option value="">All categories</option>
@@ -50,8 +51,13 @@ const session = Astro.locals.session;
     </select>
   </div>
 
+  <div class="filter-feedback">
+    <span id="resultCount" class="muted small" role="status">{stats.total} mods</span>
+    <button type="button" id="clearFilters" class="link-btn" hidden>Clear filters</button>
+  </div>
+
   <div class="table-wrap">
-  <table>
+  <table class="catalog-table">
     <thead>
       <tr>
         <th>Mod</th>
@@ -66,7 +72,7 @@ const session = Astro.locals.session;
         <tr
           data-title={m.title.toLowerCase()}
           data-cat={m.category}
-          data-q={(m.title + ' ' + m.summary + ' ' + m.tags.join(' ')).toLowerCase()}
+          data-q={(m.title + ' ' + m.summary + ' ' + m.category + ' ' + m.tags.join(' ')).toLowerCase()}
           data-considered={m.considered ? '1' : '0'}
           data-implemented={m.implemented ? '1' : '0'}
           data-wanted={m.wanted ? '1' : '0'}
@@ -74,23 +80,29 @@ const session = Astro.locals.session;
           <td class="name">
             <a href={`/mods/${m.slug}`}>{m.title}</a>
             <div class="muted small summary">{m.summary}</div>
+            <div class="catalog-statuses">
+              {m.considered && <span class="badge soft">considered</span>}
+              {m.implemented && <span class="badge yes">implemented</span>}
+              {m.wanted && <span class="badge want">wanted</span>}
+              {!m.considered && !m.implemented && !m.wanted && <span class="muted small">Not evaluated</span>}
+            </div>
           </td>
           <td class="muted small" data-label="Category">{m.category}</td>
-          <td data-label="Considered">
+          <td class="status-cell" data-label="Considered">
             {m.considered ? (
               <span class="badge yes">✓ yes</span>
             ) : (
               <span class="badge no">— no</span>
             )}
           </td>
-          <td data-label="Implemented">
+          <td class="status-cell" data-label="Implemented">
             {m.implemented ? (
               <span class="badge yes">✓ yes</span>
             ) : (
               <span class="badge no">— no</span>
             )}
           </td>
-          <td data-label="Wanted">
+          <td class="status-cell" data-label="Wanted">
             {m.wanted ? (
               <span class="badge want">★ yes</span>
             ) : (
@@ -111,14 +123,33 @@ const session = Astro.locals.session;
   const seg = document.getElementById('statusSeg')!;
   const rows = document.getElementById('rows')!;
   const empty = document.getElementById('empty')!;
-  let status = 'all';
+  const count = document.getElementById('resultCount')!;
+  const clear = document.getElementById('clearFilters')!;
+  const params = new URLSearchParams(location.search);
+  q.value = params.get('q') ?? '';
+  cat.value = params.get('category') ?? '';
+  let status = ['considered', 'implemented', 'wanted'].includes(params.get('status') ?? '') ? params.get('status')! : 'all';
+  function paintStatus() {
+    seg.querySelectorAll('button').forEach((b) => {
+      const active = b.dataset.filter === status;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-pressed', String(active));
+    });
+  }
+  clear.addEventListener('click', () => {
+    q.value = '';
+    cat.value = '';
+    status = 'all';
+    paintStatus();
+    apply();
+    q.focus();
+  });
 
   seg.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('button') as HTMLButtonElement | null;
     if (!btn) return;
-    seg.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
-    btn.classList.add('active');
     status = btn.dataset.filter!;
+    paintStatus();
     apply();
   });
 
@@ -140,5 +171,20 @@ const session = Astro.locals.session;
       if (!tr.hidden) visible++;
     });
     empty.hidden = visible !== 0;
+    count.textContent = `${visible} of ${rows.children.length} mods`;
+    clear.hidden = !query && !cat.value && status === 'all';
+    const url = new URL(location.href);
+    for (const [key, value] of [['q', q.value], ['category', cat.value], ['status', status === 'all' ? '' : status]]) {
+      if (value) url.searchParams.set(key, value);
+      else url.searchParams.delete(key);
+    }
+    history.replaceState(null, '', url);
+    rows.querySelectorAll<HTMLAnchorElement>('td.name a').forEach((a) => {
+      const detail = new URL(a.href);
+      detail.searchParams.set('from', url.pathname + url.search);
+      a.href = detail.href;
+    });
   }
+  paintStatus();
+  apply();
 </script>

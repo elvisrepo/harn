@@ -207,16 +207,16 @@ const session = Astro.locals.session;
   </p>
 
   <div class="card">
-    <h2 style="margin-top:0">Preferred mods</h2>
+    <h2 style="margin-top:0">Reading shortlist</h2>
     <p class="muted small" style="margin:.3rem 0 .8rem">
-      Your shortlist — starred below, or your own entries. Kept in this browser only.
+      Your reading workspace — starred below, or your own entries. Kept in this browser only. Wanted in the catalog tracks changes you want in your harness.
     </p>
-    <p class="small" id="preferred"><span class="muted">No preferred mods yet — star any mod below.</span></p>
+    <p class="small" id="preferred"><span class="muted">No reading shortlist entries yet — star any mod below.</span></p>
     <form id="custom-pref" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem">
-      <input id="cp-name" type="text" placeholder="Mod name (e.g. Definition of Done)" maxlength="80" style="flex:2;min-width:180px" />
-      <input id="cp-note" type="text" placeholder="Description…" maxlength="280" style="flex:3;min-width:220px" />
-      <button type="submit">Add</button>
-      <button type="button" id="cp-div" title="Add a separator line (must-mods above, strong consideration below)">+ divider</button>
+      <input id="cp-name" type="text" aria-label="Shortlist entry name" placeholder="Mod name (e.g. Definition of Done)" maxlength="80" style="flex:2;min-width:180px" />
+      <input id="cp-note" type="text" aria-label="Shortlist entry description" placeholder="Description…" maxlength="280" style="flex:3;min-width:220px" />
+      <button class="btn" type="submit">Add</button>
+      <button class="btn ghost" type="button" id="cp-div" title="Add a separator line (must-mods above, strong consideration below)">+ divider</button>
     </form>
   </div>
 
@@ -236,7 +236,7 @@ const session = Astro.locals.session;
             <tbody>
               {a.mods.map((m) => (
                 <tr>
-                  <td><button class="star" data-slug={m.slug} title="Star as preferred" aria-label={`Star ${m.title}`}>☆</button> <a class="prev" data-sum={m.summary} href={`/mods/${m.slug}`}>{m.title}</a></td>
+                  <td><button class="star" data-slug={m.slug} title="Add to reading shortlist" aria-label={`Star ${m.title}`}>☆</button> <a class="prev" data-sum={m.summary} href={`/mods/${m.slug}`}>{m.title}</a></td>
                   <td class="small muted">{m.category}</td>
                   <td class="small">
                     {m.implemented ? '● implemented' : m.wanted ? '○ wanted' : m.considered ? '◐ considered' : '—'}
@@ -263,7 +263,7 @@ const session = Astro.locals.session;
                 <tbody>
                   {c.mods.map((m) => (
                     <tr>
-                      <td><button class="star" data-slug={m.slug} title="Star as preferred" aria-label={`Star ${m.title}`}>☆</button> <a class="prev" data-sum={m.summary} href={`/mods/${m.slug}`}>{m.title}</a></td>
+                      <td><button class="star" data-slug={m.slug} title="Add to reading shortlist" aria-label={`Star ${m.title}`}>☆</button> <a class="prev" data-sum={m.summary} href={`/mods/${m.slug}`}>{m.title}</a></td>
                       <td class="small muted">{m.category}</td>
                       <td class="small">
                         {m.implemented ? '● implemented' : m.wanted ? '○ wanted' : m.considered ? '◐ considered' : '—'}
@@ -290,7 +290,7 @@ const session = Astro.locals.session;
       <summary style="cursor:pointer">Show all {unmapped.length} unmapped mods</summary>
       <p class="small">
         {unmapped.map((m, i) => (
-          <span>{i > 0 && ' · '}<button class="star" data-slug={m.slug} title="Star as preferred" aria-label={`Star ${m.title}`}>☆</button><a class="prev" data-sum={m.summary} href={`/mods/${m.slug}`}>{m.title}</a></span>
+          <span>{i > 0 && ' · '}<button class="star" data-slug={m.slug} title="Add to reading shortlist" aria-label={`Star ${m.title}`}>☆</button><a class="prev" data-sum={m.summary} href={`/mods/${m.slug}`}>{m.title}</a></span>
         ))}
       </p>
     </details>
@@ -333,7 +333,7 @@ const session = Astro.locals.session;
       const slugs = items.filter((it) => it.t === 'slug').map((it) => it.id);
       const box = document.getElementById('preferred');
       if (!items.length) {
-        box.innerHTML = '<span class="muted">No preferred mods yet — star any mod below.</span>';
+        box.innerHTML = '<span class="muted">No reading shortlist entries yet — star any mod below.</span>';
       } else {
         const ol = document.createElement('ol');
         ol.className = 'preflist';
@@ -374,7 +374,19 @@ const session = Astro.locals.session;
           };
           const ctl = document.createElement('span');
           ctl.className = 'pctl';
-          ctl.appendChild(mk('✕', 'Remove', () => removeAt(pos)));
+          const move = (offset) => {
+            const list = loadAll();
+            const [item] = list.splice(pos, 1);
+            list.splice(pos + offset, 0, item);
+            saveAll(list);
+            paint();
+            document.querySelectorAll('#preferred .preflist li')[pos + offset]?.querySelector('button')?.focus();
+          };
+          const up = mk('↑', 'Move up', () => move(-1));
+          up.disabled = pos === 0;
+          const down = mk('↓', 'Move down', () => move(1));
+          down.disabled = pos === items.length - 1;
+          ctl.append(up, down, mk('✕', 'Remove', () => removeAt(pos)));
           li.appendChild(ctl);
           li.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', String(pos));
@@ -407,6 +419,8 @@ const session = Astro.locals.session;
         const on = slugs.includes(b.dataset.slug);
         b.textContent = on ? '★' : '☆';
         b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', String(on));
+        b.setAttribute('aria-label', `${on ? 'Remove from' : 'Add to'} reading shortlist: ${bySlug[b.dataset.slug]}`);
       });
     };
     const removeAt = (pos) => {
@@ -446,7 +460,7 @@ const session = Astro.locals.session;
     );
     paint();
   </script>
-  <div id="modreader" hidden>
+  <div id="modreader" role="region" aria-label="Mod preview" tabindex="-1" hidden>
     <div class="mr-head">
       <strong id="mr-title"></strong>
       <span><a id="mr-open" href="#">open ↗</a> <button class="mr-close" id="mr-close" aria-label="Close">✕</button></span>
@@ -464,8 +478,10 @@ const session = Astro.locals.session;
     const cache = {};
     let timer = null;
     let hideTimer = null;
+    let previewTrigger = null;
     const hideReader = () => {
       reader.setAttribute('hidden', '');
+      if (reader.contains(document.activeElement)) previewTrigger?.focus();
     };
     document.getElementById('mr-close').addEventListener('click', hideReader);
     document.addEventListener('keydown', (e) => {
@@ -475,6 +491,7 @@ const session = Astro.locals.session;
     reader.addEventListener('mouseenter', () => clearTimeout(hideTimer));
     reader.addEventListener('mouseleave', hideReader);
     const showReader = async (a) => {
+      previewTrigger = a;
       const href = a.getAttribute('href');
       mrTitle.textContent = a.textContent || '';
       mrOpen.setAttribute('href', href);
@@ -489,7 +506,7 @@ const session = Astro.locals.session;
         reader.style.left = '1rem';
         reader.style.width = 'min(900px, 94vw)';
       }
-      reader.style.top = `${Math.round(row.bottom) + 8}px`;
+      reader.style.top = `${Math.min(Math.round(row.bottom) + 8, innerHeight * 0.25)}px`;
       reader.removeAttribute('hidden');
       if (cache[href]) {
         mrBody.innerHTML = cache[href];
@@ -505,10 +522,25 @@ const session = Astro.locals.session;
       } catch {
         cache[href] = '<p class="muted">Preview failed to load.</p>';
       }
-      mrBody.innerHTML = cache[href];
+      if (mrOpen.getAttribute('href') === href) mrBody.innerHTML = cache[href];
     };
     document.querySelectorAll('a.prev').forEach((a) => {
+      const preview = document.createElement('button');
+      preview.type = 'button';
+      preview.className = 'mini preview';
+      preview.textContent = 'Preview';
+      preview.setAttribute('aria-label', `Preview ${a.textContent}`);
+      preview.setAttribute('aria-controls', 'modreader');
+      preview.addEventListener('click', async () => {
+        clearTimeout(hideTimer);
+        clearTimeout(timer);
+        await showReader(a);
+        previewTrigger = preview;
+        reader.focus({ preventScroll: true });
+      });
+      a.after(preview);
       a.addEventListener('mouseenter', () => {
+        if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
         clearTimeout(hideTimer);
         clearTimeout(timer);
         timer = setTimeout(() => showReader(a), 350);
@@ -600,13 +632,18 @@ const session = Astro.locals.session;
     font-size: 0.78rem;
     line-height: 1;
     color: var(--dim, #5f6670);
-    width: 1.7rem;
-    height: 1.7rem;
+    width: 2rem;
+    height: 2rem;
     padding: 0;
     font-family: inherit;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+  :global(button.preview) {
+    width: auto;
+    padding: 0 0.5rem;
+    margin-left: 0.4rem;
   }
   :global(button.mini:hover) {
     color: var(--accent, #a06a15);
@@ -623,6 +660,7 @@ const session = Astro.locals.session;
     z-index: 50;
     overflow: auto;
     max-height: 70vh;
+    max-width: calc(100vw - 2rem);
     background: var(--surface, #fff);
     color: var(--text, #1c1e23);
     border: 1px solid var(--border, #cfc8ba);

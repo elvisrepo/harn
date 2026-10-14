@@ -9,10 +9,12 @@ if (!mod) return Astro.redirect('/');
 
 const rendered = await marked.parse(mod.body || '_No notes yet._');
 const session = Astro.locals.session;
+const from = Astro.url.searchParams.get('from');
+const back = from && (from === '/' || from.startsWith('/?')) ? from : '/';
 ---
 
 <Base title={`${mod.title} — Harness Mods`} session={session}>
-  <p class="small" style="margin: 0 0 0.4rem"><a href="/">← back to catalog</a></p>
+  <p class="small" style="margin: 0 0 0.4rem"><a href={back}>← back to catalog</a></p>
   <h1>
     {mod.title}
     {mod.wanted && <span class="badge want" style="margin-left: 0.5rem">★ wanted</span>}
