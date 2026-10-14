@@ -5,8 +5,22 @@
 interface Props { graph: string }
 const { graph = '' } = Astro.props as Props;
 ---
-<button class="btn ghost" type="button" id="mapSize" aria-pressed="false" aria-controls="harness-mermaid">View full-size map</button>
-<div class="mmd" id="harness-mermaid" aria-label="C4 architecture of the pi coding-agent harness" data-graph={graph}></div>
+<button class="btn ghost" type="button" id="mapSize" aria-haspopup="dialog" aria-controls="mapViewer" disabled>View full-size map</button>
+<div id="mapInline">
+  <div class="mmd" id="harness-mermaid" aria-label="C4 architecture of the pi coding-agent harness" data-graph={graph}></div>
+</div>
+<dialog id="mapViewer" class="map-viewer" aria-labelledby="mapViewerTitle">
+  <div class="map-toolbar">
+    <h2 id="mapViewerTitle">Harness map</h2>
+    <div class="map-controls">
+      <button class="btn ghost" type="button" id="mapZoomOut" aria-label="Zoom out">−</button>
+      <button class="btn ghost" type="button" id="mapFit">Fit map</button>
+      <button class="btn ghost" type="button" id="mapZoomIn" aria-label="Zoom in">+</button>
+      <button class="btn" type="button" id="mapClose" autofocus>Close</button>
+    </div>
+  </div>
+  <div id="mapViewport" class="map-viewport" tabindex="0" aria-label="Scrollable harness map"></div>
+</dialog>
 
 <script>
   import mermaid from 'mermaid';
@@ -14,12 +28,47 @@ const { graph = '' } = Astro.props as Props;
   const root = document.getElementById('harness-mermaid');
   if (!root) throw new Error('harness-mermaid container missing');
   const graph = root.dataset.graph || '';
-  document.getElementById('mapSize')?.addEventListener('click', (event) => {
-    const expanded = root.classList.toggle('expanded');
-    const button = event.currentTarget as HTMLButtonElement;
-    button.setAttribute('aria-pressed', String(expanded));
-    button.textContent = expanded ? 'Fit map to page' : 'View full-size map';
+  const openButton = document.getElementById('mapSize') as HTMLButtonElement;
+  const dialog = document.getElementById('mapViewer') as HTMLDialogElement;
+  const viewport = document.getElementById('mapViewport')!;
+  const zoomOut = document.getElementById('mapZoomOut') as HTMLButtonElement;
+  const zoomIn = document.getElementById('mapZoomIn') as HTMLButtonElement;
+  let zoom = 1;
+  function fitMap() {
+    if (!dialog.open) return;
+    const svg = root!.querySelector('svg');
+    if (!svg) return;
+    const bounds = svg.viewBox.baseVal;
+    const fit = Math.min((viewport.clientWidth - 32) / bounds.width, (viewport.clientHeight - 32) / bounds.height);
+    root!.style.setProperty('--map-width', `${bounds.width * fit * zoom}px`);
+    zoomOut.disabled = zoom <= 1;
+    zoomIn.disabled = zoom >= 4;
+  }
+  openButton.addEventListener('click', () => {
+    viewport.append(root);
+    zoom = 1;
+    dialog.showModal();
+    document.body.style.overflow = 'hidden';
+    fitMap();
+    viewport.scrollTo(0, 0);
   });
+  dialog.addEventListener('close', () => {
+    document.getElementById('mapInline')!.append(root);
+    document.body.style.overflow = '';
+    openButton.focus({ preventScroll: true });
+  });
+  document.getElementById('mapClose')?.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  document.getElementById('mapFit')?.addEventListener('click', () => {
+    zoom = 1;
+    fitMap();
+    viewport.scrollTo(0, 0);
+  });
+  zoomIn.addEventListener('click', () => { zoom = Math.min(4, zoom * 1.25); fitMap(); });
+  zoomOut.addEventListener('click', () => { zoom = Math.max(1, zoom / 1.25); fitMap(); });
+  new ResizeObserver(fitMap).observe(viewport);
 
   mermaid.initialize({
     startOnLoad: false,
@@ -53,6 +102,7 @@ const { graph = '' } = Astro.props as Props;
       root.innerHTML = res.svg;
       // file node renders dashed to read as a config note
       root.querySelectorAll('.file rect').forEach((r2) => r2.setAttribute('stroke-dasharray', '5 5'));
+      openButton.disabled = false;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       root.innerHTML =
@@ -68,14 +118,61 @@ const { graph = '' } = Astro.props as Props;
     -webkit-overflow-scrolling: touch;
     padding: 0.4rem 0;
   }
-  .mmd.expanded :global(svg) {
-    max-width: none !important;
-    width: 1600px;
-  }
-  .mmd svg {
+  .mmd :global(svg) {
     max-width: 100%;
     height: auto;
     display: block;
     margin: 0 auto;
+  }
+  .map-viewer {
+    width: calc(100vw - 2rem);
+    height: calc(100dvh - 2rem);
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+  }
+  .map-viewer[open] {
+    display: flex;
+    flex-direction: column;
+  }
+  .map-viewer::backdrop {
+    background: rgb(0 0 0 / 70%);
+  }
+  .map-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .map-toolbar h2 {
+    margin: 0;
+  }
+  .map-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .map-viewport {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 1rem;
+  }
+  .map-viewport .mmd {
+    overflow: visible;
+    min-width: 100%;
+    width: max-content;
+    padding: 0;
+  }
+  .map-viewport :global(svg) {
+    width: var(--map-width);
+    max-width: none !important;
   }
 </style>

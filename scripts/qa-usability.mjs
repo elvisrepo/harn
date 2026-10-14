@@ -1,6 +1,35 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
 
+async function checkMapViewer(page) {
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.locator('#mapSize').click();
+    assert.equal(await page.locator('#mapViewer').evaluate((el) => el.open), true);
+    const fits = () => page.evaluate(() => {
+      const svg = document.querySelector('#mapViewport svg').getBoundingClientRect();
+      const viewport = document.querySelector('#mapViewport').getBoundingClientRect();
+      return svg.left >= viewport.left && svg.right <= viewport.right && svg.top >= viewport.top && svg.bottom <= viewport.bottom;
+    });
+    assert.equal(await fits(), true, `whole map fits the ${width}px overlay`);
+    const initial = await page.locator('#mapViewport svg').evaluate((el) => el.getBoundingClientRect().width);
+    await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
+    assert.ok(await page.locator('#mapViewport svg').evaluate((el) => el.getBoundingClientRect().width) > initial);
+    await page.getByRole('button', { name: 'Fit map', exact: true }).click();
+    assert.equal(await fits(), true);
+    await page.keyboard.press('Escape');
+    await page.locator('#mapInline svg').waitFor();
+    assert.equal(await page.locator('#mapViewer').isVisible(), false);
+    assert.equal(await page.locator('#mapSize').evaluate((el) => el === document.activeElement), true);
+    assert.equal(await page.locator('#mapInline svg').count(), 1);
+    await page.locator('#mapSize').click();
+    await page.getByRole('button', { name: 'Close', exact: true }).click();
+    await page.locator('#mapInline svg').waitFor();
+    assert.equal(await page.locator('#mapViewer').isVisible(), false);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+}
+
 // Instance-specific behavior checks: assertions use rendered geometry so CSS
 // cannot make an attribute-only filter check pass while cards remain visible.
 export async function checkUsability(base) {
@@ -60,8 +89,7 @@ export async function checkUsability(base) {
       await page.waitForURL(`**/harness?v=${current}`);
       assert.equal(await page.locator('#snapshotVersion').inputValue(), current);
       assert.doesNotMatch(await page.locator('h1').innerText(), /historical/);
-      await page.locator('#mapSize').click();
-      assert.equal(await page.locator('#mapSize').getAttribute('aria-pressed'), 'true');
+      await checkMapViewer(page);
     });
     await check('reading shortlist keyboard controls and explicit preview', async () => {
       await page.goto(`${base}/articles`, { waitUntil: 'networkidle' });

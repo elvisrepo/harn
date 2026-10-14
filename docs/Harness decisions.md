@@ -736,3 +736,13 @@ Decisions (2026-10-14 — built):
 4. **Saving is observable and durable guidance is visible.** Pending saves
    block duplicate submits, failures retain edits, success survives reload,
    and the editor explains seed mirroring. No automatic seed rewriting.
+
+
+### Map viewer and page width (2026-10-14)
+
+The inline full-size map clipped the graph into a horizontal scroller.
+Replace that mode with a native modal dialog: fit the whole SVG to the
+available viewport on open, allow zooming/scrolling, and restore the inline
+map plus opener focus on close or Escape. Browser checks cover fit, zoom,
+reset, repeated open/close, and focus return at mobile and desktop sizes.
+Widen the shared shell to 1440px; retain the existing 72ch prose limit.
