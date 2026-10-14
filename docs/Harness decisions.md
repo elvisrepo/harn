@@ -746,3 +746,14 @@ available viewport on open, allow zooming/scrolling, and restore the inline
 map plus opener focus on close or Escape. Browser checks cover fit, zoom,
 reset, repeated open/close, and focus return at mobile and desktop sizes.
 Widen the shared shell to 1440px; retain the existing 72ch prose limit.
+
+
+### Explicit light/dark preference (2026-10-14)
+
+Add a labelled Light/Dark selector to the shared header. Initialize from the
+system preference until a valid browser-local choice exists, then preserve
+that choice across navigation and reloads. Apply the root theme in the head
+before content renders; native controls and code blocks use the same theme.
+Storage failures must leave the page usable and allow switching for the
+current page. Browser checks cover both overrides, persistence, keyboard
+selection, unavailable storage, and the existing mobile layout bars.

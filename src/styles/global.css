@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------------
    Harness Mods — design system
-   Dark default, light via prefers-color-scheme. Engineering-notebook
+   System preference initially, then a saved light/dark choice. Engineering-notebook
    aesthetic: ink neutrals, amber accent, mono micro-labels.
 ------------------------------------------------------------------ */
 
@@ -34,25 +34,23 @@
   --radius-sm: 5px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color-scheme: light;
-    --bg: #f6f4f0;
-    --surface: #ffffff;
-    --surface2: #f1eee8;
-    --surface3: #eae6de;
-    --border: #e0dbd1;
-    --border-strong: #cfc8ba;
-    --text: #1c1e23;
-    --dim: #5f6670;
-    --faint: #68707b;
-    --accent: #905e10;
-    --accent-ink: #ffffff;
-    --link: #8a5a0e;
-    --green: #267834;
-    --sky: #1e6fb8;
-    --red: #c14339;
-  }
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f6f4f0;
+  --surface: #ffffff;
+  --surface2: #f1eee8;
+  --surface3: #eae6de;
+  --border: #e0dbd1;
+  --border-strong: #cfc8ba;
+  --text: #1c1e23;
+  --dim: #5f6670;
+  --faint: #68707b;
+  --accent: #905e10;
+  --accent-ink: #ffffff;
+  --link: #8a5a0e;
+  --green: #267834;
+  --sky: #1e6fb8;
+  --red: #c14339;
 }
 
 [hidden] {
@@ -239,6 +237,10 @@ h2 {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+.who select {
+  font-size: 0.82rem;
+  padding: 0.3rem 0.45rem;
 }
 .who .email {
   max-width: 180px;
@@ -585,10 +587,8 @@ button.btn.danger:hover {
   overflow-x: auto;
   color: var(--text);
 }
-@media (prefers-color-scheme: light) {
-  .prose pre {
-    background: var(--surface2);
-  }
+:root[data-theme='light'] .prose pre {
+  background: var(--surface2);
 }
 .prose code {
   font-family: var(--mono);

@@ -28,6 +28,8 @@ Astro 7 SSR (`output: 'server'`, `@astrojs/node` standalone) + better-auth
 | `/api/auth/[...all]` | `src/pages/api/auth/[...all].ts` | — | better-auth handler; explicit `GET`/`POST` exports (Astro 7 ignores destructured re-exports) |
 
 Shared shell: `src/layouts/Base.astro` + `src/components/Header.astro`.
+The header’s Light/Dark selector stores `harness-theme` in localStorage.
+An inline head script applies the saved choice (or system preference) before paint.
 `src/components/C4Diagram.astro` renders the versioned graph client-side.
 
 ## File map

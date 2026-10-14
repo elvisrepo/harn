@@ -9,6 +9,33 @@ and new snapshots stay on that machine. The catalog and harness history are
 shared within the installation, not owned by individual accounts. Every
 registered user can manage them.
 
+## Screenshots
+
+The searchable catalog, with independent status flags and category filters:
+
+![Harness Mods catalog in dark mode, showing search, filters, and mod statuses](public/screenshots/readme-catalog.png)
+
+<details>
+<summary>Snapshots, full-size map, reading list, and mobile layout</summary>
+
+Versioned harness configuration and capture-time context measurements:
+
+![Harness snapshot with version selection, captured configuration, and context estimate](public/screenshots/readme-snapshot.png)
+
+The map viewer fits the complete diagram and supports zooming:
+
+![Full-size harness map viewer in light mode with fit, zoom, and close controls](public/screenshots/readme-map-viewer.png)
+
+Articles connect the reading list to catalog entries:
+
+![Article reading list with linked mods, preview controls, and a browser-local reading shortlist](public/screenshots/readme-articles.png)
+
+The catalog adapts to a narrow screen:
+
+<img src="public/screenshots/readme-mobile.png" alt="Mobile catalog with compact navigation, search filters, and stacked mod cards" width="390" />
+
+</details>
+
 ## Run locally
 
 Requires Node.js **22.12 or newer** and npm.

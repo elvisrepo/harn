@@ -17,6 +17,10 @@ const currentPath = Astro.url.pathname;
       <a href="/admin" aria-current={currentPath === '/admin' ? 'page' : undefined}>Manage</a>
     </nav>
     <div class="who">
+      <select id="themeSelect" aria-label="Color theme" disabled>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
       {session ? (
         <>
           <span class="email">{session.user.email}</span>
@@ -31,6 +35,20 @@ const currentPath = Astro.url.pathname;
 
 <script>
   import { authClient } from '../lib/auth-client.ts';
+
+  const themeSelect = document.getElementById('themeSelect') as HTMLSelectElement;
+  function applyTheme(theme: string) {
+    document.documentElement.dataset.theme = theme;
+    themeSelect.value = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
+  }
+  applyTheme(document.documentElement.dataset.theme ?? 'dark');
+  themeSelect.disabled = false;
+  themeSelect.addEventListener('change', () => {
+    applyTheme(themeSelect.value);
+    try { localStorage.setItem('harness-theme', themeSelect.value); }
+    catch { /* Keep the selected theme for this page even without storage. */ }
+  });
 
   const btn = document.getElementById('logout');
   btn?.addEventListener('click', async () => {

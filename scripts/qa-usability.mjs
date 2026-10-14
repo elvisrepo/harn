@@ -1,6 +1,39 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
 
+async function checkThemes(browser, base) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'light' });
+  const page = await context.newPage();
+  const background = () => page.locator('body').evaluate((el) => getComputedStyle(el).backgroundColor);
+  try {
+    await page.goto(base, { waitUntil: 'networkidle' });
+    assert.equal(await background(), 'rgb(246, 244, 240)');
+    await page.getByRole('combobox', { name: 'Color theme' }).selectOption('dark');
+    assert.equal(await background(), 'rgb(11, 13, 16)');
+    await page.goto(`${base}/articles`, { waitUntil: 'networkidle' });
+    assert.equal(await background(), 'rgb(11, 13, 16)');
+    assert.equal(await page.getByRole('combobox', { name: 'Color theme' }).inputValue(), 'dark');
+    await page.getByRole('combobox', { name: 'Color theme' }).focus();
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('Enter');
+    assert.equal(await background(), 'rgb(246, 244, 240)');
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.reload({ waitUntil: 'networkidle' });
+    assert.equal(await background(), 'rgb(246, 244, 240)');
+    assert.equal(await page.locator('meta[name="theme-color"]').getAttribute('content'), '#f6f4f0');
+    await page.addInitScript(() => {
+      Storage.prototype.getItem = () => { throw new Error('Storage unavailable'); };
+      Storage.prototype.setItem = () => { throw new Error('Storage unavailable'); };
+    });
+    await page.reload({ waitUntil: 'networkidle' });
+    assert.equal(await background(), 'rgb(11, 13, 16)');
+    await page.getByRole('combobox', { name: 'Color theme' }).selectOption('light');
+    assert.equal(await background(), 'rgb(246, 244, 240)');
+  } finally {
+    await context.close();
+  }
+}
+
 async function checkMapViewer(page) {
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 844 });
@@ -46,6 +79,7 @@ export async function checkUsability(base) {
     catch (error) { assertions.push({ name, pass: false, error: error.stack }); }
   };
   try {
+    await check('theme selection, persistence, keyboard use, and unavailable storage', () => checkThemes(browser, base));
     await check('mobile catalog filters, URL state, and return link', async () => {
       await page.goto(base, { waitUntil: 'networkidle' });
       const rows = page.locator('#rows tr:visible');
