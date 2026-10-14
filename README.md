@@ -26,6 +26,8 @@ The map viewer fits the complete diagram and supports zooming:
 
 ![Full-size harness map viewer in light mode with fit, zoom, and close controls](public/screenshots/readme-map-viewer.png)
 
+Download the map: [3840 × 2400 PNG](public/screenshots/readme-map-viewer.png) · [SVG vector export](public/screenshots/readme-harness-map.svg) (snapshot v31).
+
 Articles connect the reading list to catalog entries:
 
 ![Article reading list with linked mods, preview controls, and a browser-local reading shortlist](public/screenshots/readme-articles.png)
